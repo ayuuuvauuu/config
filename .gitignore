@@ -12,6 +12,7 @@
 !/.viminfo
 !/.config/
 !/.config/systemd
+!/.config/sway
 !.gitignore 
 !/.tmux/
 !/README.md
