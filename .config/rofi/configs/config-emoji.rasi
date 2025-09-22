@@ -1,0 +1,15 @@
+/* ---- 💫 https://github.com/JaKooLit 💫 ---- */
+/* Main Config - emoji */
+
+@import "~/.config/rofi/launchers/type-1/style-11.rasi" 
+
+/* ---- Entry ---- */
+entry {
+  width: 37%;
+}
+
+/* ---- Listview ---- */
+listview {
+  columns: 1;
+  lines: 7;
+}

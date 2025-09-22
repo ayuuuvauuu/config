@@ -1,0 +1,3 @@
+[tabs]
+active   = { fg = "#1e1e2e", bg = "#cdd6f4", bold = true }
+inactive = { fg = "#cdd6f4", bg = "#45475a" }

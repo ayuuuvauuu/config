@@ -1,0 +1,27 @@
+renamed the lts present in /etc/mkinitcpio to .old so that it does not rebuild and acts as recovery
+
+
+disbaled ipv6
+sudo nano /etc/sysctl.conf
+
+
+sudo systemctl disable accounts-daemon.service # disable account info
+sudo systemctl disable rsyslog.service # no logs
+
+# set cache gpu cache cache gpu to 12gb 12GB
+__GL_SHADER_DISK_CACHE_SIZE=12000000000
+
+GRUB_CMDLINE_LINUX_DEFAULT="quiet splash loglevel=0 rd.systemd.show_status=false ipv6.disable=1 vt.global_cursor_default=0"
+
+boot startup no login:
+no user selection
+
+TOO ENABLE ONCE AGAIN DO: sudo systemctl disbale getty@tty1
+then enable sddm
+
+net.ipv6.conf.all.disable_ipv6 = 1
+net.ipv6.conf.default.disable_ipv6 = 1
+net.ipv6.conf.lo.disable_ipv6 = 1
+
+sudo systemctl disable accounts-daemon.service
+

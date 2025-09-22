@@ -1,0 +1,93 @@
+pl-creat home
+pl-create 
+shell ls
+echo dick
+save
+add brown_noise.wav
+pl-create noise
+pl-create interstellar
+q
+pl-create unreal
+pl-create
+tqueue 
+lqueue
+colorscheme cya
+filter f
+filter 
+pl-create flawed_mangoes
+pl-create random-good-stuff
+pl-create n++
+pl-create lock-in
+pl-create come-with-me
+pl-create i have no enemies
+pl-create soothing
+pl-create bass-nation
+live-filter p
+set lib_sort=
+pl-create not-dating-not-just-friends
+player-nex
+pl-create daily_mix
+pl-create revenge-songs
+pl-create peace
+pl-create chill
+pl-create dubstep
+pl-create social-network
+pl-create trap-nation
+pl-create lofi_edm
+pl-rename lofi
+pl-rename energy
+pl-rename chillhop lofi
+pl-rename
+pl-create chillhop
+pl-create hardbass
+player-next
+pl-create sick_beat
+bind -f common . seek +1m
+pl-create energy
+live-filter help
+live-filter L
+bind -f common 4 view queue
+bind -f common N search-prev
+add pilotredsun - 4 & 1-2 Hour Playlist-Mega Mix.mp3
+add ATTITUDE_WITH_REVENGE_KILL_/
+add 
+set lib_sort=play_count
+set lib_sort=track
+bind -f common o toggle play_sorted
+source 
+set lib_sort=date
+set lib_sort=date filename play_count
+add BestOne/
+pl-create relax
+add .
+add Bass_Nation/
+add The_Social_Network_Soundtrack/
+pl-create best
+colorscheme dracula
+colorscheme amazon
+colorscheme default
+colorscheme cyan
+colorscheme zenburn
+colorscheme night
+colorscheme green
+colorscheme gray-88
+colorscheme jellybeans
+colorscheme gruvbox-warm
+colorscheme green-mono-88
+colorscheme gruvbox
+help
+save beset
+pwd
+add BEST PHONK MIX 2024 ※ CHILL PHONK FOR NIGHT DRIVE (LXST CXNTURY TYPE) _ NIGHT CAR MUSIC _ ФОНК 2024 [ ezmp3.cc ].mp
+add _北岳狂夜 [ ezmp3.cc ].mp3
+add BEST PHONK MIX 2024 ※ CHILL PHONK FOR NIGHT DRIVE (LXST CXNTURY TYPE) _ NIGHT CAR MUSIC _ ФОНК 2024 [ ezmp3.cc ].mp3
+add ambient mix [ ezmp3.cc ].mp3
+add _..-. --- ..- -. -.. -.-- --- ..- [ ezmp3.cc ].mp3
+add /media/bro_grammer/
+add everyone is asleep, except you (playlist).mp3
+add 46190f724f18ccd7afc335ff83a0b9/
+add g3oxem x COTIS - till I leave (Official Visualizer).mp3
+add
+bind -f common L push live-filter 
+bind -f common I echo {} 
+play

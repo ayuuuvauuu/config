@@ -1,0 +1,9 @@
+[general]
+theme = "Auto (follow system theme)"
+expert_mode = false
+backup_folder = "/home/bro_grammer/.cache/uad/backups"
+
+[[devices]]
+device_id = "66068b5"
+disable_mode = false
+multi_user_mode = true
