@@ -14,6 +14,7 @@
     "enviromentOptions": [],
     "wrapperOptions": [],
     "showFps": false,
+    "showMangohud": false,
     "useGameMode": false,
     "battlEyeRuntime": true,
     "eacRuntime": true,

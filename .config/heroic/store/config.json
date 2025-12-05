@@ -6,7 +6,7 @@
 		"checkUpdatesInterval": 10,
 		"enableUpdates": false,
 		"addDesktopShortcuts": false,
-		"addStartMenuShortcuts": false,
+		"addStartMenuShortcuts": true,
 		"autoInstallDxvk": true,
 		"autoInstallVkd3d": true,
 		"autoInstallDxvkNvapi": true,
@@ -31,15 +31,14 @@
 		"wineCrossoverBottle": "Heroic",
 		"winePrefix": "/home/brogrammer/Games/Heroic/Prefixes/default",
 		"wineVersion": {
-			"bin": "/usr/bin/wine",
-			"name": "Wine Default - wine-10.9",
-			"type": "wine",
-			"wineserver": "/usr/bin/wineserver"
+			"bin": "/usr/share/steam/compatibilitytools.d/proton-cachyos/proton",
+			"name": "Proton - proton-cachyos",
+			"type": "proton"
 		},
 		"enableEsync": true,
 		"enableFsync": true,
 		"enableMsync": false,
-		"enableWineWayland": false,
+		"enableWineWayland": true,
 		"enableHDR": false,
 		"enableWoW64": false,
 		"eacRuntime": true,
@@ -59,14 +58,23 @@
 			{
 				"appName": "mMGnk37MAQ7gsCAFRgd8JR",
 				"title": "rainworld"
+			},
+			{
+				"appName": "g2m5d5hch4m3SfQGQWqzNK",
+				"title": "wibble wobble"
+			},
+			{
+				"appName": "socZEfzGVBNZ4zD4aRau8G",
+				"title": "hollow knight silksong"
 			}
 		]
 	},
 	"window-props": {
-		"x": 482,
-		"y": 54,
-		"width": 476,
-		"height": 1024,
+		"x": 11,
+		"y": 38,
+		"width": 1898,
+		"height": 1031,
 		"maximized": true
-	}
+	},
+	"theme": "midnightMirage"
 }

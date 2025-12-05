@@ -17,6 +17,42 @@
 			"browserUrl": "",
 			"customUserAgent": "",
 			"launchFullScreen": false
+		},
+		{
+			"runner": "sideload",
+			"app_name": "socZEfzGVBNZ4zD4aRau8G",
+			"title": "hollow knight silksong",
+			"install": {
+				"executable": "/mnt/data/game/Hollow Knight - Silksong/Hollow Knight Silksong.exe",
+				"platform": "Windows",
+				"is_dlc": false
+			},
+			"folder_name": "/mnt/data/game/Hollow Knight - Silksong",
+			"art_cover": "https://cdn2.steamgriddb.com/grid/848ffe097e37ee8768d50dbc688e0757.png",
+			"is_installed": true,
+			"art_square": "https://cdn2.steamgriddb.com/grid/848ffe097e37ee8768d50dbc688e0757.png",
+			"canRunOffline": true,
+			"browserUrl": "",
+			"customUserAgent": "",
+			"launchFullScreen": false
+		},
+		{
+			"runner": "sideload",
+			"app_name": "g2m5d5hch4m3SfQGQWqzNK",
+			"title": "wibble wobble",
+			"install": {
+				"executable": "/mnt/data/game/Wibble Wobble Multiplayer.exe",
+				"platform": "Windows",
+				"is_dlc": false
+			},
+			"folder_name": "/mnt/data/game",
+			"art_cover": "file:///home/brogrammer/Pictures/hyperos-wallpaper-1350x2400-17769.png",
+			"is_installed": true,
+			"art_square": "file:///home/brogrammer/Pictures/hyperos-wallpaper-1350x2400-17769.png",
+			"canRunOffline": true,
+			"browserUrl": "",
+			"customUserAgent": "",
+			"launchFullScreen": false
 		}
 	]
 }
