@@ -12,6 +12,8 @@
 #enable-parallel-downloading
 
 
+change the ttl to 65 to make trick isp into thinking that i am not using hotsopt
+
 NOTE: remove all fish.tmp. files form the fish dir to remove all the temporaye enviroment variables
  required Prgrame to install
 
@@ -20,10 +22,22 @@ https://github.com/oddmario/NVIDIA-Ubuntu-Driver-Guide
 screensy (to share screen)  https://screensy.marijn.it
 
 
+put this in sway config file in /etc/sway/config.d/(the config file) see 
+
+https://bbs.archlinux.org/viewtopic.php?id=291201
+
+dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP=sway
+
+systemctl --user stop pipewire wireplumber xdg-desktop-portal xdg-desktop-portal-wlr
+systemctl --user start wireplumber
+
+
+for wayland screen recording use gpu-screen-recoder-gtk
 for laptpo autocpu freq, powertop ( more search) use h264ify for youtube to use less battery and hardware acc in yt vid
 install dysk, dua-cli, astroterm
 stwich to g++ 12 for no error in nvim, install arttime :)
 use eza insted of ls use zoxide use  use yazi, fd, fzf,rg
+install jq (json parser)
 sccahe (a cacheing system for rust)
 tmux comme u need it
 so (its in yout /usr/bin) a tui for stackvoerflwo

@@ -1,22 +1,6 @@
 # ignore everything
 /*
 /*/
-# but not these
-!.tmux.conf
-!rain.sh
-!/.cargo/
-!/.vimrc
-!/.vim
-!notes
-!done-this
-!/.viminfo
-!/.config/
-!/.config/systemd
-!/.config/sway
-!.gitignore 
-!/.tmux/
-!/README.md
-
 # Got to remove these coz the can leak some personal info 
 .config/*.log
 .config/nvim
@@ -159,3 +143,21 @@
 .config/waybar/.modules.swp
 .config/pavucontrol.ini
 .config/crush/.crush
+
+
+# but not these
+!.tmux.conf
+!rain.sh
+!/.cargo/
+!/.vimrc
+!~/.local/bin/
+!/.vim
+!notes
+!done-this
+!/.viminfo
+!/.config/
+!/.config/systemd
+!/.config/sway
+!.gitignore 
+!/.tmux/
+!/README.md
