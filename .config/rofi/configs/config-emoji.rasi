@@ -8,6 +8,10 @@ entry {
   width: 37%;
 }
 
+window {
+  width: 1000px;
+}
+
 /* ---- Listview ---- */
 listview {
   columns: 1;

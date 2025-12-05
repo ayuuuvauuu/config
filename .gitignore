@@ -161,3 +161,8 @@
 !.gitignore 
 !/.tmux/
 !/README.md
+.cargo/git/db
+.config/Electron
+.config/WhatsApp Desktop
+.config/Electron
+.config/heroic

@@ -335,7 +335,7 @@
 	"format-charging": " {capacity}% {power}w",
 	"format-plugged": "󱘖 {capacity}%",
 	"format-alt-click": "click",
-	"format-full": "{icon} Full",
+	"format-full": "{icon} {power}w Full",
 	"format-alt": "{icon} {time}",
 	"format-icons": [
 		"󰂎", "󰁺", "󰁻", "󰁼", "󰁽", "󰁾", "󰁿", "󰂀", "󰂁", "󰂂", "󰁹"
@@ -697,6 +697,13 @@
 	"on-scroll-down": "~/.config/hypr/scripts/Volume.sh --dec",
 	"smooth-scrolling-threshold": 1,
 },
+
+"custom/power#1": {
+	"format": "⏻ ",
+	"on-click": "~/.config/rofi/scripts/powermenu_t3",
+	"tooltip": true,
+},
+
 "custom/power": {
 	"format": "⏻ ",
 	"on-click": "~/.config/hypr/scripts/Wlogout.sh",

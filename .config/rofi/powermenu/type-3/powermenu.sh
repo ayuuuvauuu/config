@@ -35,17 +35,17 @@ rofi_cmd() {
 }
 
 # Confirmation CMD
-confirm_cmd() {
-	rofi -dmenu \
-		-p 'Confirmation' \
-		-mesg 'Are you Sure?' \
-		-theme ${dir}/shared/confirm.rasi
-}
+# confirm_cmd() {
+# 	rofi -dmenu \
+# 		-p 'Confirmation' \
+# 		-mesg 'Are you Sure?' \
+# 		-theme ${dir}/shared/confirm.rasi
+# }
 
 # Ask for confirmation
-confirm_exit() {
-	echo -e "$yes\n$no" | confirm_cmd
-}
+# confirm_exit() {
+# 	echo -e "$yes\n$no" | confirm_cmd
+# }
 
 # Pass variables to rofi dmenu
 run_rofi() {
@@ -54,7 +54,7 @@ run_rofi() {
 
 # Execute Command
 run_cmd() {
-	selected="$(confirm_exit)"
+	selected="$yes"
 	if [[ "$selected" == "$yes" ]]; then
 		if [[ $1 == '--shutdown' ]]; then
 			systemctl poweroff

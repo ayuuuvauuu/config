@@ -51,7 +51,7 @@
  	"pulseaudio",
  	"custom/separator#dot-line",
  	"pulseaudio#microphone",
- 	"custom/power"
+ 	"custom/power#1" // using rofi power use only power if u want normal
  	]
  },
  

@@ -1,0 +1,110 @@
+{
+  "entries_map": {
+    "bidr.io": [
+      {
+        "host": "match.prod.bidr.io",
+        "include_subdomains": true,
+        "expires_at": 1765637629
+      }
+    ],
+    "google-analytics.com": [
+      {
+        "host": "www.google-analytics.com",
+        "include_subdomains": true,
+        "expires_at": 1794581615
+      }
+    ],
+    "duckduckgo.com": [
+      {
+        "host": "duckduckgo.com",
+        "include_subdomains": false,
+        "expires_at": 1794581768
+      },
+      {
+        "host": "html.duckduckgo.com",
+        "include_subdomains": false,
+        "expires_at": 1794581748
+      },
+      {
+        "host": "external-content.duckduckgo.com",
+        "include_subdomains": false,
+        "expires_at": 1794581750
+      }
+    ],
+    "servo.org": [
+      {
+        "host": "www.servo.org",
+        "include_subdomains": true,
+        "expires_at": 1794581407
+      },
+      {
+        "host": "servo.org",
+        "include_subdomains": true,
+        "expires_at": 1794581605
+      }
+    ],
+    "facebook.net": [
+      {
+        "host": "connect.facebook.net",
+        "include_subdomains": true,
+        "expires_at": 1794581621
+      }
+    ],
+    "googletagmanager.com": [
+      {
+        "host": "www.googletagmanager.com",
+        "include_subdomains": true,
+        "expires_at": 1794581771
+      }
+    ],
+    "cookiepro.com": [
+      {
+        "host": "cookie-cdn.cookiepro.com",
+        "include_subdomains": true,
+        "expires_at": 1794581617
+      }
+    ],
+    "paypalobjects.com": [
+      {
+        "host": "www.paypalobjects.com",
+        "include_subdomains": true,
+        "expires_at": 1794581624
+      }
+    ],
+    "paypal.com": [
+      {
+        "host": "www.paypal.com",
+        "include_subdomains": true,
+        "expires_at": 1826117649
+      }
+    ],
+    "testufo.com": [
+      {
+        "host": "www.testufo.com",
+        "include_subdomains": true,
+        "expires_at": 1826117755
+      }
+    ],
+    "unpkg.com": [
+      {
+        "host": "unpkg.com",
+        "include_subdomains": true,
+        "expires_at": 1794581673
+      }
+    ],
+    "twitter.com": [
+      {
+        "host": "syndication.twitter.com",
+        "include_subdomains": true,
+        "expires_at": 2394184194
+      }
+    ],
+    "fonts.googleapis.com": [
+      {
+        "host": "fonts.googleapis.com",
+        "include_subdomains": false,
+        "expires_at": 1794581628
+      }
+    ]
+  }
+}

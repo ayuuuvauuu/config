@@ -1,0 +1,4 @@
+[mgr]
+sort_by = "btime"
+sort_reverse = true      # or true, if you want reverse order
+sort_dir_first = true     # optional: directories first
