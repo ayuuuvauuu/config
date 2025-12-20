@@ -1,6 +1,6 @@
 main.advanced_view true
 main.audio_codec opus
-main.audio_input device:Default output
+main.audio_input device:Default input
 main.av1_amd_bug_warning_shown false
 main.change_video_resolution false
 main.codec auto

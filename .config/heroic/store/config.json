@@ -56,16 +56,16 @@
 	"games": {
 		"recent": [
 			{
-				"appName": "mMGnk37MAQ7gsCAFRgd8JR",
-				"title": "rainworld"
-			},
-			{
 				"appName": "g2m5d5hch4m3SfQGQWqzNK",
 				"title": "wibble wobble"
 			},
 			{
 				"appName": "socZEfzGVBNZ4zD4aRau8G",
 				"title": "hollow knight silksong"
+			},
+			{
+				"appName": "mMGnk37MAQ7gsCAFRgd8JR",
+				"title": "rainworld"
 			}
 		]
 	},
