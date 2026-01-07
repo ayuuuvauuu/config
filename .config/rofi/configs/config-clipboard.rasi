@@ -5,7 +5,7 @@
 /* ---- Entry ---- */
 entry {
   width: 37%;
-  placeholder: " search clipboard ctrl del-del or alt del-wipe";
+  placeholder: " search clipboard ctrl+del del-1 or alt+del wipe";
 }
 
 /* ---- Listview ---- */

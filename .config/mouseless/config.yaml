@@ -24,8 +24,6 @@ layers:
 # the first layer is active at start
 - name: initial
   bindings:
-    # when tab is held and another key pressed, activate mouse layer
-    tab: tap-hold-next tab ; toggle-layer mouse ; 500
     # when a is held activate mouse layer
     leftalt : tap-hold leftalt; toggle-layer mouse; 500
     # right alt key toggles arrows layer
