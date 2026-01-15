@@ -1,8 +1,11 @@
+
+disbaled ipv6
+sudo nano /etc/sysctl.d/ is me hai
+
+
 renamed the lts present in /etc/mkinitcpio to .old so that it does not rebuild and acts as recovery
 
 
-disbaled ipv6
-sudo nano /etc/sysctl.conf
 
 
 sudo systemctl disable accounts-daemon.service # disable account info
