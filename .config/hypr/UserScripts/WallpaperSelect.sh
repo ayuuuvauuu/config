@@ -7,7 +7,8 @@ wallDIR="$HOME/Pictures/wallpapers"
 SCRIPTSDIR="$HOME/.config/hypr/scripts"
 
 # variables
-focused_monitor=$(hyprctl monitors | awk '/^Monitor/{name=$2} /focused: yes/{print name}')
+# focused_monitor=$(hyprctl monitors | awk '/^Monitor/{name=$2} /focused: yes/{print name}')
+# TODO: for multiple screen
 # swww transition config
 FPS=60
 TYPE="fade"
@@ -27,7 +28,7 @@ RANDOM_PIC="${PICS[$((RANDOM % ${#PICS[@]}))]}"
 RANDOM_PIC_NAME=". random"
 
 # Rofi command
-rofi_command="rofi -i -show -dmenu -config ~/.config/rofi/config-wallpaper.rasi"
+rofi_command="rofi -i -show -dmenu -config ~/.config/rofi/configs/config-wallpaper.rasi"
 
 # Sorting Wallpapers
 menu() {
