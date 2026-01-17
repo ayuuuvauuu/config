@@ -1,0 +1,13 @@
+output "*" {
+  max_render_time 1
+}
+
+output "eDP-1" {
+    mode 1920x1080@60Hz
+    pos 0 0
+    transform normal
+    scale 1
+    scale_filter linear
+    adaptive_sync off
+    dpms on
+}

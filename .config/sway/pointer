@@ -1,0 +1,6 @@
+input "type:pointer" {
+  natural_scroll disabled
+  scroll_factor 1.0
+  accel_profile "flat"
+  pointer_accel -0.1 #current dpi is 1600 # set mouse sensitivity (between -1 and 1)
+}

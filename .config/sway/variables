@@ -1,0 +1,6 @@
+set $term foot
+set $browser firefox
+set $filemanager thunar
+set $editor nvim
+set $launcher rofi
+set $exit nwg-bar -p center -a middle -i 48 -s preset-0.css
