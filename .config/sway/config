@@ -7,13 +7,6 @@ include pointer
 include touchpad
 include effects
 
-# border & title
-# for_window [title="^.*"] border pixel 0, title_format "<b> %class >> %title </b>"
-default_border pixel 2
-
-# font
-font pango:go 11
-
 # mod key used for most binds
 # Mod1 = Alt
 # Mod4 = Super
@@ -82,7 +75,7 @@ bindsym --to-code XF86MonBrightnessUp exec   ~/.config/sway/scripts/Brightness.s
 bindsym --to-code XF86MonBrightnessDown exec  ~/.config/sway/scripts/Brightness.sh --dec
 
 # Reload the configuration file
-bindsym --to-code $Mod+Shift+c reload
+bindsym --to-code $Mod+Shift+c exec sh -c 'notify-send "Reloaded sway"; swaymsg reload'
 
 ###########          Gesture Bindings            ###############
 
@@ -132,28 +125,22 @@ bindsym --to-code $Mod+Shift+$right move right
 
 # Resizing containers
 mode "resize" {
-    bindsym --to-code $left resize shrink width 10px
-    bindsym --to-code $down resize grow height 10px
-    bindsym --to-code $up resize shrink height 10px
-    bindsym --to-code $right resize grow width 10px
 
-    # Ditto, with arrow keys
-    bindsym --to-code Left resize shrink width 10px
-    bindsym --to-code Down resize grow height 10px
-    bindsym --to-code Up resize shrink height 10px
-    bindsym --to-code Right resize grow width 10px
+    bindsym --to-code Shift+l resize shrink width 10px
+    bindsym --to-code Shift+j resize grow height 10px
+    bindsym --to-code Shift+k resize shrink height 10px
+    bindsym --to-code Shift+h resize grow width 10px
+
+    bindsym --to-code l resize grow width 30px
+    bindsym --to-code j resize grow height 30px
+    bindsym --to-code k resize shrink height 30px
+    bindsym --to-code h resize shrink width 30px
 
     # Return to default mode
     bindsym --to-code Return mode "default"
     bindsym --to-code Escape mode "default"
 }
 bindsym --to-code $Mod+r mode "resize"
-
-# Size
-bindsym --to-code Mod1+Up    resize shrink height 10 px or 1 ppt
-bindsym --to-code Mod1+Down  resize grow   height 10 px or 1 ppt
-bindsym --to-code Mod1+Left  resize shrink width  10 px or 1 ppt
-bindsym --to-code Mod1+Right resize grow   width  10 px or 1 ppt
 
 # layout toggle
 bindsym --to-code Mod1+Tab layout toggle tabbed stacking split
@@ -163,19 +150,24 @@ bindsym --to-code $Mod+Tab layout toggle splitv splith
 for_window [urgent="latest"] focus
 focus_on_window_activation   focus
 
-# container layout
-# bindsym --to-code $Mod+h split h
-bindsym --to-code $Mod+v split v
-bindsym --to-code $Mod+Shift+t layout tabbed
-bindsym --to-code $Mod+Shift+s layout stacking
-# bindsym --to-code $Mod+Shift+h layout toggle split
-
-default_orientation horizontal
 
 # make the current focus fullscreen
 bindsym --to-code $Mod+f fullscreen
 
 ###############      Border & Gaps     ###############
+set $border_width 2
+set $blue_bright #0c72a6 
+set $border_bg   #000000
+
+default_border pixel $border_width
+default_floating_border pixel $border_width
+
+###############      Colors        ###############
+client.focused          $blue_bright $blue_bright $blue_bright $blue_bright $blue_bright
+client.focused_inactive $border_bg   $border_bg   $border_bg   $border_bg   $border_bg
+client.unfocused        $border_bg   $border_bg   $border_bg   $border_bg   $border_bg
+client.urgent           #ff0000      #ff0000      #ffffff      #ff0000      #ff0000
+client.placeholder      $border_bg   $border_bg   $border_bg   $border_bg   $border_bg
 
 smart_gaps off
 smart_borders on
@@ -202,7 +194,6 @@ bindsym --to-code Mod1+KP_Subtract         gaps outer current minus 5
 # focus, floating, & sticky
 for_window [app_id="(?i)(?:blueman-manager|azote|gnome-disks)"] floating enable
 for_window [app_id="(?i)(?:pavucontrol|nm-connection-editor|gsimplecal|galculator)"] floating enable
-for_window [app_id="(?i)(?:firefox|chromium)"] border none
 for_window [title="(?i)(?:copying|deleting|moving)"] floating enable
 
 popup_during_fullscreen smart

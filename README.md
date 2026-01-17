@@ -25,7 +25,7 @@ screensy (to share screen)  https://screensy.marijn.it
 put this in sway config file in /etc/sway/config.d/(the config file) see 
 
 https://bbs.archlinux.org/viewtopic.php?id=291201
-
+#screen sharing in wayland
 dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP=sway
 
 systemctl --user stop pipewire wireplumber xdg-desktop-portal xdg-desktop-portal-wlr

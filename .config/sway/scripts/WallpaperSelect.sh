@@ -1,12 +1,9 @@
-#!/bin/bash
-# /* ---- 💫 https://github.com/JaKooLit 💫 ---- */ 
-# This script for selecting wallpapers (SUPER W)
-
 # WALLPAPERS PATH
 wallDIR="$HOME/Pictures/wallpapers"
 SCRIPTSDIR="$HOME/.config/hypr/scripts"
 ORIG_DIR=$HOME/Pictures/wallpapers
-THUMB_DIR=$HOME/.cache/wallpaper-thumbs
+THUMB_DIR=$HOME/.cache/rofi-thumbs
+
 # variables
 # focused_monitor=$(hyprctl monitors | awk '/^Monitor/{name=$2} /focused: yes/{print name}')
 # TODO: for multiple screen get sway version of tell which screen is avtive
@@ -73,6 +70,7 @@ menu() {
 
 # initiate swww if not running
 swww query || swww-daemon --format xrgb
+
 
 # Choice of wallpapers
 main() {
