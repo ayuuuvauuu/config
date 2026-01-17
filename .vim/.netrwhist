@@ -1,0 +1,12 @@
+let g:netrw_dirhistmax  =10
+let g:netrw_dirhistcnt =0
+let g:netrw_dirhist_0='/home/brogrammer/code/rust/4at/src'
+let g:netrw_dirhist_9='/home/brogrammer/code/rust/4at'
+let g:netrw_dirhist_8='/home/brogrammer/code/TLE/tle'
+let g:netrw_dirhist_7='/home/brogrammer/code/TLE'
+let g:netrw_dirhist_6='/home/brogrammer/code/TLE/data'
+let g:netrw_dirhist_5='/home/brogrammer/code/TLE'
+let g:netrw_dirhist_4='/home/brogrammer/code'
+let g:netrw_dirhist_3='/home/brogrammer/code/asd'
+let g:netrw_dirhist_2='/home/brogrammer/code'
+let g:netrw_dirhist_1='/home/brogrammer/.config/sway'
