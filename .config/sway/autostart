@@ -16,7 +16,6 @@ exec_always mako --font 'Go Mono 12' --background-color '#2b303b' --text-color '
 
 
 ## screen sharing
-dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP=sway
-
-systemctl --user stop pipewire wireplumber xdg-desktop-portal xdg-desktop-portal-wlr
-systemctl --user start wireplumber
+exec dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP=sway
+exec systemctl --user stop pipewire wireplumber xdg-desktop-portal xdg-desktop-portal-wlr
+exec systemctl --user start wireplumber

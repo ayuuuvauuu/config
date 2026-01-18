@@ -163,11 +163,14 @@ default_border pixel $border_width
 default_floating_border pixel $border_width
 
 ###############      Colors        ###############
-client.focused          $blue_bright $blue_bright $blue_bright $blue_bright $blue_bright
-client.focused_inactive $border_bg   $border_bg   $border_bg   $border_bg   $border_bg
-client.unfocused        $border_bg   $border_bg   $border_bg   $border_bg   $border_bg
-client.urgent           #ff0000      #ff0000      #ffffff      #ff0000      #ff0000
-client.placeholder      $border_bg   $border_bg   $border_bg   $border_bg   $border_bg
+set $blue_bright #1360b0
+set $blue_dark   #2261a1
+set $border_bg   #222222
+client.focused          $blue_bright  $blue_dark  #ffffff  $blue_bright  $blue_bright
+client.focused_inactive $border_bg    $blue_dark  #dddddd  $border_bg    $border_bg
+client.unfocused        $border_bg    $border_bg  #bbbbbb  $border_bg    $border_bg
+client.urgent           #ff0000       #ff6666     #ffffff  #ff0000       #ff0000
+client.placeholder      $border_bg    $border_bg  #bbbbbb  $border_bg    $border_bg
 
 smart_gaps off
 smart_borders on
