@@ -26,7 +26,7 @@ Some interesting configs.
 
 Build:
 ```sh
-go get github.com/Difrex/gosway/ipc
+go get github.com/difrex/gosway/ipc
 cd scripts && go build -o ~/.local/bin/tr_in transparent_inctive.go
 ```
 

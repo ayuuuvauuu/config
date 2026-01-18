@@ -47,8 +47,8 @@ GIMP image editor
  st (latest form suckless)
  awesome(window-manager or somethign better if avaiable like hyperlnad or i3 also)
  btop(proc-manager)
- picom
- fish (terminal-emulator) and alacatry
+    pip install i3ipc
+ fish (terminal-emulator) and foot
  lynx (the best web browser in the world) 
  jetbarins mono nerd font
  nitrogen

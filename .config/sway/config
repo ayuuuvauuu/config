@@ -27,12 +27,12 @@ bindswitch lid:off output $laptop enable
 #############         Bindings           ##################
 
 bindsym --no-repeat --to-code $Mod+c exec sioyek
-#WallpaperSelect
+# WallpaperSelect
 bindsym --no-repeat --to-code $Mod+w exec ~/.config/sway/scripts/WallpaperSelect.sh
-#clipboard
+# clipboard
 bindsym --no-repeat --to-code $Mod+Alt+v exec ~/.config/sway/scripts/ClipManager.sh
 
-#change refresh rate
+# change refresh rate
 bindsym --no-repeat --to-code $Mod+Shift+r exec ~/.config/sway/scripts/change-refresh-rate.sh
 
 # Wofi

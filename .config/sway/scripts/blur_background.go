@@ -12,8 +12,8 @@ import (
 )
 
 const (
-	WALLPAPER_PATH string = `/home/difrex/.config/sway/wallpapers/Photo by SpaceX.jpg`
-	BLURED_PATH    string = `/tmp/blured.jpg`
+	WALLPAPER_PATH string = `/home/brogrammer/Pictures/wallpapers/`
+	BLURED_PATH    string = `/home/brogrammer/.config/sway/he.jpg`
 )
 
 type blurer struct {
@@ -100,7 +100,7 @@ func setBackground(con *ipc.SwayConnection, path string) {
 		log.Error(err)
 		return
 	}
-	wall := fmt.Sprintf(`output '%s' background "%s" fill`, ws.Name, path)
+	wall := fmt.Sprintf(`output "%s" bg "%s" fill`, ws.Name, path)
 	log.Warn("Running Sway cmd: ", wall)
 	b, err := con.RunSwayCommand(wall)
 	if err != nil {

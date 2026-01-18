@@ -1,6 +1,7 @@
 ###############     Autostart      ##################
 set $Mod Mod4
 exec wl-paste --watch cliphist store
+exec python ~/.config/sway/sway-contrib/inactive-windows-transparency.py
 exec waybar
 #TODO screen sharing
 exec systemctl --user import-environment DISPLAY WAYLAND_DISPLAY SWAYSOCK
