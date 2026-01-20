@@ -26,11 +26,10 @@ put this in sway config file in /etc/sway/config.d/(the config file) see
 
 https://bbs.archlinux.org/viewtopic.php?id=291201
 #screen sharing in wayland
-dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP=sway
 
-systemctl --user stop pipewire wireplumber xdg-desktop-portal xdg-desktop-portal-wlr
-systemctl --user start wireplumber
-
+exec --no-startup-id dbus-update-activation-environment --systemd \
+   WAYLAND_DISPLAY XDG_CURRENT_DESKTOP=sway XDG_SESSION_DESKTOP=sway XDG_SESSION_TYPE=wayland
+exec --no-startup-id systemctl --user start pipewire wireplumber xdg-desktop-portal xdg-desktop-portal-wlr
 
 for wayland screen recording use gpu-screen-recoder-gtk
 for laptpo autocpu freq, powertop ( more search) use h264ify for youtube to use less battery and hardware acc in yt vid

@@ -62,13 +62,13 @@ bindsym --to-code Shift+Control+Print exec grim -g "$(slurp)" /tmp/out-grim.png 
 bindsym --to-code $Mod+Shift+Control+Print exec screenshot focused
 
 # audio
-bindsym --to-code XF86AudioPlay exec playerctl play-pause
-bindsym --to-code XF86AudioNext exec playerctl next
-bindsym --to-code XF86AudioPrev exec playerctl previous
-bindsym --to-code XF86AudioStop exec playerctl stop
-bindsym --to-code XF86AudioMute exec pamixer -t
-bindsym --to-code XF86AudioRaiseVolume exec pamixer -i 2
-bindsym --to-code XF86AudioLowerVolume exec pamixer -d 2
+bindsym --to-code XF86AudioPlay exec ~/.config/sway/scripts/MediaCtrl.sh --pause
+bindsym --to-code XF86AudioNext exec ~/.config/sway/scripts/MediaCtrl.sh --nxt
+bindsym --to-code XF86AudioPrev exec ~/.config/sway/scripts/MediaCtrl.sh --prv
+bindsym --to-code XF86AudioStop exec ~/.config/sway/scripts/MediaCtrl.sh --stop
+bindsym --to-code XF86AudioMute exec ~/.config/sway/scripts/Volume.sh --toggle
+bindsym --to-code XF86AudioRaiseVolume exec ~/.config/sway/scripts/Volume.sh --inc
+bindsym --to-code XF86AudioLowerVolume exec ~/.config/sway/scripts/Volume.sh --dec
 
 # backlight
 bindsym --to-code XF86MonBrightnessUp exec   ~/.config/sway/scripts/Brightness.sh --inc
@@ -88,8 +88,8 @@ bindgesture swipe:4:left focus right
 ############      Container/Window control  ############
 
 # Scratchpad, Floating
-bindsym --to-code $Mod+Mod1+f floating toggle
-floating_modifier Mod1 normal
+bindsym --to-code $Mod+s floating toggle
+floating_modifier Ctrl normal
 
 # Sway has a "scratchpad", which is a bag of holding for windows.
 # You can send windows there and get them back later.
