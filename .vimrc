@@ -1,3 +1,4 @@
+set t_Co=256
 " Enable mouse in all modes
 set mouse=a
 

@@ -12,7 +12,8 @@ exec swww-daemon
 exec autotiling-rs
 exec_always ~/.config/sway/scripts/waybar.sh
 exec_always mako --font 'Go Mono 12' --background-color '#2b303b' --text-color '#c0c5ce' --border-color '#ECBE7B' --default-timeout 5000 --width 400 --markup 1 --border-radius 5 --actions 1 --history 1
-
+##song notification
+exec --no-startup-id ~/.config/sway/scripts/song-change.sh
 ## screen sharing
 exec --no-startup-id dbus-update-activation-environment --systemd \
    WAYLAND_DISPLAY XDG_CURRENT_DESKTOP=sway XDG_SESSION_DESKTOP=sway XDG_SESSION_TYPE=wayland
