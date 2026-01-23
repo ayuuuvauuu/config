@@ -11,6 +11,9 @@
 #enable-tab-audio-muting
 #enable-parallel-downloading
 
+RUN Game
+
+PROTON_USE_NTSYNC=1  PROTON_ENABLE_WAYLAND=1 -noeac -setfps 140 -triplebuffer -nonetworknext -high
 
 change the ttl to 65 to make trick isp into thinking that i am not using hotsopt
 

@@ -40,6 +40,7 @@ configuration {
 	drun-reload-desktop-cache: false;
 	drun {
 		/** Parse user desktop files. */
+    scan-desktop:true;
 		parse-user:   true;
 		/** Parse system desktop files. */
 		parse-system: true;
