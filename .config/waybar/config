@@ -1,8 +1,4 @@
- // /* ---- 💫 https://github.com/JaKooLit 💫 ---- */
-
-// ### DEFAULT Top -Laptop ### //
-
- [{
+[{
  "include": "~/.config/waybar/modules",
  "layer": "top",
  //"mode": "dock",
@@ -25,7 +21,7 @@
  	"custom/separator#blank", 
  	"memory",
  	"custom/separator#blank", 
- "disk"
+  "disk"
  	],
  
  "modules-center": [
@@ -53,22 +49,6 @@
  	"pulseaudio#microphone",
  	"custom/power#1" // using rofi power use only power if u want normal
  	]
- },
- 
- {
- "include": "~/.config/waybar/modules",
- "layer": "bottom",
- "mode": "overlay",
- "exclusive": false,
- "passthrough": true,
- "position": "bottom",
- "spacing": 2,
- "fixed-center": false,
- "ipc": true,
- "height": 0,
- "margin-left": 700,
- "margin-right": 700,
- //"gtk-layer-shell": true,
- //"margin-bottom": 0,
- }],
+ }
+],
  

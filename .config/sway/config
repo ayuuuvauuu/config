@@ -26,6 +26,9 @@ bindswitch lid:off output $laptop enable
 
 #############         Bindings           ##################
 
+#open latest clipboard link using mpv
+bindsym $Mod+v exec mpv "$(wl-paste)"
+
 bindsym --no-repeat --to-code $Mod+c exec sioyek
 # WallpaperSelect
 bindsym --no-repeat --to-code $Mod+w exec ~/.config/sway/scripts/WallpaperSelect.sh

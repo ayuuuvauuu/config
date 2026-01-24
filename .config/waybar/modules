@@ -390,8 +390,9 @@
     "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>"
 },
 "clock#3": {
-    //"format": "{:%I:%M %p - %d/%b}", //for AM/PM
+  //"format": "{:%I:%M %p - %d/%b}", //for AM/PM
   "format": "{:%H:%M - %d/%b}", // 24H
+  "format-alt": "{:%A  |  %H:%M  |  %e %B}",
 	"on-click-right": "zenity --calendar"
 },
 "clock#4": {

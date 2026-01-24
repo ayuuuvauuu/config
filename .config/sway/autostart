@@ -3,12 +3,14 @@ set $Mod Mod4
 exec wl-paste --watch cliphist store
 exec python ~/.config/sway/sway-contrib/inactive-windows-transparency.py
 exec waybar
+exec nm-applet
 exec systemctl --user import-environment DISPLAY WAYLAND_DISPLAY SWAYSOCK
 exec hash dbus-update-activation-environment 2>/dev/null && \
     dbus-update-activation-environment --systemd DISPLAY WAYLAND_DISPLAY SWAYSOCK
 exec /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1
 exec blueman-applet
 exec swww-daemon
+exec ~/.config/sway/scripts/battery_notify.sh
 exec autotiling-rs
 exec_always ~/.config/sway/scripts/waybar.sh
 exec_always mako --font 'Go Mono 12' --background-color '#2b303b' --text-color '#c0c5ce' --border-color '#ECBE7B' --default-timeout 5000 --width 400 --markup 1 --border-radius 5 --actions 1 --history 1

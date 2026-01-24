@@ -82,6 +82,9 @@
 .config/jd-gui.cfg
 .config/lxqt-mimeapps.list
 .config/mimeapps.list
+.config/filetypesrc
+.config/jd-gui
+.config/ka
 .config/qt5ct
 .config/qt6ct
 .config/qterminal.org
@@ -99,3 +102,7 @@
 .config/fish/fish_variables
 .config/qBittorrent/qBittorrent.conf
 .config/mpv/idk
+.config/filetypesrc
+.config/kactivitymanagerdrc_1
+.config/picom.conf
+.config/user-dirs.dirs
