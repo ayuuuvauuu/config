@@ -11,6 +11,7 @@ include effects
 # Mod1 = Alt
 # Mod4 = Super
 set $Mod Mod4
+set $mod Mod4
 set $Mod1  Alt
 
 # direction keys
@@ -196,7 +197,19 @@ bindsym --to-code Mod1+KP_Subtract         gaps outer current minus 5
 
 ############    application settings   ############
 
+set $opacity_low 0.8
+set $opacity_high 1.0
+
+set $float_opacity_low  "[floating] opacity $opacity_low;  bindsym $Mod+F9 exec swaymsg '$float_opacity_high'"
+set $float_opacity_high "[floating] opacity $opacity_high; bindsym $Mod+F10 exec swaymsg '$float_opacity_low'"
+
+bindsym $Mod+F9 exec swaymsg "$float_opacity_low"
+
+for_window [floating] opacity 1.0
+
 # focus, floating, & sticky
+for_window [title="(?i).*mpv.*"] opacity 1.0
+for_window [app_id="mpv"] opacity 1.0
 for_window [app_id="(?i)(?:blueman-manager|azote|gnome-disks)"] floating enable
 for_window [app_id="(?i)(?:pavucontrol|nm-connection-editor|gsimplecal|galculator)"] floating enable
 for_window [title="(?i)(?:copying|deleting|moving)"] floating enable
