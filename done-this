@@ -1,3 +1,4 @@
+sudo ip route del default
 
 disbaled ipv6
 sudo nano /etc/sysctl.d/ is me hai

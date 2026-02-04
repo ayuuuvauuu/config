@@ -14,7 +14,6 @@ set smartcase
 set incsearch
 set cinoptions=l1
 set modeline
-set keymap=russian-jcukenwin
 set iminsert=0
 set imsearch=0
 set autoindent
