@@ -1,0 +1,15 @@
+channels:
+    local: true
+    subscribed:
+        - UCTt2AnK--mnRmICnf-CCcrw
+        - UCutXfzLC5wrV3SInT_tdY0w
+download_dir: /home/brogrammer/Videos
+history:
+    enable: true
+invidious:
+    instance: https://invidious.jing.rocks
+    proxy: ""
+loglevel: info
+youtube:
+    clientid: CREATE_IN_YOUTUBE_API_CONSOLE
+    secretid: CREATE_IN_YOUTUBE_API_CONSOLE

@@ -4,10 +4,6 @@ exec wl-paste --watch cliphist store
 exec python ~/.config/sway/sway-contrib/inactive-windows-transparency.py
 exec waybar
 exec nm-applet
-exec systemctl --user import-environment DISPLAY WAYLAND_DISPLAY SWAYSOCK
-exec hash dbus-update-activation-environment 2>/dev/null && \
-    dbus-update-activation-environment --systemd DISPLAY WAYLAND_DISPLAY SWAYSOCK
-exec /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1
 exec blueman-applet
 exec swww-daemon
 exec ~/.config/sway/scripts/battery_notify.sh

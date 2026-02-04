@@ -1,3 +1,8 @@
+add
+pl-create home
+play
+clear
+cleasr
 pl-creat home
 pl-create 
 shell ls
@@ -87,7 +92,5 @@ add /media/bro_grammer/
 add everyone is asleep, except you (playlist).mp3
 add 46190f724f18ccd7afc335ff83a0b9/
 add g3oxem x COTIS - till I leave (Official Visualizer).mp3
-add
 bind -f common L push live-filter 
 bind -f common I echo {} 
-play

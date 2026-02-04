@@ -14,7 +14,7 @@ set -gx LANG "en_US.UTF-8"
 set -gx theme_hide_hostname no
 set -gx GIT_EDITOR vim
 set -gx theme_hostname always
-set -gx EDITOR nvim
+set -gx EDITOR vim
 # set -gx RUSTC_WRAPPER "/usr/bin/sccache" use only for old pc
 set -gx TERMINAL foot
 set -gx TERM foot
@@ -26,6 +26,7 @@ alias 2 'arttime --nolearn -a unix -g "60m;loop10"'
 alias l "eza --icons=always --git"
 alias la "eza -all --icons=always --git"
 alias bat "bat -p"
+alias john "/usr/bin/john"
 # alias pdf "MESA_GL_VERSION_OVERRIDE=2.1 MESA_GLSL_VERSION_OVERRIDE=330 sioyek"
 alias pdf "sioyek"
 alias ll "eza -l --icons=always --git"
