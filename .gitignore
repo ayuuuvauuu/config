@@ -10,6 +10,8 @@
 !.vimrc
 !.viminfo
 !rain.sh
+!yt
+!ythumb
 !notes
 !done-this
 
@@ -109,3 +111,7 @@
 .config/elinks
 .config/Code - OSS
 .config/MangoHud
+.config/GIMP/3.0
+.config/Hypersomnia
+.config/pixelwheels
+.local/bin/yt

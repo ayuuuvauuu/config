@@ -177,8 +177,8 @@ client.placeholder      $border_bg    $border_bg  #bbbbbb  $border_bg    $border
 
 smart_gaps off
 smart_borders on
-gaps inner 5
-gaps outer 5
+gaps inner 4
+gaps outer 2
 # hide_edge_borders smart
 
 # changing border style
@@ -208,8 +208,7 @@ bindsym $Mod+F9 exec swaymsg "$float_opacity_low"
 for_window [floating] opacity 1.0
 
 # focus, floating, & sticky
-for_window [title="(?i).*mpv.*"] opacity 1.0
-for_window [app_id="mpv"] opacity 1.0
+for_window [app_id="mpv"] opacity 1.0 focus opacity 1.0
 for_window [app_id="(?i)(?:blueman-manager|azote|gnome-disks)"] floating enable
 for_window [app_id="(?i)(?:pavucontrol|nm-connection-editor|gsimplecal|galculator)"] floating enable
 for_window [title="(?i)(?:copying|deleting|moving)"] floating enable

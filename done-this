@@ -1,3 +1,4 @@
+/etc/systemd/system/multi-user.target.wants/nvidia-persistenced.service
 sudo ip route del default
 
 disbaled ipv6
