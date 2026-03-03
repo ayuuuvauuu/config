@@ -92,7 +92,7 @@ bindgesture swipe:4:left focus right
 
 # Scratchpad, Floating
 bindsym --to-code $Mod+s floating toggle
-floating_modifier Ctrl normal
+floating_modifier $Mod normal
 
 # Sway has a "scratchpad", which is a bag of holding for windows.
 # You can send windows there and get them back later.

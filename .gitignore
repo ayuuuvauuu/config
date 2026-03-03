@@ -115,3 +115,7 @@
 .config/Hypersomnia
 .config/pixelwheels
 .local/bin/yt
+/.config/obs-studio
+/.vim/.netrwhist
+/.config/qBittorrent
+/.config/session
