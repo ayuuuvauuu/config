@@ -1,3 +1,5 @@
+pl-create flawed_mangoes
+set repeat=true
 add
 pl-create home
 play
@@ -19,7 +21,6 @@ lqueue
 colorscheme cya
 filter f
 filter 
-pl-create flawed_mangoes
 pl-create random-good-stuff
 pl-create n++
 pl-create lock-in

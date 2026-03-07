@@ -59,10 +59,10 @@ bindsym --to-code $Mod+Shift+e exec swaynag -t warning -m 'You pressed the exit 
 
 # screenshot
 #TODO
-bindsym --to-code Print exec grim /tmp/out-grim.png && ~/.local/bin/swappy -f /tmp/out-grim.png && rm -f /tmp/out-grim.png
-bindsym --to-code Control+Print exec screenshot display
-bindsym --to-code Shift+Control+Print exec grim -g "$(slurp)" /tmp/out-grim.png && ~/.local/bin/swappy -f /tmp/out-grim.png && rm -f /tmp/out-grim.png
-bindsym --to-code $Mod+Shift+Control+Print exec screenshot focused
+bindsym --to-code Print exec ~/.config/sway/scripts/ScreenShot.sh --now
+bindsym --to-code Control+Print exec ~/.config/sway/scripts/ScreenShot.sh --area
+bindsym --to-code Shift+Control+Print exec ~/.config/sway/scripts/ScreenShot.sh --win
+bindsym --to-code $Mod+Shift+Control+Print exec ~/.config/sway/scripts/ScreenShot.sh --active
 
 # audio
 bindsym --to-code XF86AudioPlay exec ~/.config/sway/scripts/MediaCtrl.sh --pause

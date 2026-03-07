@@ -55,6 +55,8 @@ set -gx NNN_OPENER '~/.config/nnn/plugins/nuke'
 set -gx NNN_PLUG 'b:bulknew;d:diffs;f:fzcd;F:fzopen;l:launch;t:preview-tui;n:nuke;p:fzplug'
 set -gx NNN_FIFO /tmp/nnn.fifo n
 set -gx PATH ~/.local/bin/ $PATH
+set -Ux ANTHROPIC_BASE_URL "http://localhost:8080"
+set -Ux ANTHROPIC_AUTH_TOKEN "test"
 zoxide init fish --hook pwd | source
 
 if status --is-login; and test (tty) = "/dev/tty1"
