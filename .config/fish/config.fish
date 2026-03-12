@@ -55,6 +55,9 @@ set -gx NNN_OPENER '~/.config/nnn/plugins/nuke'
 set -gx NNN_PLUG 'b:bulknew;d:diffs;f:fzcd;F:fzopen;l:launch;t:preview-tui;n:nuke;p:fzplug'
 set -gx NNN_FIFO /tmp/nnn.fifo n
 set -gx PATH ~/.local/bin/ $PATH
+set -gx ANDROID_HOME /opt/android-sdk  # Or your manual path
+set -gx PATH $ANDROID_HOME/bin $PATH
+set -gx PATH $ANDROID_HOME/platform-tools $PATH
 set -Ux ANTHROPIC_BASE_URL "http://localhost:8080"
 set -Ux ANTHROPIC_AUTH_TOKEN "test"
 zoxide init fish --hook pwd | source
