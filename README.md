@@ -18,7 +18,7 @@ PROTON_USE_NTSYNC=1  PROTON_ENABLE_WAYLAND=1 -noeac -setfps 140 -triplebuffer -n
 change the ttl to 65 to make trick isp into thinking that i am not using hotsopt
 
 NOTE: remove all fish.tmp. files form the fish dir to remove all the temporaye enviroment variables
- required Prgrame to install
+ required Prgrame to install, install unp
 
 https://github.com/oddmario/NVIDIA-Ubuntu-Driver-Guide
 
