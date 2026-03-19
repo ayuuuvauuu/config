@@ -46,6 +46,7 @@ function n
 	rm -f -- "$tmp"
 end
 set -gx PATH bin $PATH
+set -gx NVM_DIR ~/.nvm
 set -gx PATH /usr/local/go/bin $PATH
 set -gx PATH /home/bro_grammer/.local/share/nvim/mason/bin $PATH
 set -gx PATH /home/brogrammer/Public/zulu21.46.19-ca-jdk21.0.9-linux_x64/bin $PATH
@@ -62,6 +63,6 @@ set -Ux ANTHROPIC_BASE_URL "http://localhost:8080"
 set -Ux ANTHROPIC_AUTH_TOKEN "test"
 zoxide init fish --hook pwd | source
 
-if status --is-login; and test (tty) = "/dev/tty1"
-    exec sway --unsupported-gpu >/dev/null 2>&1
-end
+#if status --is-login; and test (tty) = "/dev/tty1"
+#    exec sway --unsupported-gpu >/dev/null 2>&1
+#end
