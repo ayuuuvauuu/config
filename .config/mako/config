@@ -1,2 +1,6 @@
-# Show notifications on top of fullscreen windows
+font=sans-serif 14
+background-color=#00000080
+text-color=#ffffff
+border-size=0
 layer=overlay
+default-timeout=6000

@@ -7,6 +7,19 @@ include pointer
 include touchpad
 include effects
 
+blur enable
+layer_effects "notifications" {
+    blur enable;
+    blur_xray enable;
+    blur_ignore_transparent enable;
+}
+layer_effects "waybar" {
+    blur enable;
+    blur_xray enable;
+    blur_ignore_transparent enable;
+}
+
+
 # mod key used for most binds
 # Mod1 = Alt
 # Mod4 = Super
