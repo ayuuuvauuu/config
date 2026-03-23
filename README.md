@@ -36,7 +36,7 @@ exec --no-startup-id systemctl --user start pipewire wireplumber xdg-desktop-por
 
 for wayland screen recording use gpu-screen-recoder-gtk
 for laptpo autocpu freq, powertop ( more search) use h264ify for youtube to use less battery and hardware acc in yt vid
-install dysk, dua-cli, astroterm
+install dysk, dua-cli, astroterm, delta git pager
 stwich to g++ 12 for no error in nvim, install arttime :)
 use eza insted of ls use zoxide use  use yazi, fd, fzf,rg
 install jq (json parser)

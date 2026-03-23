@@ -8,6 +8,7 @@ include touchpad
 include effects
 
 blur enable
+for_window [app_id="mako"] blur enable
 layer_effects "notifications" {
     blur enable;
     blur_xray enable;
