@@ -5,7 +5,7 @@ exec python ~/.config/sway/sway-contrib/inactive-windows-transparency.py
 exec waybar
 exec nm-applet
 exec blueman-applet
-exec swww-daemon
+exec awww-daemon
 exec ~/.config/sway/scripts/battery_notify.sh
 exec autotiling-rs
 exec_always ~/.config/sway/scripts/waybar.sh

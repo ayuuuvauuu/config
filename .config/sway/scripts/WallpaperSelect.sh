@@ -7,12 +7,12 @@ THUMB_DIR=$HOME/.cache/rofi-thumbs
 # variables
 # focused_monitor=$(hyprctl monitors | awk '/^Monitor/{name=$2} /focused: yes/{print name}')
 # TODO: for multiple screen get sway version of tell which screen is avtive
-# swww transition config
+# awww transition config
 FPS=60
 TYPE="fade"
 DURATION=2
 BEZIER=".43,1.19,1,.4"
-SWWW_PARAMS="--transition-fps $FPS --transition-type $TYPE --transition-duration $DURATION"
+aWWW_PARAMS="--transition-fps $FPS --transition-type $TYPE --transition-duration $DURATION"
 
 # Check if swaybg is running
 if pidof swaybg > /dev/null; then
@@ -68,8 +68,8 @@ menu() {
   done
 }
 
-# initiate swww if not running
-swww query || swww-daemon --format xrgb
+# initiate awww if not running
+awww query || awww-daemon --format xrgb
 
 
 # Choice of wallpapers
@@ -88,7 +88,7 @@ main() {
 
   # Random choice case
   if [[ "$choice" == "$RANDOM_PIC_NAME" ]]; then
-	swww img -o "$focused_monitor" "$RANDOM_PIC" $SWWW_PARAMS;
+	awww img -o "$focused_monitor" "$RANDOM_PIC" $aWWW_PARAMS;
   fi
 
   # Find the index of the selected file
@@ -102,7 +102,7 @@ main() {
   done
 
   if [[ $pic_index -ne -1 ]]; then
-    swww img -o "$focused_monitor" "${PICS[$pic_index]}" $SWWW_PARAMS
+    awww img -o "$focused_monitor" "${PICS[$pic_index]}" $aWWW_PARAMS
   else
     echo "Image not found."
     exit 1
