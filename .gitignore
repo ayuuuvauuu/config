@@ -123,3 +123,6 @@
 /.config/gh
 /.config/sway.notfx
 /.config/openra
+/.config/cmus/lib.pl
+/.config/cmus/cache
+/.config/cmus/autosave
