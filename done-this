@@ -1,3 +1,12 @@
+
+sudo mkdir -p /etc/kernel-install.d
+echo '# no-op to prevent creating loader entries' | sudo tee /etc/kernel-install.d/90-loaderentry.install
+echo '# no-op to prevent copying UKIs' | sudo tee /etc/kernel-install.d/90-uki-copy.install
+sudo chmod 644 /etc/kernel-install.d/90-*.install
+
+
+Created symlink '/etc/systemd/system/systemd-tmpfiles-setup-dev-early.service' → '/dev/null'.
+
 /etc/systemd/system/multi-user.target.wants/nvidia-persistenced.service
 sudo ip route del default
 

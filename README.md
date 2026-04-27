@@ -11,6 +11,12 @@
 #enable-tab-audio-muting
 #enable-parallel-downloading
 
+for laptpo,
+
+powertop --calibrate nd auto-tune
+
+autocpu-freq, and anacicyy-cpp
+
 RUN Game
 
 PROTON_USE_NTSYNC=1  PROTON_ENABLE_WAYLAND=1 -noeac -setfps 140 -triplebuffer -nonetworknext -high
