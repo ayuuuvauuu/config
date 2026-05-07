@@ -133,3 +133,5 @@
 /.config/cmus/command-history
 /.config/cmus/playlists/interstellar
 /.config/cmus/search-history
+/.config/fish
+/.config/spotdl

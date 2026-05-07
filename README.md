@@ -11,6 +11,15 @@
 #enable-tab-audio-muting
 #enable-parallel-downloading
 
+FOR CLEAN INSTALL:
+
+set fish defualt term,
+install battery saver tools(see below)
+fix scren sharing
+https://bbs.archlinux.org/viewtopic.php?id=291201
+
+
+
 for laptpo,
 
 powertop --calibrate nd auto-tune

@@ -66,6 +66,7 @@ bindsym --to-code $Mod+Return       exec $term
 bindsym --to-code $Mod+e            exec $editor
 bindsym --to-code $Mod+a            exec emacsclient -c
 bindsym --to-code $Mod+t            exec $filemanager
+bindsym --to-code $Mod+b            exec firefox
 bindsym --to-code $Mod+Shift+p      exec ~/.config/rofi/scripts/powermenu_t3
 
 # Exit sway (default way to log you out of your Wayland session)
@@ -196,7 +197,7 @@ gaps outer 2
 # hide_edge_borders smart
 
 # changing border style
-bindsym --to-code $Mod+b border toggle
+bindsym --to-code $Mod+Shift+b border toggle
 
 # change gaps
 bindsym --to-code $Mod+plus                gaps inner current plus  5
