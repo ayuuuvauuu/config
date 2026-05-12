@@ -44,6 +44,9 @@ bindswitch lid:off output $laptop enable
 #open latest clipboard link using mpv
 bindsym $Mod+v exec mpv "$(wl-paste)"
 
+#opem powermenu
+bindsym --no-repeat --to-code Ctrl+Alt+p exec ~/.config/rofi/scripts/powermenu_t3
+
 bindsym --no-repeat --to-code $Mod+c exec sioyek
 # WallpaperSelect
 bindsym --no-repeat --to-code $Mod+w exec ~/.config/sway/scripts/WallpaperSelect.sh
@@ -54,7 +57,7 @@ bindsym --no-repeat --to-code $Mod+Alt+v exec ~/.config/sway/scripts/ClipManager
 bindsym --no-repeat --to-code $Mod+Shift+r exec ~/.config/sway/scripts/change-refresh-rate.sh
 
 # Wofi
-bindsym --to-code Ctrl+0 exec rofi -show drun
+bindsym --to-code Ctrl+Space exec rofi -show drun
 
 # kill focused window
 bindsym --to-code $Mod+q kill

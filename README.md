@@ -18,7 +18,10 @@ install battery saver tools(see below)
 fix scren sharing
 https://bbs.archlinux.org/viewtopic.php?id=291201
 
+TOO FIX HIBERNATE ISSUE
+Enable the services nvidia-suspend.service, nvidia-hibernate.service and nvidia-resume.service
 
+Add nvidia.NVreg_PreserveVideoMemoryAllocations=1 to your kernel parameters if you haven’t already.
 
 for laptpo,
 

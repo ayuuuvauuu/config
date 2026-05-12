@@ -1,3 +1,4 @@
+set noswapfile
 syntax on
 filetype plugin indent on
 set tabstop=4
