@@ -45,7 +45,7 @@ bindswitch lid:off output $laptop enable
 bindsym $Mod+v exec mpv "$(wl-paste)"
 
 #opem powermenu
-bindsym --no-repeat --to-code Ctrl+Alt+p exec ~/.config/rofi/scripts/powermenu_t3
+bindsym --no-repeat --to-code Ctrl+Alt+p exec ~/.config/rofi/scripts/powermenu_t1
 
 bindsym --no-repeat --to-code $Mod+c exec sioyek
 # WallpaperSelect
@@ -58,6 +58,7 @@ bindsym --no-repeat --to-code $Mod+Shift+r exec ~/.config/sway/scripts/change-re
 
 # Wofi
 bindsym --to-code Ctrl+Space exec rofi -show drun
+bindsym --to-code $Mod+Space exec rofi -show drun
 
 # kill focused window
 bindsym --to-code $Mod+q kill

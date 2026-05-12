@@ -701,7 +701,7 @@
 
 "custom/power#1": {
 	"format": "⏻ ",
-	"on-click": "~/.config/rofi/scripts/powermenu_t3",
+	"on-click": "~/.config/rofi/scripts/powermenu_t1",
 	"tooltip": true,
 },
 
