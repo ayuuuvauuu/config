@@ -23,7 +23,9 @@ Enable the services nvidia-suspend.service, nvidia-hibernate.service and nvidia-
 
 Add nvidia.NVreg_PreserveVideoMemoryAllocations=1 to your kernel parameters if you haven’t already.
 
-for laptpo,
+for laptop
+
+DOWNLOAD BLEACHBIT TO GET CLEAN UP OLD FILES,
 
 powertop --calibrate nd auto-tune
 
@@ -44,13 +46,21 @@ screensy (to share screen)  https://screensy.marijn.it
 
 
 put this in sway config file in /etc/sway/config.d/(the config file) see 
-
 https://bbs.archlinux.org/viewtopic.php?id=291201
 #screen sharing in wayland
 
 exec --no-startup-id dbus-update-activation-environment --systemd \
    WAYLAND_DISPLAY XDG_CURRENT_DESKTOP=sway XDG_SESSION_DESKTOP=sway XDG_SESSION_TYPE=wayland
 exec --no-startup-id systemctl --user start pipewire wireplumber xdg-desktop-portal xdg-desktop-portal-wlr
+
+for bluetooth working see
+https://wiki.archlinux.org/title/Bluetooth 
+make sure to disable auto start bluetooth.service
+for file transfer install bluez-obex
+
+sudo systemctl start blueman-mechanism.service bluetooth.service (obex.service this is not needed ig, check if it starts up 
+ps -aux | rg obe, when u start the first 2 services :)
+
 
 for wayland screen recording use gpu-screen-recoder-gtk
 for laptpo autocpu freq, powertop ( more search) use h264ify for youtube to use less battery and hardware acc in yt vid

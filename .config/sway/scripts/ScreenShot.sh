@@ -4,11 +4,12 @@ time=$(date "+%Y-%m-%d_%H-%M-%S")
 dir="$(xdg-user-dir)/Pictures/Screenshots"
 file="Screenshot_${time}.png"
 path="$dir/$file"
+path1="$file"
 
 mkdir -p "$dir"
 
 notify_done() {
-    notify-send "Screenshot saved" "$path"
+    notify-send "Screenshot saved" "$path1"
 }
 
 countdown() {

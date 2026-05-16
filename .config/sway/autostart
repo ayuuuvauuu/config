@@ -8,7 +8,6 @@ exec blueman-applet
 exec awww-daemon
 exec ~/.config/sway/scripts/battery_notify.sh
 exec autotiling-rs
-exec_always ~/.config/sway/scripts/waybar.sh
 exec_always mako
 ##song notification
 exec --no-startup-id ~/.config/sway/scripts/song-change.sh

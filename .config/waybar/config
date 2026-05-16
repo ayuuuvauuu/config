@@ -39,7 +39,6 @@
  	"tray",
  	"mpris", 
  	"custom/separator#dot-line",
- 	"bluetooth",
  	"custom/separator#dot-line", 
  	"battery",
  	"custom/separator#dot-line", 

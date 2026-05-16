@@ -57,7 +57,6 @@ bindsym --no-repeat --to-code $Mod+Alt+v exec ~/.config/sway/scripts/ClipManager
 bindsym --no-repeat --to-code $Mod+Shift+r exec ~/.config/sway/scripts/change-refresh-rate.sh
 
 # Wofi
-bindsym --to-code Ctrl+Space exec rofi -show drun
 bindsym --to-code $Mod+Space exec rofi -show drun
 
 # kill focused window

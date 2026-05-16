@@ -135,3 +135,5 @@
 /.config/cmus/search-history
 /.config/fish
 /.config/spotdl
+/.config/bleachbit/bleachbit.ini
+/.config/bleachbit/cookie_keep_list.json
