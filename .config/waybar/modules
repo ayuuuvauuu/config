@@ -319,7 +319,7 @@
   "format": "{percent}%",
 },
 "battery": {
-	"interval": 2,
+	"interval": 3,
 	"align": 0,
 	"rotate": 0,
 	//"bat": "BAT1",
@@ -331,8 +331,8 @@
 		"warning": 30,
 		"critical": 15
 	},
-	"format": "{capacity}% {power}w",
-	"format-charging": " {capacity}% {power}w",
+	"format": "{power}w {time} {capacity}%",
+	"format-charging": "  {power}w {time} {capacity}%",
 	"format-plugged": "󱘖 {capacity}%",
 	"format-alt-click": "click",
 	"format-full": "{icon} {power}w Full",
