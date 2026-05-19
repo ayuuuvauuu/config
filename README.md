@@ -13,6 +13,10 @@
 
 FOR CLEAN INSTALL:
 
+FOR NOTIFICAIONS THERE IS A SERVICE IN /ETC/SYS/SYSD
+
+CONFGIURE THAT, accordingly
+
 set fish defualt term,
 install battery saver tools(see below)
 fix scren sharing
