@@ -6,11 +6,11 @@ exec waybar
 exec nm-applet
 exec blueman-applet
 exec awww-daemon
-exec ~/.config/sway/scripts/battery_notify.sh
+#exec systemctl --user start sway-notify-daemon.service
+#
 exec autotiling-rs
 exec_always mako
 ##song notification
-exec --no-startup-id ~/.config/sway/scripts/song-change.sh
 ## screen sharing
 exec --no-startup-id dbus-update-activation-environment --systemd \
    WAYLAND_DISPLAY XDG_CURRENT_DESKTOP=sway XDG_SESSION_DESKTOP=sway XDG_SESSION_TYPE=wayland

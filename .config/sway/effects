@@ -1,15 +1,23 @@
-#blur on
-#blur_xray off
-#blur_passes 3
-#blur_radius 5
-#
-#shadows on
+layer_effects "waybar" {
+    blur enable;
+    blur_xray enable;
+    blur_ignore_transparent enable;
+}
+layer_effects "notifications" {
+    blur enable;
+    blur_xray enable;
+    blur_ignore_transparent enable;
+}
+
+blur enable
+blur_passes 3
+blur_radius 7
+
+corner_radius 5
+
+#shadows enable
 #shadows_on_csd on
 #shadow_blur_radius 25
 #shadow_color #00000000
-#
-#default_dim_inactive 0.4
-#dim_inactive_colors.unfocused #000000FF
-#dim_inactive_colors.urgent #900000FF
-#
-#corner_radius 10
+
+

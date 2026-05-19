@@ -1,0 +1,21 @@
+[Unit]
+Description=Sway Event-Driven Notification Daemon
+Documentation=man:sway(5)
+# Bind to the graphical session so it stops when Sway stops
+PartOf=graphical-session.target
+After=graphical-session.target
+
+[Service]
+Type=simple
+ExecStart=%h/.config/sway/scripts/sway-notify-daemon.sh
+Restart=on-failure
+RestartSec=3
+
+# Resource constraints (Optional but good practice)
+MemoryHigh=50M
+MemoryMax=100M
+CPUQuota=5%
+
+[Install]
+# sway-session.target is standard if you use systemd-managed Sway
+WantedBy=sway-session.target
