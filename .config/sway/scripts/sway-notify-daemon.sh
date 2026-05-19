@@ -45,7 +45,7 @@ media_monitor() {
 }
 
 # ---------------------------------------------------------
-# 2. Battery Monitor
+# 2. Battery & AC Monitor
 # ---------------------------------------------------------
 battery_monitor() {
     log "Starting battery monitor..."
@@ -53,6 +53,7 @@ battery_monitor() {
     local notified_20=0
     local notified_10=0
     local notified_5=0
+    local notified_ac_powersave=0
 
     check_battery() {
         for bat_path in /sys/class/power_supply/BAT*; do
@@ -80,12 +81,52 @@ battery_monitor() {
         done
     }
 
-    # Run check once at startup
-    check_battery
+    check_ac_powersave() {
+        for ac_path in /sys/class/power_supply/{ADP,AC}*; do
+            [[ -f "$ac_path/online" ]] || continue
+            
+            local online
+            read -r online < "$ac_path/online" || continue
+            
+            if [[ "$online" == "1" ]]; then
+                if (( notified_ac_powersave == 0 )); then
+                    notified_ac_powersave=1
+                    
+                    # Fork a check that waits 3s (allows auto-cpufreq time to switch if it's on auto)
+                    (
+                        sleep 3
+                        # Re-read to ensure it's still plugged in
+                        read -r current_online < "$ac_path/online" 2>/dev/null || exit 0
+                        [[ "$current_online" == "1" ]] || exit 0
+                        
+                        local gov="unknown" no_turbo="unknown"
+                        [[ -f /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor ]] && read -r gov < /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
+                        [[ -f /sys/devices/system/cpu/intel_pstate/no_turbo ]] && read -r no_turbo < /sys/devices/system/cpu/intel_pstate/no_turbo
+                        
+                        if [[ "$gov" == "powersave" && "$no_turbo" == "1" ]]; then
+                            notify-send -u normal -t 8000 -i dialog-warning "Performance Limited" "AC connected, but CPU is in Powersave (Turbo OFF). Don't forget to restore performance!"
+                        elif [[ "$gov" == "powersave" ]]; then
+                            notify-send -u normal -t 8000 -i dialog-warning "Performance Limited" "AC connected, but CPU governor is forced to Powersave."
+                        elif [[ "$no_turbo" == "1" ]]; then
+                            notify-send -u normal -t 8000 -i dialog-warning "Performance Limited" "AC connected, but Turbo Boost is turned off."
+                        fi
+                    ) &
+                fi
+            else
+                notified_ac_powersave=0
+            fi
+            break # Only process the first AC adapter found
+        done
+    }
 
-    # Event-driven: trigger check on power state changes.
+    # Run checks once at startup
+    check_battery
+    check_ac_powersave
+
+    # Event-driven: trigger checks on power state changes.
     upower --monitor 2>/dev/null | while read -r _; do
         check_battery
+        check_ac_powersave
     done &
     CHILD_PIDS+=($!)
 }
