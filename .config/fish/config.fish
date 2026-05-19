@@ -22,6 +22,8 @@ set -gx TERM foot
 set -gx fish_cursor_insert block
 
 set fish_color_comment blue
+set fish_color_command white
+set fish_color_autosuggestion white
 
 # aliases
 alias 1 'arttime --nolearn -a colorowl2 -b colorowl3 -g "7m;60m;loop4"'
@@ -66,7 +68,3 @@ set -gx PATH $ANDROID_HOME/platform-tools $PATH
 set -Ux ANTHROPIC_BASE_URL "http://localhost:8080"
 set -Ux ANTHROPIC_AUTH_TOKEN "test"
 zoxide init fish --hook pwd | source
-
-#if status --is-login; and test (tty) = "/dev/tty1"
-#    exec sway --unsupported-gpu >/dev/null 2>&1
-#end
