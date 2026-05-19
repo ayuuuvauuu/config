@@ -21,9 +21,6 @@ set -gx TERMINAL foot
 set -gx TERM foot
 set -gx fish_cursor_insert block
 
-set fish_color_comment blue
-set fish_color_command white
-set fish_color_autosuggestion white
 
 # aliases
 alias 1 'arttime --nolearn -a colorowl2 -b colorowl3 -g "7m;60m;loop4"'
