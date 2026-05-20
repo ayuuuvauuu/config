@@ -1,48 +1,28 @@
 #!/bin/bash
 # /* ---- 💫 https://github.com/JaKooLit 💫 ---- */  ##
-# Playerctl
-
-music_icon="$HOME/.config/swaync/icons/music.png"
+# Playerctl (Notifications handled by sway-notify-daemon)
 
 # Play the next track
 play_next() {
     playerctl next
-    show_music_notification
 }
 
 # Play the previous track
 play_previous() {
     playerctl previous
-    show_music_notification
 }
 
 # Toggle play/pause
 toggle_play_pause() {
     playerctl play-pause
-    show_music_notification
 }
 
 # Stop playback
 stop_playback() {
     playerctl stop
+    # Optional: Keep the stop notification since the daemon only tracks "Playing" state
+    music_icon="$HOME/.config/swaync/icons/music.png"
     notify-send -e -u low -i "$music_icon" "Playback Stopped"
-}
-
-# Display notification with song information
-show_music_notification() {
-    rid=4242
-    sleep 0.1
-    status=$(playerctl status)
-    song_title=$(playerctl metadata title)
-    song_artist=$(playerctl metadata artist)
-    # if [[ "$status" == "Paused" ]]; then
-    #     notify-send -e -u low  "paused:" "$song_title\tby $song_artist"
-    # fi
-    if [[ "$status" == "Playing" ]]; then
-        notify-send -e -u low  "playing:" "$song_title\tby $song_artist"
-    elif [[ "$status" == "Paused" ]]; then
-        notify-send -e -u low  "paused:" "$song_title\tby $song_artist"
-    fi
 }
 
 # Get media control action from command line argument
