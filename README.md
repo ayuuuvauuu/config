@@ -13,9 +13,9 @@
 
 FOR CLEAN INSTALL:
 
-FOR NOTIFICAIONS THERE IS A SERVICE IN .config/sway
-
+read full https://github.com/swaywm/sway/wiki full
 CONFGIURE THAT, accordingly
+install gammasetp
 
 set fish defualt term,
 install battery saver tools(see below)

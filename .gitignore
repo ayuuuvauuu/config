@@ -25,6 +25,8 @@
 !.vim/
 !.cargo/
 !.local/
+!.config/fish/
+!.config/fish/config.fish
 !.local/bin/
 
 # optionally allow all cargo content

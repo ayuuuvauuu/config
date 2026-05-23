@@ -1,3 +1,6 @@
+ systemctl --user enable sway.service
+Created symlink '/home/brogrammer/.config/systemd/user/graphical-session.target.wants/sway.service' → '/home/brogrammer/.config/systemd/user/sway.service'.
+------------------
 sudo systemctl set-default graphical.target
 
 Created symlink '/etc/systemd/system/default.target' → '/usr/lib/systemd/system/graphical.target'.
