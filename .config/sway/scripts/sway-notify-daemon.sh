@@ -55,7 +55,7 @@ while IFS='|' read -r col1 col2 col3 col4 col5 <&3; do
         if [[ "$col2" == "Playing" ]]; then
             notify-send -h string:x-canonical-private-synchronous:media \
                 -i audio-x-generic \
-                "🎵 ${col3:-Unknown}" "${col4:-Unknown}"
+                "${col3:-Unknown}" "${col4:-Unknown}"
         fi
     else
         # Any other text is an event from upower

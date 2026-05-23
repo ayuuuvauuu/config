@@ -1,3 +1,26 @@
+sudo systemctl set-default graphical.target
+
+Created symlink '/etc/systemd/system/default.target' → '/usr/lib/systemd/system/graphical.target'.
+
+Created symlink '/etc/systemd/system/graphical.target.wants/sway.service' → '/etc/systemd/system/sway.service'.
+Removed '/etc/systemd/system/getty.target.wants/getty@tty1.service'.
+Removed '/etc/systemd/system/autovt@.service'.
+-----------------------------------------------
+sudo systemctl disable getty@.service 
+Removed '/etc/systemd/system/getty.target.wants/getty@tty1.service'.
+Removed '/etc/systemd/system/autovt@.service'.
+/etc/systemd/system                                                                                                                root@brogramm/etc/systemd/system                                      root@brogrammer
+❯ systemctl daemon-reload
+/etc/systemd/system                                      root@brogrammer
+❯ systemctl enable sway.service 
+Created symlink '/etc/systemd/system/graphical.target.wants/sway.service' → '/etc/systemd/system/sway.service'.
+/etc/systemd/system                                      root@brogrammer
+❮ sudo systemctl set-default graphical.target
+
+Created symlink '/etc/systemd/system/default.target' → '/usr/lib/systemd/system/graphical.target'.
+/etc/systemd/system                                      root@brogrammer
+❯ 
+
 
 sudo mkdir -p /etc/kernel-install.d
 echo '# no-op to prevent creating loader entries' | sudo tee /etc/kernel-install.d/90-loaderentry.install

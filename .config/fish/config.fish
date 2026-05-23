@@ -65,3 +65,6 @@ set -gx PATH $ANDROID_HOME/platform-tools $PATH
 set -Ux ANTHROPIC_BASE_URL "http://localhost:8080"
 set -Ux ANTHROPIC_AUTH_TOKEN "test"
 zoxide init fish --hook pwd | source
+
+# opencode
+fish_add_path /home/brogrammer/.opencode/bin

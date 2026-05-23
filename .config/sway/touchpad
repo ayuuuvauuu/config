@@ -1,4 +1,5 @@
 input "type:touchpad" {
+  pointer_accel 0.5
   scroll_factor 1
   scroll_method two_finger
   natural_scroll enabled

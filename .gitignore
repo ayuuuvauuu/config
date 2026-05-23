@@ -137,3 +137,4 @@
 /.config/spotdl
 /.config/bleachbit/bleachbit.ini
 /.config/bleachbit/cookie_keep_list.json
+/.config/opencode/opencode.jsonc
