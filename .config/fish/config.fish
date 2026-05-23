@@ -21,10 +21,9 @@ set -gx TERMINAL foot
 set -gx TERM foot
 set -gx fish_cursor_insert block
 
-
 # aliases
-alias 1 'arttime --nolearn -a colorowl2 -b colorowl3 -g "7m;60m;loop4"'
-alias 2 'arttime --nolearn -a unix -g "60m;loop10"'
+alias 1 'arttime --nolearn -a stars -t "You are Destained for Greatness." --ac 0 -g "7m;60m;loop4"'
+#alias 2 'arttime --nolearn -a unix -g "60m;loop10"'
 alias l "eza --icons=always --git"
 alias la "eza -all --icons=always --git"
 alias ff "sway --unsupported-gpu"
