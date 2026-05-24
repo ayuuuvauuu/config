@@ -1,3 +1,6 @@
+
+❯ mv libwlroots-0.20.so libwlroots-0.20.so.bak
+❯ mv pkgconfig/wlroots-0.20.pc pkgconfig/wlroots-0.20.pc.bak
  systemctl --user enable sway.service
 Created symlink '/home/brogrammer/.config/systemd/user/graphical-session.target.wants/sway.service' → '/home/brogrammer/.config/systemd/user/sway.service'.
 ------------------
