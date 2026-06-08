@@ -4,6 +4,7 @@ set -euo pipefail
 packages=(
     localsend
     cmus
+    git-delta
     unp
     # WM / compositor
     sway swaylock swayidle swaybg

@@ -10,7 +10,6 @@
 !.tmux.conf
 !.gitconfig
 !.vimrc
-!.viminfo
 !rain.sh
 !yt
 !ythumb
@@ -52,4 +51,6 @@
 !.config/auto-cpufreq/
 !.config/auto-cpufreq/**
 /.viminfo
-/.viminfo
+
+# ignore specific tracked files
+.config/fish/fish_variables
