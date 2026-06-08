@@ -522,7 +522,7 @@
 	"format-icons": [
 		"󰤯", "󰤟", "󰤢", "󰤥", "󰤨"
 	],
-	"on-click-right": "st nmtui"
+	"on-click": "foot nmtui"
 },
 "network#speed": {
 	"interval": 1,

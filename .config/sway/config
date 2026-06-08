@@ -56,7 +56,7 @@ bindsym --to-code Mod1+F4 kill
 bindsym --to-code $Mod+Return       exec $term
 bindsym --to-code $Mod+e            exec $editor
 bindsym --to-code $Mod+a            exec emacsclient -c
-bindsym --to-code $Mod+t            exec $filemanager
+bindsym --to-code $Mod+t            exec GTK_THEME=Adwaita:dark $filemanager
 bindsym --to-code $Mod+b            exec firefox
 bindsym --to-code $Mod+Shift+p      exec ~/.config/rofi/scripts/powermenu_t3
 
