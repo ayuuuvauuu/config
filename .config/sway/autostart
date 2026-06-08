@@ -1,0 +1,18 @@
+###############     Autostart      ##################
+set $Mod Mod4
+exec foot
+exec wl-paste --watch cliphist store
+exec python ~/.config/sway/sway-contrib/inactive-windows-transparency.py
+exec waybar
+exec nm-applet
+exec awww-daemon
+exec ~/.config/sway/scripts/sway-notify-daemon.sh
+#exec systemctl --user start sway-notify-daemon.service
+#
+exec autotiling-rs
+exec_always mako
+##song notification
+## screen sharing
+exec --no-startup-id dbus-update-activation-environment --systemd \
+   WAYLAND_DISPLAY XDG_CURRENT_DESKTOP=sway XDG_SESSION_DESKTOP=sway XDG_SESSION_TYPE=wayland
+exec --no-startup-id systemctl --user start pipewire wireplumber xdg-desktop-portal xdg-desktop-portal-wlr

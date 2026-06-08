@@ -1,0 +1,55 @@
+# ignore everything
+*
+**
+
+# allow root metadata
+!.gitignore
+!README.md
+
+# allow specific root files/dirs
+!.tmux.conf
+!.gitconfig
+!.vimrc
+!.viminfo
+!rain.sh
+!yt
+!ythumb
+!notes
+!done-this
+!install.sh
+
+# allow local bin
+!.local/bin/
+
+# allow config directory and specific subdirs
+!.config/
+!.config/fish/
+!.config/fish/**
+!.config/waybar/
+!.config/waybar/**
+!.config/sway/
+!.config/sway/**
+!.config/st/
+!.config/st/**
+!.config/rofi/
+!.config/rofi/**
+!.config/nnn/
+!.config/nnn/**
+!.config/mpv/
+!.config/mpv/**
+!.config/mouseless/
+!.config/mouseless/**
+!.config/mako/
+!.config/mako/**
+!.config/lazygit/
+!.config/lazygit/**
+!.config/foot/
+!.config/foot/**
+!.config/cmus/
+!.config/cmus/**
+!.config/btop/
+!.config/btop/**
+!.config/auto-cpufreq/
+!.config/auto-cpufreq/**
+/.viminfo
+/.viminfo
