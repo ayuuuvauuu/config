@@ -20,9 +20,8 @@
  	"cpu",
  	"custom/separator#blank", 
  	"memory",
- 	"custom/separator#blank", 
-    "disk",
- 	"mpris"
+ 	"custom/separator#blank_3", 
+    "custom/playerctl"
  	],
  
  "modules-center": [
@@ -34,20 +33,15 @@
  	], 
  
  "modules-right": [
-    "network",
  	"network#speed",
- 	"custom/separator#dot-line",
+    "network",
  	"custom/swaync",
  	"tray",
- 	"custom/separator#dot-line",
- 	"custom/separator#dot-line", 
- 	"custom/separator#dot-line", 
- 	"backlight#2",
+    "custom/separator#blank_3", 
+    "backlight#2",
     "battery",
- 	"custom/separator#dot-line",
- 	"custom/separator#dot-line", 
- 	"custom/separator#dot-line", 
- 	"pulseaudio",
+    "custom/separator#blank_3", 
+    "pulseaudio",
  	"custom/separator#dot-line",
  	"pulseaudio#microphone",
  	"custom/power#1" // using rofi power use only power if u want normal

@@ -3,6 +3,7 @@
 ## Clean Install
 - read full https://github.com/swaywm/sway/wiki
 - install `gammastep`
+- install waybar from my github
 - set fish default term
 - install battery saver tools
 - fix screen sharing: https://bbs.archlinux.org/viewtopic.php?id=291201

@@ -13,7 +13,7 @@ icons=0
 max-icon-size=64
 default-timeout=5000
 ignore-timeout=1
-font=JetBrainsMono Nerd Font 14
+font=JetBrainsMono Nerd Font, Noto Color Emoji 14
 
 [urgency=low]
 border-color=#cccccc

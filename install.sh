@@ -3,8 +3,10 @@ set -euo pipefail
 
 packages=(
     localsend
+    7zip
     cmus
     git-delta
+    noto-font-emoji
     unp
     # WM / compositor
     sway swaylock swayidle swaybg
