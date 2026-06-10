@@ -73,15 +73,11 @@ function n
 	rm -f -- "$tmp"
 end
 set -gx PATH bin $PATH
-set -gx NVM_DIR ~/.nvm
+set -gx PATH $HOME/.npm/bin $PATH
 set -gx PATH /usr/local/go/bin $PATH
-set -gx PATH /home/bro_grammer/.local/share/nvim/mason/bin $PATH
+set -gx PATH /home/ayu/.local/share/nvim/mason/bin $PATH
 set -gx PATH /home/ayu/Public/zulu21.46.19-ca-jdk21.0.9-linux_x64/bin $PATH
 set -gx PATH $HOME/go/bin $PATH
-set -gx PATH ~/bin $PATH
-set -gx NNN_OPENER '~/.config/nnn/plugins/nuke'
-set -gx NNN_PLUG 'b:bulknew;d:diffs;f:fzcd;F:fzopen;l:launch;t:preview-tui;n:nuke;p:fzplug'
-set -gx NNN_FIFO /tmp/nnn.fifo n
 set -gx PATH ~/.local/bin/ $PATH
 set -gx ANDROID_HOME /opt/android-sdk  # Or your manual path
 set -gx PATH $ANDROID_HOME/bin $PATH
