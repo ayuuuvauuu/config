@@ -44,7 +44,7 @@ window {
     cursor:                     "default";
     spacing:                    0px;
     border:                     1px;
-    border-radius:              5px;
+    border-radius:              10px;
     location:                   center;
     anchor:                     center;
 

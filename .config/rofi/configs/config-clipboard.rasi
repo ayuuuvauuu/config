@@ -2,6 +2,11 @@
 /* Clipboard Config - Clipboard */
 
 @import "~/.config/rofi/launchers/type-1/style-11.rasi" 
+
+* {
+    font: "JetBrains Mono Nerd Font 14";
+}
+
 /* ---- Entry ---- */
 entry {
   width: 37%;
@@ -15,5 +20,9 @@ listview {
 }
 
 window {
-  width: 1000px;
+  width: 1200px;
+  location: north east;
+  anchor: north east;
+  x-offset: 10px;
+  y-offset: 10px;
 }

@@ -6,7 +6,7 @@ packages=(
     7zip
     cmus
     git-delta
-    noto-font-emoji
+    noto-fonts noto-fonts-cjk noto-fonts-emoji
     unp
     # WM / compositor
     sway swaylock swayidle swaybg

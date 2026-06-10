@@ -58,14 +58,14 @@ if __name__ == "__main__":
         "--opacity",
         "-o",
         type=str,
-        default="0.70",
+        default="0.65",
         help="set inactive opacity value in range 0...1",
     )
     parser.add_argument(
         "--focused",
         "-f",
         type=str,
-        default="0.90",
+        default="0.95",
         help="set focused opacity value in range 0...1",
     )
     parser.add_argument(

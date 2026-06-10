@@ -23,7 +23,7 @@ window {
     location:                    center;
     anchor:                      center;
     fullscreen:                  false;
-    width:                       350px;
+    width:                       455px;
     x-offset:                    0px;
     y-offset:                    0px;
 
@@ -32,7 +32,7 @@ window {
     margin:                      0px;
     padding:                     0px;
     // border:                      1px solid;
-    border-radius:               0px;
+    border-radius:               14px;
     border-color:                @selected;
     cursor:                      "default";
     background-color:            @background;
@@ -41,9 +41,9 @@ window {
 /*****----- Main Box -----*****/
 mainbox {
     enabled:                     true;
-    spacing:                     8px;
+    spacing:                     10px;
     margin:                      0px;
-    padding:                     8px;
+    padding:                     10px;
     border:                      0px solid;
     border-radius:               0px;
     border-color:                @selected;
@@ -54,7 +54,7 @@ mainbox {
 /*****----- Inputbar -----*****/
 inputbar {
     enabled:                     true;
-    spacing:                     8px;
+    spacing:                     10px;
     margin:                      0px;
     padding:                     0px;
     border:                      0px;
@@ -69,15 +69,15 @@ textbox-prompt-colon {
     enabled:                     true;
     expand:                      false;
     str:                         "";
-    padding:                     8px 12px;
-    border-radius:               0px;
+    padding:                     10px 15px;
+    border-radius:               10px;
     background-color:            @urgent;
     text-color:                  @background;
 }
 prompt {
     enabled:                     true;
-    padding:                     8px;
-    border-radius:               0px;
+    padding:                     10px;
+    border-radius:               10px;
     background-color:            @active;
     text-color:                  @background;
 }
@@ -86,9 +86,9 @@ prompt {
 message {
     enabled:                     true;
     margin:                      0px;
-    padding:                     8px;
+    padding:                     10px;
     border:                      0px solid;
-    border-radius:               0px;
+    border-radius:               10px;
     border-color:                @selected;
     background-color:            @background-alt;
     text-color:                  @foreground;
@@ -124,7 +124,7 @@ listview {
     fixed-height:                true;
     fixed-columns:               true;
     
-    spacing:                     5px;
+    spacing:                     8px;
     margin:                      0px;
     padding:                     0px;
     border:                      0px solid;
@@ -140,9 +140,9 @@ element {
     enabled:                     true;
     spacing:                     0px;
     margin:                      0px;
-    padding:                     8px;
+    padding:                     10px;
     border:                      0px solid;
-    border-radius:               0px;
+    border-radius:               10px;
     border-color:                @selected;
     background-color:            transparent;
     text-color:                  @foreground;
