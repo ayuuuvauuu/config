@@ -4,6 +4,7 @@ set -euo pipefail
 packages=(
     localsend
     7zip
+    tree-sitter-cli
     cmus
     git-delta
     noto-fonts noto-fonts-cjk noto-fonts-emoji
