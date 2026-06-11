@@ -38,7 +38,7 @@ element-icon {
 }
 
 element-text {
-  font: "Fira Code SemiBold 12";
+  font: "JetBrains Mono Nerd Font 12";
   vertical-align: 0.5;
   horizontal-align: 0.5;
 }

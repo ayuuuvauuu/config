@@ -21,8 +21,6 @@ listview {
 
 window {
   width: 1200px;
-  location: north east;
-  anchor: north east;
-  x-offset: 10px;
-  y-offset: 10px;
+  location: center;
+  anchor: center;
 }
