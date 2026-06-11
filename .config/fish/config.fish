@@ -39,9 +39,11 @@ set -gx TERMINAL foot
 set -gx TERM foot
 set -gx fish_cursor_insert block
 
-if not test -f /tmp/powertop-once
+set -l pc 0
+test -f /tmp/powertop-once && test -s /tmp/powertop-once && set pc (string trim < /tmp/powertop-once)
+if test "$pc" -lt 2
     commandline -r "sudo powertop --auto-tune"
-    touch /tmp/powertop-once
+    math "$pc + 1" >/tmp/powertop-once
 end
 
 
@@ -134,4 +136,9 @@ function sudo
         end
     end
     command sudo $argv
+end
+
+# Autostart Sway on TTY login
+if not set -q WAYLAND_DISPLAY; and not set -q DISPLAY; and string match -q '/dev/tty*' (tty)
+    exec sway --unsupported-gpu
 end
