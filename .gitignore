@@ -4,6 +4,7 @@
 
 # allow root metadata
 !.gitignore
+!user.js
 !README.md
 !battery-report.md
 
@@ -55,3 +56,5 @@
 
 # ignore specific tracked files
 .config/fish/fish_variables
+/.config/cmus/command-history
+/.config/cmus/cache

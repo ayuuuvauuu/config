@@ -3,6 +3,7 @@ set -euo pipefail
 
 packages=(
     localsend
+    arttime
     7zip
     tree-sitter-cli
     cmus

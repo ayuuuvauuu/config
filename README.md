@@ -8,7 +8,7 @@
 - install battery saver tools
 - fix screen sharing: https://bbs.archlinux.org/viewtopic.php?id=291201
 - install apps from apps/ and programming/opt/
-- apps/user.js put in firefox profile root dir
+- user.js put in firefox profile root dir
 - gsettings set org.gnome.desktop.interface gtk-theme 'Adwaita-dark'
 
 ## Bluetooth
