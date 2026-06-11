@@ -5,6 +5,7 @@
 # allow root metadata
 !.gitignore
 !README.md
+!battery-report.md
 
 # allow specific root files/dirs
 !.tmux.conf
