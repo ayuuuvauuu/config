@@ -13,7 +13,7 @@ trap 'rm -f "$FIFO"; kill $(jobs -p) 2>/dev/null || true' EXIT
 exec 3<> "$FIFO"
 
 # Launch raw binaries directly into the FIFO (No Bash subshells created!)
-stdbuf -oL playerctl --player=cmus,spotify,firefox,chrome,chromium metadata --follow --format "MEDIA|{{status}}|{{title}}|{{artist}}|{{album}}" >&3 2>/dev/null &
+stdbuf -oL playerctl metadata --follow --format "MEDIA|{{status}}|{{title}}|{{artist}}|{{album}}" >&3 2>/dev/null &
 stdbuf -oL upower --monitor >&3 2>/dev/null &
 
 notified_20=0
