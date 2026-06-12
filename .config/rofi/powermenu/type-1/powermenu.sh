@@ -22,6 +22,7 @@ shutdown=' Shutdown'
 reboot=' Reboot'
 lock=' Lock'
 suspend=' Suspend'
+hibernate=' Hibernate'
 logout=' Logout'
 yes=' Yes'
 no=' No'
@@ -49,7 +50,7 @@ confirm_cmd() {
 
 # Pass variables to rofi dmenu
 run_rofi() {
-	echo -e "$lock\n$suspend\n$logout\n$reboot\n$shutdown" | rofi_cmd
+	echo -e "$hibernate\n$suspend\n$lock\n$logout\n$reboot\n$shutdown" | rofi_cmd
 }
 
 # Execute Command
@@ -64,6 +65,8 @@ run_cmd() {
 			mpc -q pause
 			amixer set Master mute
 			systemctl suspend
+		elif [[ $1 == '--hibernate' ]]; then
+			systemctl hibernate
 		elif [[ $1 == '--logout' ]]; then
 			if [[ "$DESKTOP_SESSION" == 'openbox' ]]; then
 				openbox --exit
@@ -98,6 +101,9 @@ case ${chosen} in
         ;;
     $suspend)
 		run_cmd --suspend
+        ;;
+    $hibernate)
+		run_cmd --hibernate
         ;;
     $logout)
 		run_cmd --logout
