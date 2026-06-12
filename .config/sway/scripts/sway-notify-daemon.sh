@@ -2,8 +2,9 @@
 # ~/.config/sway/scripts/sway-notify-daemon.sh
 set -euo pipefail
 
-# Create a named pipe (FIFO) in RAM
+# Create a named pipe (FIFO) in RAM, clean up any stale one first
 FIFO="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/sway-notify-fifo-$$"
+rm -f "$FIFO"
 mkfifo "$FIFO"
 
 # Clean up FIFO and kill background binaries on exit
