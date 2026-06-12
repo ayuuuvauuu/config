@@ -2,30 +2,36 @@
 # /* ---- 💫 https://github.com/JaKooLit 💫 ---- */  ##
 # Playerctl (Notifications handled by sway-notify-daemon)
 
-# Find best target: prefer cmus/spotify, then YouTube-Music/Spotify-Web in browser,
-# then any browser, skip other players entirely.
+# Priority: yt-music > cmus > mpv > spotify > yt > vlc > skip
 get_target() {
-    local browser_fallback=""
-    local music_url_match=""
+    local best=""
+    local best_priority=-1
 
     while IFS= read -r p; do
+        local priority=0
+
         case "$p" in
-            cmus|spotify)
-                echo "$p"
-                return 0
-                ;;
+            cmus)   priority=5 ;;
+            mpv)    priority=4 ;;
+            spotify) priority=3 ;;
+            vlc)    priority=1 ;;
             firefox*|chrome*|chromium*)
-                [[ -z "$browser_fallback" ]] && browser_fallback="$p"
                 url=$(playerctl --player="$p" metadata xesam:url 2>/dev/null)
-                if [[ "$url" == *"music.youtube.com"* || "$url" == *"open.spotify.com"* ]]; then
-                    music_url_match="$p"
-                fi
+                case "$url" in
+                    *music.youtube.com*) priority=6 ;;
+                    *open.spotify.com*)  priority=3 ;;
+                    *youtube.com*)       priority=2 ;;
+                esac
                 ;;
         esac
+
+        if (( priority > best_priority )); then
+            best="$p"
+            best_priority=$priority
+        fi
     done < <(playerctl -l 2>/dev/null)
 
-    [[ -n "$music_url_match" ]] && echo "$music_url_match" && return 0
-    [[ -n "$browser_fallback" ]] && echo "$browser_fallback" && return 0
+    [[ -n "$best" ]] && echo "$best" && return 0
     return 1
 }
 
