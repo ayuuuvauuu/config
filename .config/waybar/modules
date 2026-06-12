@@ -688,8 +688,8 @@
 "custom/playerctl": {
 	"format": "<span>{}</span>",
 	"return-type": "json",
-	"max-length": 35,
-	"exec": "playerctl -a metadata --format '{\"text\": \"{{artist}} ~ {{markup_escape(title)}}\", \"tooltip\": \"{{playerName}} : {{markup_escape(title)}}\", \"alt\": \"{{status}}\", \"class\": \"{{status}}\"}' -F",
+	"max-length": 60,
+	"exec": "playerctl --player=cmus,spotify,firefox,chrome,chromium metadata --format '{\"text\": \"{{artist}} ~ {{markup_escape(title)}}\", \"tooltip\": \"{{playerName}} : {{markup_escape(title)}}\", \"alt\": \"{{status}}\", \"class\": \"{{status}}\", \"playerName\": \"{{playerName}}\", \"url\": \"{{xesam:url}}\"}' -F 2>/dev/null | jq --unbuffered -c 'select(.playerName == \"cmus\" or .playerName == \"spotify\" or (.url | test(\"music[.]youtube[.]com|open[.]spotify[.]com\"; \"i\"))) | del(.playerName, .url)'",
 	"on-click-middle": "playerctl play-pause",
 	"on-click": "playerctl previous",
 	"on-click-right": "playerctl next",

@@ -2,24 +2,26 @@
 # /* ---- 💫 https://github.com/JaKooLit 💫 ---- */  ##
 # Playerctl (Notifications handled by sway-notify-daemon)
 
+PLAYERS="cmus,spotify,firefox,chrome,chromium"
+
 # Play the next track
 play_next() {
-    playerctl next
+    playerctl --player="$PLAYERS" next
 }
 
 # Play the previous track
 play_previous() {
-    playerctl previous
+    playerctl --player="$PLAYERS" previous
 }
 
 # Toggle play/pause
 toggle_play_pause() {
-    playerctl play-pause
+    playerctl --player="$PLAYERS" play-pause
 }
 
 # Stop playback
 stop_playback() {
-    playerctl stop
+    playerctl --player="$PLAYERS" stop
     # Optional: Keep the stop notification since the daemon only tracks "Playing" state
     music_icon="$HOME/.config/swaync/icons/music.png"
     notify-send -e -u low -i "$music_icon" "Playback Stopped"
