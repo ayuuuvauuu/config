@@ -2,6 +2,7 @@
 
 ## Clean Install
 - read full https://github.com/swaywm/sway/wiki
+- read suspend-and-hibernate-fix.md
 - install `gammastep`
 - install waybar from my github
 - set fish default term

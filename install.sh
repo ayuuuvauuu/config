@@ -3,6 +3,7 @@ set -euo pipefail
 
 packages=(
     localsend
+    gammastep
     arttime
     7zip
     tree-sitter-cli
