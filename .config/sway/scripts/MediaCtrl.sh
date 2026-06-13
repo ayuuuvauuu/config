@@ -2,42 +2,29 @@
 # /* ---- 💫 https://github.com/JaKooLit 💫 ---- */  ##
 # Playerctl (Notifications handled by sway-notify-daemon)
 
-# Priority: yt-music > cmus > mpv > spotify > yt > vlc > skip
+# Priority: yt-music > cmus > mpv > spotify > yt > vlc
+# Firefox exposes one MPRIS per browser, so tabs can't be
+# distinguished. Best-effort: if YouTube Music URL is detected,
+# target that instance directly; otherwise fall back to the list.
 get_target() {
-    local best=""
-    local best_priority=-1
+    local browsers=""
 
     while IFS= read -r p; do
-        local priority=0
-
         case "$p" in
-            cmus)   priority=5 ;;
-            mpv)    priority=4 ;;
-            spotify) priority=3 ;;
-            vlc)    priority=1 ;;
             firefox*|chrome*|chromium*)
                 url=$(playerctl --player="$p" metadata xesam:url 2>/dev/null)
-                case "$url" in
-                    *music.youtube.com*) priority=6 ;;
-                    *open.spotify.com*)  priority=3 ;;
-                    *youtube.com*)       priority=2 ;;
-                esac
+                if [[ "$url" == *"music.youtube.com"* ]]; then
+                    echo "$p"
+                    return 0
+                fi
+                browsers+="$p,"
                 ;;
         esac
-
-        # Boost actively playing players so they beat paused ones
-        local status
-        status=$(playerctl --player="$p" status 2>/dev/null)
-        [[ "$status" == "Playing" ]] && (( priority += 10 ))
-
-        if (( priority > best_priority )); then
-            best="$p"
-            best_priority=$priority
-        fi
     done < <(playerctl -l 2>/dev/null)
 
-    [[ -n "$best" ]] && echo "$best" && return 0
-    return 1
+    browsers="${browsers%,}"
+    # playerctl --player picks first running player from the list
+    echo "cmus,mpv,spotify,${browsers},vlc"
 }
 
 # Play the next track
