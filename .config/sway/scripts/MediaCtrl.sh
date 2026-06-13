@@ -25,6 +25,11 @@ get_target() {
                 ;;
         esac
 
+        # Boost actively playing players so they beat paused ones
+        local status
+        status=$(playerctl --player="$p" status 2>/dev/null)
+        [[ "$status" == "Playing" ]] && (( priority += 10 ))
+
         if (( priority > best_priority )); then
             best="$p"
             best_priority=$priority
