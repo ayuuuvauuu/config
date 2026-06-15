@@ -1,13 +1,13 @@
 #!/bin/bash
 
 # sway-auto-redirect.sh
-# Automatically redirect excess windows from the same app to a new workspace.
+# Automatically redirect excess windows from the same app to the next
+# numbered workspace (current + 1, wrapping after 8 to 1).
 # Configure THRESHOLD and MONITORED_APPS below.
 
 THRESHOLD=3
 MONITORED_APPS=()
 
-OVERFLOW_NUM=1
 declare -A WINDOW_COUNTS
 
 cleanup() {
@@ -15,6 +15,14 @@ cleanup() {
     exit 0
 }
 trap cleanup SIGINT SIGTERM
+
+next_workspace() {
+    swaymsg -t get_workspaces -r | jq -r '
+        [.[] | select(.focused == true) | .num][0] as $cur
+        | if $cur == 8 then 1 elif $cur then $cur + 1 else 4 end
+        | tostring
+    '
+}
 
 while read -r line; do
     change=$(echo "$line" | jq -r '.change // empty')
@@ -39,7 +47,7 @@ while read -r line; do
     count=${WINDOW_COUNTS["$app"]}
 
     if [ "$count" -gt "$THRESHOLD" ]; then
-        ws="overflow-${app}-${OVERFLOW_NUM}"
-        swaymsg "[con_id=$con_id] move window to workspace \"$ws\"" >/dev/null 2>&1
+        target=$(next_workspace)
+        swaymsg "[con_id=$con_id] move window to workspace number $target" >/dev/null 2>&1
     fi
 done < <(swaymsg -m -t SUBSCRIBE '["window"]')
