@@ -139,6 +139,6 @@ function sudo
 end
 
 # Autostart Sway on TTY login
-if not set -q WAYLAND_DISPLAY; and not set -q DISPLAY; and string match -q '/dev/tty*' (tty)
-    exec sway --unsupported-gpu
-end
+#if not set -q WAYLAND_DISPLAY; and not set -q DISPLAY; and string match -q '/dev/tty*' (tty)
+#    exec sway --unsupported-gpu
+#end
