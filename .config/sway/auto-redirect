@@ -1,0 +1,2 @@
+###############     Auto Redirect Windows     ##################
+exec_always ~/.config/sway/scripts/sway-auto-redirect.sh
