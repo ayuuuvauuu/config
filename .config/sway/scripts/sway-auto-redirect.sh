@@ -5,7 +5,7 @@
 # numbered workspace (current + 1, wrapping after 8 to 1).
 # Configure THRESHOLD and MONITORED_APPS below.
 
-THRESHOLD=2
+THRESHOLD=3
 MONITORED_APPS=()
 
 declare -A WINDOW_COUNTS
