@@ -59,3 +59,4 @@
 .config/fish/fish_variables
 /.config/cmus/command-history
 /.config/cmus/cache
+/.config/cmus/autosave
