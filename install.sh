@@ -3,6 +3,7 @@ set -euo pipefail
 
 packages=(
     localsend
+    bat
     feh
     gammastep
     arttime

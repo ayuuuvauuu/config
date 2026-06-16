@@ -79,6 +79,7 @@ set -gx PATH $HOME/.npm/bin $PATH
 set -gx PATH /usr/local/go/bin $PATH
 set -gx PATH /home/ayu/.local/share/nvim/mason/bin $PATH
 set -gx PATH /home/ayu/Public/zulu21.46.19-ca-jdk21.0.9-linux_x64/bin $PATH
+set -gx PATH /home/ayu/Public/gradle-9.5.1/bin $PATH
 set -gx PATH $HOME/go/bin $PATH
 set -gx PATH ~/.local/bin/ $PATH
 set -gx ANDROID_HOME /opt/android-sdk  # Or your manual path
