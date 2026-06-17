@@ -32,17 +32,18 @@ while read -r line; do
         $monitored || continue
     fi
 
-    target=$(swaymsg -t get_tree -r | jq -r --arg app "$app" --argjson limit "$THRESHOLD" '
-        [.. | select(.type? == "workspace" and .name? != "__i3_scratch")
-         | { num: .num, count: [.. | select(.app_id? == $app or .window_properties?.class? == $app)] | length }]
-        | sort_by(.num)
+    cur=$(swaymsg -t get_workspaces -r | jq -r '.[] | select(.focused) | .num')
+
+    target=$(swaymsg -t get_tree -r | jq -r --arg app "$app" --argjson cur "$cur" --argjson limit "$THRESHOLD" '
+        ([.. | select(.type? == "workspace" and .name? != "__i3_scratch")
+          | { num: .num, count: [.. | select(.app_id? == $app or .window_properties?.class? == $app)] | length }]
+         | sort_by(.num)) as $all
+        | ($all | map(select(.num >= $cur))) + ($all | map(select(.num < $cur)))
         | map(select(.count < $limit))
         | first | .num // empty
     ')
 
     [ -z "$target" ] && continue
-
-    cur=$(swaymsg -t get_workspaces -r | jq -r '.[] | select(.focused) | .num')
 
     if [ "$target" != "$cur" ]; then
         swaymsg "[con_id=$con_id] move window to workspace number $target" >/dev/null 2>&1

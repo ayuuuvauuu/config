@@ -197,3 +197,39 @@ PSR aux errors gone. Suspend ~2x faster. Link training still fails once on resum
 
 Allows GPU to enter D3cold (~0W) when idle. Reboot required for full effect.
 
+---
+
+
+# Dark Theme (2026-06-16)
+
+System-wide dark theme for GTK + Qt without installing new packages.
+
+**GTK 3** (`~/.config/gtk-3.0/settings.ini`):
+```ini
+[Settings]
+gtk-theme-name = Adwaita-dark
+gtk-icon-theme-name = Adwaita
+gtk-application-prefer-dark-theme = true
+```
+
+**GTK 4** (`~/.config/gtk-4.0/settings.ini`):
+```ini
+[Settings]
+gtk-theme-name = Adwaita-dark
+gtk-icon-theme-name = Adwaita
+gtk-application-prefer-dark-theme = true
+```
+
+**Qt** (makes Qt apps follow GTK theme):
+```bash
+# Add to /etc/environment (system-wide, picked up by DM):
+QT_QPA_PLATFORMTHEME=gtk3
+GTK_THEME=Adwaita:dark
+
+# Add to ~/.bashrc (shell sessions):
+export QT_QPA_PLATFORMTHEME=gtk3
+export GTK_THEME=Adwaita:dark
+```
+
+Requires `libqgtk3.so` (qt6/qt5 platform theme plugin) — comes with `qt6-base`/`qt5-base`. No extra packages needed.
+
