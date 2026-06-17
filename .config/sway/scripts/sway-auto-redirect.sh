@@ -1,28 +1,17 @@
 #!/bin/bash
 
 # sway-auto-redirect.sh
-# Automatically redirect excess windows from the same app to the next
-# numbered workspace (current + 1, wrapping after 8 to 1).
-# Configure THRESHOLD and MONITORED_APPS below.
+# Distribute windows so no workspace has more than THRESHOLD from the same app.
+# Windows go to the first workspace (1-8) with room.
 
 THRESHOLD=2
 MONITORED_APPS=()
-
-declare -A WINDOW_COUNTS
 
 cleanup() {
     pkill -P $$ swaymsg
     exit 0
 }
 trap cleanup SIGINT SIGTERM
-
-next_workspace() {
-    swaymsg -t get_workspaces -r | jq -r '
-        [.[] | select(.focused == true) | .num][0] as $cur
-        | if $cur == 8 then 1 elif $cur then $cur + 1 else 4 end
-        | tostring
-    '
-}
 
 while read -r line; do
     change=$(echo "$line" | jq -r '.change // empty')
@@ -43,11 +32,19 @@ while read -r line; do
         $monitored || continue
     fi
 
-    WINDOW_COUNTS["$app"]=$(( ${WINDOW_COUNTS["$app"]} + 1 ))
-    count=${WINDOW_COUNTS["$app"]}
+    target=$(swaymsg -t get_tree -r | jq -r --arg app "$app" --argjson limit "$THRESHOLD" '
+        [.. | select(.type? == "workspace" and .name? != "__i3_scratch")
+         | { num: .num, count: [.. | select(.app_id? == $app or .window_properties?.class? == $app)] | length }]
+        | sort_by(.num)
+        | map(select(.count < $limit))
+        | first | .num // empty
+    ')
 
-    if [ "$count" -gt "$THRESHOLD" ]; then
-        target=$(next_workspace)
+    [ -z "$target" ] && continue
+
+    cur=$(swaymsg -t get_workspaces -r | jq -r '.[] | select(.focused) | .num')
+
+    if [ "$target" != "$cur" ]; then
         swaymsg "[con_id=$con_id] move window to workspace number $target" >/dev/null 2>&1
     fi
 done < <(swaymsg -m -t SUBSCRIBE '["window"]')
