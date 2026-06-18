@@ -41,8 +41,8 @@ set -gx fish_cursor_insert block
 
 set -l pc 0
 test -f /tmp/powertop-once && test -s /tmp/powertop-once && set pc (string trim < /tmp/powertop-once)
-if test "$pc" -lt 2
-    commandline -r "sudo powertop --auto-tune"
+if test "$pc" -lt 1
+    powertop --auto-tune
     math "$pc + 1" >/tmp/powertop-once
 end
 
@@ -54,6 +54,7 @@ alias l "eza --icons=always --git"
 alias la "eza -all --icons=always --git"
 alias ff "sway --unsupported-gpu"
 alias bat "bat -p"
+alias opc "opencode"
 alias cl "clear"
 alias john "/usr/bin/john"
 # alias pdf "MESA_GL_VERSION_OVERRIDE=2.1 MESA_GLSL_VERSION_OVERRIDE=330 sioyek"
@@ -140,6 +141,6 @@ function sudo
 end
 
 # Autostart Sway on TTY login
-#if not set -q WAYLAND_DISPLAY; and not set -q DISPLAY; and string match -q '/dev/tty*' (tty)
-#    exec sway --unsupported-gpu
-#end
+if not set -q WAYLAND_DISPLAY; and not set -q DISPLAY; and string match -q '/dev/tty*' (tty)
+    exec sway --unsupported-gpu
+end

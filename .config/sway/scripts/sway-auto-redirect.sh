@@ -40,14 +40,13 @@ while read -r line; do
     # Current workspace still has room (count includes the new window)
     [ "$cur_count" -le "$THRESHOLD" ] && continue
 
-    # Find next workspace with room (count < THRESHOLD — the new window isn't there yet)
+    # Find next workspace with room — only forward, no wrap
     target=$(swaymsg -t get_tree -r | jq -r --arg app "$app" --argjson cur "$cur" --argjson limit "$THRESHOLD" '
         ([.. | select(.type? == "workspace" and .name? != "__i3_scratch" and .num != $cur)
           | { num: .num, count: [.. | select(.app_id? == $app or .window_properties?.class? == $app)] | length }]
-         | sort_by(.num)) as $all
-        | ($all | map(select(.num > $cur))) + ($all | map(select(.num < $cur)))
-        | map(select(.count < $limit))
-        | first | .num // empty
+         | sort_by(.num)
+         | map(select(.num > $cur and .count < $limit))
+         | first | .num // empty
     ')
 
     [ -z "$target" ] && continue
