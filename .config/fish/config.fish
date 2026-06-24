@@ -1,17 +1,3 @@
-function fish_greeting
-#     pokemon-colorscripts -r
-# ``		echo " overflow: hidden make short note of at nigga ,leran beldner, there is a fast way to compute prime no its p*p <= n  make calcutor terminal"
-	echo "
-	1. see in /etc what to use(mkinit
-	2. reduce boot time(opencode)
-	3. get all accoutns workign
-	4. check if snapshot reducing perfomce, batt life( github issue see)
-    5. fix suspend
-    6. theme fish(aws.fish git)
-
-	
-	"
-end
 set -U fish_greeting ""
 set -gx TERM xterm-256color
 set -g fish_key_bindings fish_vi_key_bindings

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 THRESHOLD=2
-MONITORED_APPS=("firefox" "Firefox")
+declare -A COUNT
 
 cleanup() {
     pkill -P $$ swaymsg
@@ -18,37 +18,29 @@ while read -r line; do
     con_id=$(echo "$line" | jq -r '.container.id // empty')
 
     app="${app_id:-$window_class}"
-    [ -z "$app" ] && continue
-
-    if [ ${#MONITORED_APPS[@]} -gt 0 ]; then
-        monitored=false
-        for m in "${MONITORED_APPS[@]}"; do
-            [[ "$app" == "$m" ]] && { monitored=true; break; }
-        done
-        $monitored || continue
-    fi
+    case "$app" in
+        *[fF]irefox*) ;;
+        *) continue ;;
+    esac
 
     cur=$(swaymsg -t get_workspaces -r | jq -r '.[] | select(.focused) | .num')
     [ -z "$cur" ] && continue
 
-    cur_count=$(swaymsg -t get_tree -r | jq -r --arg app "$app" --argjson cur "$cur" '
-        [.. | select(.type? == "workspace" and .num == $cur)
-         | [.. | select(.app_id? == $app or .window_properties?.class? == $app)] | length]
-        | first // 0
-    ')
+    COUNT[$cur]=$(( ${COUNT[$cur]} + 1 ))
 
-    # Current workspace still has room (count includes the new window)
-    [ "$cur_count" -le "$THRESHOLD" ] && continue
-
-    # Find next workspace with room — only forward, no wrap
-    target=$(swaymsg -t get_tree -r | jq -r --arg app "$app" --argjson cur "$cur" --argjson limit "$THRESHOLD" '
-        ([.. | select(.type? == "workspace" and .name? != "__i3_scratch" and .num != $cur)
-          | { num: .num, count: [.. | select(.app_id? == $app or .window_properties?.class? == $app)] | length }]
-         | sort_by(.num)
-         | map(select(.num > $cur and .count < $limit))
-         | first | .num // empty
-    ')
-
-    [ -z "$target" ] && continue
-    swaymsg "[con_id=$con_id] move window to workspace number $target" >/dev/null 2>&1
+    if [ "${COUNT[$cur]}" -gt "$THRESHOLD" ]; then
+        moved=false
+        for ((i = cur + 1; i <= 8; i++)); do
+            [ "${COUNT[$i]:-0}" -lt "$THRESHOLD" ] || continue
+            swaymsg "[con_id=$con_id] move window to workspace number $i" >/dev/null 2>&1
+            moved=true; break
+        done
+        if ! $moved && [ "$cur" -eq 8 ]; then
+            for ((i = 1; i <= 7; i++)); do
+                [ "${COUNT[$i]:-0}" -lt "$THRESHOLD" ] || continue
+                swaymsg "[con_id=$con_id] move window to workspace number $i" >/dev/null 2>&1
+                break
+            done
+        fi
+    fi
 done < <(swaymsg -m -t SUBSCRIBE '["window"]')
