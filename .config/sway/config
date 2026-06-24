@@ -55,10 +55,12 @@ bindsym --to-code Mod1+F4 kill
 
 # core applications
 bindsym --to-code $Mod+Return       exec $term
+for_window [app_id="foot-float"] floating enable, resize set 600 600, move position center
+bindsym --to-code $Mod+apostrophe   exec foot --app-id=foot-float
 bindsym --to-code $Mod+e            exec $editor
 bindsym --to-code $Mod+a            exec emacsclient -c
 bindsym --to-code $Mod+t            exec GTK_THEME=Adwaita:dark $filemanager
-bindsym --to-code $Mod+b exec "~/.config/sway/scripts/sway-auto-redirect.sh & firefox & (sleep 5; pkill -f 'sway-auto-redirect') &"
+bindsym --to-code $Mod+b exec "~/.config/sway/scripts/sway-auto-redirect.sh & firefox & (sleep 30; pkill -f 'sway-auto-redirect') &"
 bindsym --to-code $Mod+Shift+p      exec ~/.config/rofi/scripts/powermenu_t3
 
 # Exit sway (default way to log you out of your Wayland session)

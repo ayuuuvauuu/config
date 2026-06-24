@@ -1,7 +1,7 @@
 #!/bin/bash
 
 THRESHOLD=2
-MONITORED_APPS=()
+MONITORED_APPS=("firefox" "Firefox")
 
 cleanup() {
     pkill -P $$ swaymsg
