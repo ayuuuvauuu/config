@@ -48,7 +48,7 @@ powertop --calibrate && powertop --auto-tune
 - `astrortm`, `delta` (git pager), `so` (tui for stackoverflow)
 - remove all `fish.tmp.*` from fish dir to clear temp env vars
 - install `unp`
-- screenshot: `screensy` https://screensy.marijn.it
+- screen share check: `screensy` https://screensy.marijn.it
 - font check: `fc-list`
 - switch to g++ 12 if nvim errors
 

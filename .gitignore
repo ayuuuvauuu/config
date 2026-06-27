@@ -2,14 +2,14 @@
 *
 **
 
-# allow root metadata
+#  ─── ROOT METADATA ────────────────────────────────────────────
 !.gitignore
 !user.js
 !README.md
 !battery-report.md
 !suspend-and-hibernate-fix.md
 
-# allow specific root files/dirs
+#  ─── ROOT FILES/DIRS ──────────────────────────────────────────
 !.tmux.conf
 !.gitconfig
 !.vimrc
@@ -20,10 +20,19 @@
 !done-this
 !install.sh
 
-# allow local bin
+#  ─── .local/bin ───────────────────────────────────────────────
 !.local/bin/
+!.local/bin/**
 
-# allow config directory and specific subdirs
+#  ─── Notes ────────────────────────────────────────────────────
+!Notes/
+!Notes/**
+# files to EXCLUDE from tracking (add patterns below):
+Notes/kiit
+Notes/vit
+Notes/bitsat
+
+#  ─── .config ──────────────────────────────────────────────────
 !.config/
 !.config/fish/
 !.config/fish/**
@@ -55,7 +64,7 @@
 !.config/auto-cpufreq/**
 /.viminfo
 
-# ignore specific tracked files
+#  ─── EXCLUDED (tracked file exceptions) ───────────────────────
 .config/fish/fish_variables
 /.config/cmus/command-history
 /.config/cmus/cache
