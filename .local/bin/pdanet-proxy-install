@@ -1,0 +1,170 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+SRC_DIR="$(cd "$(dirname "$0")" && pwd)"
+
+if [[ -n "${SUDO_USER:-}" ]]; then
+    INSTALL_DIR="$(getent passwd "$SUDO_USER" | cut -d: -f6)/.local/bin"
+else
+    INSTALL_DIR="${HOME}/.local/bin"
+fi
+
+info() {
+    echo "$*"
+}
+
+die() {
+    echo "ERROR: $*" >&2
+    exit 1
+}
+
+detect_pm() {
+    if command -v apt &>/dev/null; then
+        echo "apt"
+    elif command -v pacman &>/dev/null; then
+        echo "pacman"
+    elif command -v dnf &>/dev/null; then
+        echo "dnf"
+    else
+        echo "unknown"
+    fi
+}
+
+check_deps() {
+    local missing=()
+    for cmd in "$@"; do
+        if ! command -v "$cmd" &>/dev/null; then
+            missing+=("$cmd")
+        fi
+    done
+    echo "${missing[@]}"
+}
+
+pkg_hint() {
+    local pm
+    pm=$(detect_pm)
+    case "$pm" in
+        apt)
+            echo "apt install $1"
+            ;;
+        pacman)
+            echo "pacman -S $2"
+            ;;
+        dnf)
+            echo "dnf install $3"
+            ;;
+        *)
+            echo "install the package providing: $1 $2 $3"
+            ;;
+    esac
+}
+
+warn_path() {
+    local bashrc
+    if [[ -n "${SUDO_USER:-}" ]]; then
+        bashrc="$(getent passwd "$SUDO_USER" | cut -d: -f6)/.bashrc"
+    else
+        bashrc="${HOME}/.bashrc"
+    fi
+
+    if ! echo "$PATH" | tr ':' '\n' | grep -qx "$INSTALL_DIR"; then
+        info ""
+        info "NOTE: $INSTALL_DIR is not in your PATH."
+        info "Add this to $bashrc:"
+        info "  export PATH=\"\$PATH:$INSTALL_DIR\""
+    fi
+}
+
+install_scripts() {
+    mkdir -p "$INSTALL_DIR"
+
+    cp "$SRC_DIR/setup.sh" "$INSTALL_DIR/pdanet-proxy-setup"
+    cp "$SRC_DIR/teardown.sh" "$INSTALL_DIR/pdanet-proxy-teardown"
+    cp "$SRC_DIR/status.sh" "$INSTALL_DIR/pdanet-proxy-status"
+    cp "$SRC_DIR/pdanet_proxy.py" "$INSTALL_DIR/pdanet-proxy.py"
+    chmod +x "$INSTALL_DIR/pdanet-proxy-setup" \
+             "$INSTALL_DIR/pdanet-proxy-teardown" \
+             "$INSTALL_DIR/pdanet-proxy-status" \
+             "$INSTALL_DIR/pdanet-proxy.py"
+
+    info "Installed scripts to $INSTALL_DIR"
+}
+
+install_doh_proxy() {
+    if [[ $EUID -eq 0 ]]; then
+        local doh_dest="/usr/local/bin/doh-proxy.py"
+        if [[ -f "$SRC_DIR/doh-proxy.py" ]]; then
+            cp "$SRC_DIR/doh-proxy.py" "$doh_dest"
+            chmod +x "$doh_dest"
+            info "Installed doh-proxy.py to $doh_dest"
+        fi
+        if [[ -f "$SRC_DIR/doh-proxy.service" ]]; then
+            cp "$SRC_DIR/doh-proxy.service" "/etc/systemd/system/doh-proxy.service"
+            systemctl daemon-reload
+            info "Installed doh-proxy.service (systemd)"
+        fi
+    else
+        if [[ -f "$SRC_DIR/doh-proxy.py" ]]; then
+            info "NOTE: doh-proxy.py requires root to install (needs port 53 binding)."
+            info "  Run 'sudo $0' to install the DoH proxy as a system service."
+        fi
+    fi
+}
+
+# --- Dependency Check ---
+REQUIRED_TOOLS=(
+    "ip:iproute2:iproute2:iproute"
+    "iptables:iptables:iptables-nft:iptables-nft"
+    "ss:iproute2:iproute2:iproute"
+    "python3:python3:python3:python3"
+    "curl:curl:curl:curl"
+    "pgrep:procps:procps-ng:procps-ng"
+)
+
+OPTIONAL_TOOLS=(
+    "dig:dnsutils:bind:bind-utils"
+)
+
+MISSING_DEPS=()
+for entry in "${REQUIRED_TOOLS[@]}"; do
+    cmd="${entry%%:*}"
+    if ! command -v "$cmd" &>/dev/null; then
+        MISSING_DEPS+=("$entry")
+    fi
+done
+
+if [[ ${#MISSING_DEPS[@]} -gt 0 ]]; then
+    info "Missing required system dependencies:"
+    for entry in "${MISSING_DEPS[@]}"; do
+        IFS=':' read -r cmd apt_pkg pacman_pkg dnf_pkg <<< "$entry"
+        hint=$(pkg_hint "$apt_pkg" "$pacman_pkg" "$dnf_pkg")
+        info "  $cmd → sudo $hint"
+    done
+    info ""
+    info "Install missing dependencies and re-run this script."
+    exit 1
+fi
+
+for entry in "${OPTIONAL_TOOLS[@]}"; do
+    cmd="${entry%%:*}"
+    if ! command -v "$cmd" &>/dev/null; then
+        IFS=':' read -r _ apt_pkg pacman_pkg dnf_pkg <<< "$entry"
+        hint=$(pkg_hint "$apt_pkg" "$pacman_pkg" "$dnf_pkg")
+        info "NOTE: $cmd not found (install for DNS check: sudo $hint)"
+    fi
+done
+
+# --- Main ---
+install_scripts
+install_doh_proxy
+
+info ""
+info "Installation complete. To set up the proxy:"
+info "  sudo ~/.local/bin/pdanet-proxy-setup"
+info ""
+info "Or after adding to PATH:"
+info "  sudo pdanet-proxy-setup"
+info ""
+info "Check status: pdanet-proxy-status  (no sudo needed)"
+warn_path

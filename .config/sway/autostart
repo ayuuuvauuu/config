@@ -1,7 +1,7 @@
 ###############     Autostart      ##################
 set $Mod Mod4
 exec foot
-exec gammastep -O 3700
+exec gammastep -O 3500
 exec wl-paste --watch cliphist store
 exec python ~/.config/sway/sway-contrib/inactive-windows-transparency.py
 exec waybar
