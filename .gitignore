@@ -21,6 +21,7 @@
 !install.sh
 
 #  ─── .local/bin ───────────────────────────────────────────────
+!.local/
 !.local/bin/
 !.local/bin/**
 

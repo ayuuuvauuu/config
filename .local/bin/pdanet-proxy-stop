@@ -1,0 +1,67 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+PID_FILE="/tmp/pdanet-proxy.pid"
+
+die() {
+    echo "ERROR: $*" >&2
+    exit 1
+}
+
+info() {
+    echo "$*"
+}
+
+check_root() {
+    if [[ $EUID -ne 0 ]]; then
+        die "This script must be run as root (sudo)."
+    fi
+}
+
+stop_proxy() {
+    local found=false
+
+    if [[ -f "$PID_FILE" ]]; then
+        local pid
+        pid=$(cat "$PID_FILE")
+        if kill -0 "$pid" 2>/dev/null; then
+            kill "$pid" 2>/dev/null || true
+            info "Proxy stopped (PID $pid)"
+            found=true
+        fi
+        rm -f "$PID_FILE"
+    fi
+
+    if pgrep -f pdanet-proxy.py &>/dev/null; then
+        pkill -f pdanet-proxy.py 2>/dev/null || true
+        info "Proxy stopped (pkill fallback)"
+        found=true
+    fi
+
+    if ! $found; then
+        info "No proxy running, skipping"
+    fi
+}
+
+remove_iptables() {
+    local chain="REDSOCKS"
+
+    if ! iptables -t nat -L "$chain" &>/dev/null; then
+        info "No iptables REDSOCKS chain found, skipping"
+        return 0
+    fi
+
+    iptables -t nat -D OUTPUT -p tcp -j "$chain" 2>/dev/null || true
+    iptables -t nat -F "$chain" 2>/dev/null || true
+    iptables -t nat -X "$chain" 2>/dev/null || true
+
+    info "iptables REDSOCKS chain removed."
+}
+
+# --- Main ---
+check_root
+stop_proxy
+remove_iptables
+
+info ""
+info "Teardown complete. Direct internet access restored."
