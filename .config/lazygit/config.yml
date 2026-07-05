@@ -1,0 +1,20 @@
+git:
+  pagers:
+    - pager: delta --paging=never -n
+gui:
+  theme:
+    activeBorderColor: [green, bold]
+    selectedLineBgColor: [blue]
+  scrollHeight: 2
+  scrollPastBottom: true
+  showFileTree: true
+  showListFooter: true
+  showRandomTip: false
+os:
+  editPreset: vim # Matches your vim/nvim preference
+keybinding:
+  universal:
+    quit: q
+    togglePanel: <tab>
+    prevItem-alt: k
+    nextItem-alt: j # Vim-like navigation

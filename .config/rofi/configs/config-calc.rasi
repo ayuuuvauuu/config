@@ -1,0 +1,27 @@
+@import "~/.config/rofi/launchers/type-1/style-11.rasi" 
+
+/* ---- Entry ---- */
+entry {
+  width: 27%;
+  placeholder: "calculate";
+}
+
+listview {
+
+  scrollbar: false;
+}
+
+element {
+    enabled:                     false;
+}
+/* ---- Window ---- */
+window {
+    width:	30%;
+    height: 200px;
+}
+
+/* ---- Message ---- */
+textbox {
+    background-color:            @selected;
+    text-color:                  @background;
+}
