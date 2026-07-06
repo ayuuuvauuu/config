@@ -1,3 +1,9 @@
+sudo pwoertop usb powersave disable
+optinal maybe
+---------
+populat /etc/defualt/limine with /boot/limie.conf
+stuff and put in github, add a note in defualt to edit github
+-------
 sync root ayu config
 ---------
 add telegram(any libs check)

@@ -319,7 +319,7 @@
   "format": "{percent}%",
 },
 "battery": {
-	"interval": 10,
+	"interval": 5,
 	"align": 0,
 	"rotate": 0,
 	//"bat": "BAT1",
