@@ -1,0 +1,106 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+CHAIN="REDSOCKS"
+PID_FILE="/tmp/pdanet-proxy.pid"
+
+info() {
+    echo "$*"
+}
+
+check_proxy() {
+    if [[ -f "$PID_FILE" ]]; then
+        local pid
+        pid=$(cat "$PID_FILE")
+        if kill -0 "$pid" 2>/dev/null; then
+            info "TCP proxy: running (PID $pid)"
+            return 0
+        fi
+        info "TCP proxy: PID file exists but process dead (stale PID $pid)"
+    fi
+
+    if pgrep -f pdanet-proxy.py &>/dev/null; then
+        local live_pid
+        live_pid=$(pgrep -f pdanet-proxy.py | head -1)
+        info "TCP proxy: running (PID $live_pid, no PID file)"
+        return 0
+    fi
+
+    if ss -tlnp 2>/dev/null | grep -q ":12345 "; then
+        local port_pid
+        port_pid=$(ss -tlnp 2>/dev/null | grep ":12345 " | grep -oP 'pid=\K[0-9]+' | head -1)
+        info "TCP proxy: running on port 12345 (PID $port_pid, no PID file)"
+        return 0
+    fi
+
+    info "TCP proxy: NOT running"
+    return 1
+}
+
+check_iptables() {
+    if iptables -t nat -L "$CHAIN" &>/dev/null; then
+        info "iptables REDSOCKS chain: active"
+        local rule_count
+        rule_count=$(iptables -t nat -L "$CHAIN" -n | wc -l)
+        info "  Rules in chain: $((rule_count - 3))"
+        return 0
+    fi
+    info "iptables REDSOCKS chain: NOT active"
+    return 1
+}
+
+check_proxy_connect() {
+    local ext_ip
+    ext_ip=$(env -u http_proxy -u https_proxy -u HTTP_PROXY -u HTTPS_PROXY \
+        curl -s --noproxy '*' -m 10 https://1.1.1.1/cdn-cgi/trace 2>/dev/null | \
+        grep -oE 'ip=[0-9.]+' | cut -d= -f2 | head -1)
+    if [[ -n "$ext_ip" ]]; then
+        info "Proxy connection: OK (external IP: $ext_ip)"
+        return 0
+    fi
+    info "Proxy connection: FAILED"
+    return 1
+}
+
+check_dns() {
+    local result
+    result=$(dig +short @127.0.0.2 httpbin.org +time=4 +tries=1 2>/dev/null | head -1)
+    if [[ -n "$result" ]]; then
+        info "DNS check: OK ($result)"
+        return 0
+    fi
+    info "DNS check: FAILED"
+    return 1
+}
+
+check_doh_proxy() {
+    if systemctl is-active --quiet doh-proxy 2>/dev/null; then
+        info "DoH proxy: running (127.0.0.2:53)"
+        return 0
+    fi
+    if pgrep -f doh-proxy.py &>/dev/null; then
+        info "DoH proxy: running (127.0.0.2:53, process)"
+        return 0
+    fi
+    info "DoH proxy: NOT running"
+    return 1
+}
+
+# --- Main ---
+info "=== PDANet Proxy Status ==="
+info ""
+
+status=0
+check_proxy || status=1
+check_iptables || status=1
+check_proxy_connect || status=1
+check_dns || status=1
+check_doh_proxy || status=1
+
+info ""
+info "---"
+if [[ $status -eq 0 ]]; then
+    info "All checks passed. Transparent proxy + DNS are operational."
+else
+    info "Some checks failed. Run 'sudo pdanet-proxy-setup' or 'sudo ./setup.sh'."
+fi

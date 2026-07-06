@@ -1,0 +1,8 @@
+
+[Desktop Entry]
+Type=Application
+Name=Noita
+Icon=lutris_noita
+Exec=env LUTRIS_SKIP_INIT=1 lutris lutris:rungameid/1
+Categories=Game
+TryExec=lutris

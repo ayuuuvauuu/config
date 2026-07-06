@@ -1,0 +1,70 @@
+
+❯ mv libwlroots-0.20.so libwlroots-0.20.so.bak
+❯ mv pkgconfig/wlroots-0.20.pc pkgconfig/wlroots-0.20.pc.bak
+ systemctl --user enable sway.service
+Created symlink '/home/brogrammer/.config/systemd/user/graphical-session.target.wants/sway.service' → '/home/brogrammer/.config/systemd/user/sway.service'.
+------------------
+sudo systemctl set-default graphical.target
+
+Created symlink '/etc/systemd/system/default.target' → '/usr/lib/systemd/system/graphical.target'.
+
+Created symlink '/etc/systemd/system/graphical.target.wants/sway.service' → '/etc/systemd/system/sway.service'.
+Removed '/etc/systemd/system/getty.target.wants/getty@tty1.service'.
+Removed '/etc/systemd/system/autovt@.service'.
+-----------------------------------------------
+sudo systemctl disable getty@.service 
+Removed '/etc/systemd/system/getty.target.wants/getty@tty1.service'.
+Removed '/etc/systemd/system/autovt@.service'.
+/etc/systemd/system                                                                                                                root@brogramm/etc/systemd/system                                      root@brogrammer
+❯ systemctl daemon-reload
+/etc/systemd/system                                      root@brogrammer
+❯ systemctl enable sway.service 
+Created symlink '/etc/systemd/system/graphical.target.wants/sway.service' → '/etc/systemd/system/sway.service'.
+/etc/systemd/system                                      root@brogrammer
+❮ sudo systemctl set-default graphical.target
+
+Created symlink '/etc/systemd/system/default.target' → '/usr/lib/systemd/system/graphical.target'.
+/etc/systemd/system                                      root@brogrammer
+❯ 
+
+
+sudo mkdir -p /etc/kernel-install.d
+echo '# no-op to prevent creating loader entries' | sudo tee /etc/kernel-install.d/90-loaderentry.install
+echo '# no-op to prevent copying UKIs' | sudo tee /etc/kernel-install.d/90-uki-copy.install
+sudo chmod 644 /etc/kernel-install.d/90-*.install
+
+
+Created symlink '/etc/systemd/system/systemd-tmpfiles-setup-dev-early.service' → '/dev/null'.
+
+/etc/systemd/system/multi-user.target.wants/nvidia-persistenced.service
+sudo ip route del default
+
+disbaled ipv6
+sudo nano /etc/sysctl.d/ is me hai
+
+
+renamed the lts present in /etc/mkinitcpio to .old so that it does not rebuild and acts as recovery
+
+
+
+
+sudo systemctl disable accounts-daemon.service # disable account info
+sudo systemctl disable rsyslog.service # no logs
+
+# set cache gpu cache cache gpu to 12gb 12GB
+__GL_SHADER_DISK_CACHE_SIZE=12000000000
+
+GRUB_CMDLINE_LINUX_DEFAULT="quiet splash loglevel=0 rd.systemd.show_status=false ipv6.disable=1 vt.global_cursor_default=0"
+
+boot startup no login:
+no user selection
+
+TOO ENABLE ONCE AGAIN DO: sudo systemctl disbale getty@tty1
+then enable sddm
+
+net.ipv6.conf.all.disable_ipv6 = 1
+net.ipv6.conf.default.disable_ipv6 = 1
+net.ipv6.conf.lo.disable_ipv6 = 1
+
+sudo systemctl disable accounts-daemon.service
+

@@ -1,0 +1,47 @@
+[{
+ "include": "~/.config/waybar/modules",
+ "layer": "top",
+ //"mode": "dock",
+ "exclusive": true,
+ "passthrough": false,
+ "position": "top",
+ "spacing": 0,
+ "fixed-center": true,
+ "ipc": true,
+ "margin-top": 0,
+ "margin-left": 0,
+ "margin-right": 0,
+ 
+ "modules-left": [
+ 	"sway/workspaces",
+ 	"custom/separator#dot-line",
+ 	"temperature",
+ 	"custom/separator#blank", 
+ 	"cpu",
+ 	"custom/separator#blank", 
+ 	"memory",
+ 	"custom/separator#blank_3", 
+    "custom/playerctl"
+ 	],
+ 
+ "modules-center": [
+ 	"clock#3",
+ 	"custom/lock"
+ 	], 
+ 
+ "modules-right": [
+ 	"network#speed",
+    "network",
+ 	"tray",
+    "custom/separator#blank_3", 
+    "backlight#2",
+    "battery",
+    "custom/separator#blank_2", 
+    "pulseaudio",
+ 	"custom/separator#dot-line",
+ 	"pulseaudio#microphone",
+ 	"custom/power#1" // using rofi power use only power if u want normal
+ 	]
+ }
+],
+ 

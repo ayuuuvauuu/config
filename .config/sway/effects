@@ -1,0 +1,21 @@
+layer_effects "waybar" {
+    blur enable;
+    blur_xray enable;
+    blur_ignore_transparent enable;
+}
+layer_effects "notifications" {
+    blur enable;
+    blur_xray enable;
+    blur_ignore_transparent enable;
+}
+
+blur enable
+blur_passes 3
+blur_radius 7
+
+corner_radius 0
+
+#shadows enable
+#shadows_on_csd on
+#shadow_blur_radius 25
+#shadow_color #00000000

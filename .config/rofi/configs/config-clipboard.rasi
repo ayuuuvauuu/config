@@ -1,0 +1,26 @@
+/* ---- 💫 https://github.com/JaKooLit 💫 ---- */
+/* Clipboard Config - Clipboard */
+
+@import "~/.config/rofi/launchers/type-1/style-11.rasi" 
+
+* {
+    font: "JetBrains Mono Nerd Font 14";
+}
+
+/* ---- Entry ---- */
+entry {
+  width: 37%;
+  placeholder: " search clipboard ctrl+del del-1 or alt+del wipe";
+}
+
+/* ---- Listview ---- */
+listview {
+  columns: 1;
+  lines: 8;
+}
+
+window {
+  width: 1200px;
+  location: center;
+  anchor: center;
+}
