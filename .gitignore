@@ -73,3 +73,6 @@ Notes/bitsat
 /.config/cmus/cache
 /.config/cmus/autosave
 /.config/fish/fish_variablesaNArp1mlFc
+
+!.config/qBittorrent/
+!.config/qBittorrent/**
