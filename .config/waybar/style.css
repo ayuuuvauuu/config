@@ -357,3 +357,31 @@ label:focus {
 	min-width: 10px;
 	border-radius: 5px;
 }
+
+/* hyprwhspr Waybar Styling (GTK CSS) */
+
+#custom-hyprwhspr {
+  padding: 0 8px;
+}
+
+#custom-hyprwhspr.inactive {
+  opacity: 0.5;
+}
+
+#custom-hyprwhspr.active {
+  color: #a6e3a1;
+}
+
+#custom-hyprwhspr.processing {
+  color: #f9e2af;
+  animation: hyprwhspr-pulse 1s ease-in-out infinite;
+}
+
+#custom-hyprwhspr.error {
+  color: #f38ba8;
+}
+
+@keyframes hyprwhspr-pulse {
+  from { opacity: 1; }
+  to { opacity: 0.4; }
+}

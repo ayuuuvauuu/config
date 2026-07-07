@@ -63,6 +63,7 @@ function n
 	rm -f -- "$tmp"
 end
 set -gx PATH bin $PATH
+set -U fish_user_paths /home/ayu/.cargo/bin
 set -gx PATH $HOME/.npm/bin $PATH
 set -gx PATH /usr/local/go/bin $PATH
 set -gx PATH /home/ayu/.local/share/nvim/mason/bin $PATH
