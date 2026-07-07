@@ -524,7 +524,7 @@
 	"on-click": "foot nmtui"
 },
 "network#speed": {
-	"interval": 10,
+	"interval": 2,
 	"format": "{ifname}",
 	"format-wifi": "{bandwidthUpBytes} {bandwidthDownBytes}",
 	"format-ethernet": "{bandwidthUpBytes}  {bandwidthDownBytes}",
