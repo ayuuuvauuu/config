@@ -3,6 +3,8 @@ set -euo pipefail
 
 packages=(
     localsend
+    tumblerd
+    wtype
     bat
     feh
     gammastep

@@ -31,6 +31,7 @@ test -f /tmp/powertop-once && test -s /tmp/powertop-once && set pc (string trim 
 if test "$pc" -lt 1
     powertop --auto-tune
     math "$pc + 1" >/tmp/powertop-once
+    echo 'on' > '/sys/bus/usb/devices/3-2/power/control';
 end
 
 
