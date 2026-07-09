@@ -1,0 +1,99 @@
+#!/bin/bash
+# idle-power - capture 30s of idle power data, find culprits
+# Usage: idle-power
+#   Close all apps. Press ENTER to start.
+#   Output: /tmp/idle-power-<timestamp>/ (raw data + summary)
+
+set -e
+# (disable -e for sections where grep may find no matches)
+set +e
+
+DIR="/tmp/idle-power-$(date +%Y%m%d-%H%M%S)"
+mkdir -p "$DIR"
+TURBO="$DIR/turbostat.txt"
+POWERTOP="$DIR/powertop.csv"
+
+echo "=== IDLE POWER CAPTURE ==="
+echo "Close all apps, let system settle, then press ENTER..."
+read -r
+
+# --- Phase 1: turbostat (CPU/package power breakdown) ---
+echo "Phase 1/2: Capturing CPU power (30s)..."
+sudo turbostat --quiet --Summary \
+  --show PkgWatt,CorWatt,GFXWatt,RAMWatt,SysWatt,\
+Pkg%pc2,Pkg%pc3,Pkg%pc6,Pkg%pc8,Pk%pc10,\
+Busy%,Bzy_MHz,\
+POLL%,C1E%,C6%,C8%,C10% \
+  -i 1 -n 30 2>/dev/null > "$TURBO"
+
+# --- Phase 2: powertop (device-level culprits) ---
+echo "Phase 2/2: Scanning device power (30s)..."
+sudo powertop --csv="$POWERTOP" --time=30 2>/dev/null || true
+
+# --- REPORT ---
+echo
+echo "================================================================"
+echo " IDLE POWER REPORT — $(date)"
+echo "================================================================"
+
+# Battery discharge rate
+DISCHARGE=$(grep 'discharge rate' "$POWERTOP" | grep -oP '[\d.]+(?=\s*W)' | head -1)
+echo
+echo "=== Total System Power: ${DISCHARGE:-?} W (battery discharge) ==="
+
+# Turbostat summary
+echo
+echo "=== CPU/Package Power (turbostat) ==="
+awk -F'\t' '
+  NR==1 { for(i=1;i<=NF;i++) hdr[i]=$i; next }
+  {
+    for(i=1;i<=NF;i++) { s[i]+=$i; s2[i]+=$i*$i; n[i]++; if($i<lo[i]||!l[i]){lo[i]=$i;l[i]=1}; if($i>hi[i])hi[i]=$i }
+  }
+  END {
+    printf "%-20s %8s %8s %8s\n", "Metric", "Avg", "Min", "Max"
+    printf "%-20s %8s %8s %8s\n", "------", "---", "---", "---"
+    for(i=1;i<=NF;i++) printf "%-20s %8.2f %8.2f %8.2f\n", hdr[i], s[i]/n[i], lo[i], hi[i]
+  }
+' "$TURBO"
+
+# Device power report - devices active >0%
+echo
+echo "=== Device Power Usage (% time active) ==="
+sed -n '/Device Power Report/,/\* \* \*/p' "$POWERTOP" 2>/dev/null | \
+  grep -E '^\s*[1-9]' | grep -v '^-' | \
+  while IFS=';' read -r pct name; do
+    printf "  %-8s  %s\n" "$pct" "$name"
+  done | head -25
+
+# System summary: discharge rate vs PkgWatt gap
+PKG_WATT=$(awk -F'\t' 'NR>1{sum+=$13;n++} END{printf "%.1f", sum/n}' "$TURBO" 2>/dev/null || echo "?")
+GAP=$(echo "${DISCHARGE:-0} - $PKG_WATT" | bc 2>/dev/null || echo "?")
+echo
+echo "=== Power Balance ==="
+echo "  Battery discharge:  ${DISCHARGE:-?} W"
+echo "  CPU package (RAPL): ${PKG_WATT} W"
+echo "  Unaccounted:        ${GAP} W (display + wifi + nvme + platform)"
+echo
+echo "  Culprit cheat sheet:"
+echo "    Display backlight   ~1-3W  (check brightness)"
+echo "    WiFi (iwlwifi)      ~0.5W  (disable if unused)"
+echo "    NVMe idle           ~0.3W  (expected)"
+echo "    Ethernet (r8169)    ~0.5W  (disable if unused)"
+echo "    I2C no-runtime-PM   ~0.1W  (minor, many devices)"
+
+# Untunable issues
+echo
+echo "=== Untunable Issues (no runtime PM) ==="
+sed -n '/Untunable Software Issues/,/\* \* \*/p' "$POWERTOP" 2>/dev/null | \
+  grep -v 'Untunable\|^_*$\|^[[:space:]]*$\|^Description$' | head -10
+
+# Optimal tunables
+echo
+echo "=== Powertop Tunable Suggestions ==="
+sed -n '/Optimal Tuned/,/\* \* \*/p' "$POWERTOP" 2>/dev/null | \
+  grep -v 'Optimal Tuned\|^_*$\|^[[:space:]]*$\|^Description$' | head -15
+
+echo
+echo "================================================================"
+echo "Raw data: $DIR/"
+echo "Compare runs: stop a service, run again, check if power drops."

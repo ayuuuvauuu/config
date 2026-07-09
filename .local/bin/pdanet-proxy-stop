@@ -46,7 +46,6 @@ stop_proxy() {
 remove_iptables() {
     local chain="REDSOCKS"
 
-    info "$chain"
     if ! iptables -t nat -L "$chain" &>/dev/null; then
         info "No iptables REDSOCKS chain found, skipping"
         return 0

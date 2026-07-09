@@ -115,4 +115,4 @@ apply_iptables
 verify_proxy
 info ""
 info "Setup complete. Traffic is now routed through PDANet proxy."
-info "Run 'sudo pdanet-proxy-teardown' to disable."
+info "Run 'sudo pdanet-proxy-stop' to disable."

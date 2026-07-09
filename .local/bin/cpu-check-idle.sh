@@ -1,0 +1,1 @@
+/home/ayu/.local/bin/check-cpu-idle.sh

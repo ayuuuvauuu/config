@@ -1,0 +1,11 @@
+#!/bin/sh
+# List USB devices with vendor:product ID and product name
+# Use this to add devices to the denylist in /etc/udev/rules.d/99-usb-power.rules
+
+for d in /sys/bus/usb/devices/*/; do
+    [ -f "$d/idVendor" ] || continue
+    vid=$(cat "$d/idVendor" 2>/dev/null)
+    pid=$(cat "$d/idProduct" 2>/dev/null)
+    name=$(cat "$d/product" 2>/dev/null)
+    echo "$vid:$pid  $name"
+done

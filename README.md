@@ -117,12 +117,11 @@ SOUND_POWER_SAVE_ON_AC=1
 SOUND_POWER_SAVE_ON_BAT=1
 SOUND_POWER_SAVE_CONTROLLER=Y
 
-USB_AUTOSUSPEND=1
-USB_DENYLIST="17ef:60a9"        # mouse at 3-2
-
-DEVICES_TO_ENABLE_ON_AC="bluetooth wifi"
-DEVICES_TO_DISABLE_ON_BAT="bluetooth"
+USB_AUTOSUSPEND=0               # udev rules handle USB
 ```
+**USB note:** `USB_AUTOSUSPEND=0` lets udev rules handle AC vs battery behavior.
+See "USB autosuspend — udev rules" below.
+
 Apply:
 ```bash
 sudo systemctl enable --now tlp
@@ -172,6 +171,8 @@ Requires `libqgtk3.so` (comes with qt6-base/qt5-base).
 ```
 Startup finished in 5.642s (firmware) + 748ms (loader) + 537ms (kernel) + 1.650s (initrd) + 4.003s (userspace) = 12.581s
 ```
+**Current (after all fixes):** `5.516s (firmware) + 1.054s (loader) + 1.111s (kernel+initrd) + 3.160s (userspace) = 10.843s`
+graphical.target reached after 2.267s in userspace.
 **Expected after fixes:** ~8-9s
 
 ### mkinitcpio — initramfs
@@ -225,9 +226,208 @@ File: `/etc/default/limine` → `sudo limine-update`
 | Consumer | Time | Fix |
 |---|---|---|
 | TPM device | ~3.05s | `tpm_tis.interrupts=0` |
-| nvidia-persistenced | ~859ms | Required |
+| nvidia-persistenced | ~859ms | Delayed off critical chain (below) |
+| systemd-userdbd | ~995ms | Masked (below) |
 | Serial ports | ~120ms | Minor |
 | Other | ~250ms | — |
+
+### Userspace — unnecessary services removed
+
+**systemd-userdbd** — Dynamic user/group database for systemd-homed. On a standard
+laptop with `/etc/passwd`, it's dead code (~995ms at boot).
+
+```bash
+sudo systemctl mask systemd-userdbd.service systemd-userdbd.socket
+```
+
+**lvm2-monitor** — LVM event monitoring daemon. Useless on btrfs (~107ms).
+
+```bash
+sudo systemctl mask lvm2-monitor.service
+```
+
+### Userspace — nvidia-persistenced off critical chain
+
+nvidia-persistenced.service blocks `multi-user.target` (~791ms) because systemd
+automatically adds `Before=multi-user.target` for services `WantedBy=multi-user.target`.
+
+**Fix:** Drop-in removes default dependencies:
+
+File: `/etc/systemd/system/nvidia-persistenced.service.d/delay-boot.conf`
+```ini
+[Unit]
+DefaultDependencies=no
+After=sysinit.target basic.target systemd-journald.socket
+Before=shutdown.target
+```
+
+Effect: service still starts (via existing `WantedBy=multi-user.target` symlink), but
+doesn't block reaching multi-user.target. ~791ms comes off the critical chain.
+
+**NVIDIA impact:** No effect on GPU power management, suspend/resume, or driver
+functionality. nvidia-suspend/resume/hibernate/powerd services have no dependency
+on nvidia-persistenced. Only observable difference: first CUDA/GL call after login
+may have a tiny mode-switch delay if initiated immediately (<1s window) — negligible
+in practice since display manager + login takes longer than that.
+
+**Verification:**
+```bash
+systemctl show -p Before,After,DefaultDependencies nvidia-persistenced.service
+# Before=shutdown.target
+# After=basic.target systemd-journald.socket system.slice sysinit.target
+# DefaultDependencies=no
+```
+
+---
+## CPU & Power Management
+
+### Intel LPMD — P-core parking on battery only
+
+**Source:** [Intel LPMD GitHub](https://github.com/intel/intel-lpmd)
+
+The i5-12450H has 4 P-cores (with HT = 8 threads) + 4 E-cores. `intel_lpmd` parks
+P-cores (offlines via cgroups) when on battery and CPU load is low — work runs
+exclusively on E-cores (up to 1.5 GHz). When load exceeds 25% system-wide, P-cores
+come back online after ~3s hysteresis.
+
+**No impact on AC/gaming:** `PerformanceDef=-1` keeps LPMD fully off while charging.
+All 12 threads available at full turbo. Zero performance penalty.
+
+**How the exit threshold works (25%):** LPMD measures system-wide CPU utilization
+across all 12 cores. 4 E-cores at 100% = 33% average → triggers exit. 1-2 E-cores
+active = ~8-17% → stays in LP mode. This correctly distinguishes light work
+(browsing, terminal) from heavy workloads.
+
+**Config:** `/etc/intel_lpmd/intel_lpmd_config.xml`
+```xml
+<Configuration>
+  <BalancedDef>0</BalancedDef>          <!-- auto LP mode entry/exit -->
+  <PerformanceDef>-1</PerformanceDef>    <!-- AC: force off (no LP mode) -->
+  <PowersaverDef>0</PowersaverDef>       <!-- auto LP mode entry/exit -->
+  <Mode>0</Mode>                         <!-- cgroup v2 mechanism -->
+  <HfiLpmEnable>0</HfiLpmEnable>         <!-- disable HFI, use util-based -->
+  <HfiSuvEnable>0</HfiSuvEnable>
+   <util_entry_threshold>30</util_entry_threshold>    <!-- enter LP when <30% system util -->
+   <util_exit_threshold>40</util_exit_threshold>      <!-- exit LP when >40% -->
+   <EntryHystMS>5000</EntryHystMS>                    <!-- 5s before parking P-cores -->
+   <ExitHystMS>1000</ExitHystMS>                      <!-- 1s before waking P-cores -->
+  <lp_mode_epp>150</lp_mode_epp>
+</Configuration>
+```
+
+**Behavior:**
+| State | LPMD profile | P-cores | E-cores |
+|---|---|---|---|
+| AC (charging) | Performance (`OFF`) | 8 threads @ full turbo | 4 cores @ full turbo |
+| Battery idle (<30% CPU) | AUTO → LP mode | Parked (C10, ~0W) | 4 cores active |
+| Battery load (>40% CPU) | AUTO → normal | 8 threads online | 4 cores online |
+| Wake-up latency | ~1s (ExitHystMS) | P-cores come back | — |
+
+**`nproc` shows 4 on battery:** When LPMD enters LP mode, it restricts
+`user.slice` (your shell, apps) to CPUs 8-11 — the 4 E-cores. `nproc`
+respects cgroup v2 CPU affinity, so it reports 4 instead of 12. This is
+expected. Plug AC or load CPU >25% to restore all 12.
+
+### Idle power measurement
+
+Script: `/home/ayu/.local/bin/idle-power`
+
+Run after closing all apps to measure true idle power and find culprits:
+```
+idle-power
+```
+
+Does two 30s phases:
+1. **turbostat** — CPU/package power breakdown (PkgWatt, CorWatt, GFXWatt, C-states)
+2. **powertop** — device-level power usage + wakeup culprits
+
+Output to `/tmp/idle-power-<timestamp>/` with summary showing:
+- **Battery discharge vs PkgWatt gap** — unaccounted power (display, WiFi, NVMe, platform)
+- **Device Power Usage** — which devices are active (Display backlight, NVMe, WiFi, Ethernet)
+- **Untunable Issues** — devices missing runtime PM (e.g. I2C adapters)
+- **Powertop Suggestions** — tunables to apply (auto-tune)
+
+Target: <3W PkgWatt, <6W total discharge at true idle on battery.
+
+Biggest idle culprits (typical):
+  - Display backlight: ~1-3W
+  - WiFi (iwlwifi): ~0.5W
+  - NVMe: ~0.3W
+  - Ethernet (r8169): ~0.5W (if link active)
+  - I2C no-runtime-PM: ~0.1W (many devices, minor each)
+- **Busy% / Bzy_MHz** — CPU utilization
+
+Target: <3W PkgWatt at true idle (all apps closed, on battery).
+
+**Why utilization-based over input-based:**
+
+### Dirty writeback aggregation — reduce disk I/O
+
+**Source:** [Arch Wiki — Power management / Writeback Time](https://wiki.archlinux.org/title/Power_management#Writeback_Time)
+
+File: `/etc/sysctl.d/99-vm-dirty.conf`
+```
+vm.dirty_writeback_centisecs = 6000
+vm.dirty_expire_centisecs = 12000
+```
+Increases writeback interval from 5s to 60s — aggregates disk writes into fewer, larger
+I/O bursts, allowing the NVMe to stay in deeper power states longer.
+
+### USB autosuspend + LPMD switching — udev rules (no scripts)
+
+File: `/etc/udev/rules.d/99-usb-power.rules`
+```
+# AC: USB on, LPMD OFF (all cores, full perf)
+ACTION=="add|change", SUBSYSTEM=="power_supply", ATTR{type}=="Mains", ATTR{online}=="1", RUN+="/bin/sh -c 'for f in /sys/bus/usb/devices/*/power/control; do echo on > $f 2>/dev/null; done'", RUN+="/usr/bin/intel_lpmd_control OFF"
+
+# BAT: USB auto, LPMD AUTO (util-based, exits LP when >25% CPU)
+ACTION=="add|change", SUBSYSTEM=="power_supply", ATTR{type}=="Mains", ATTR{online}=="0", RUN+="/bin/sh -c 'for f in /sys/bus/usb/devices/*/power/control; do echo auto > $f 2>/dev/null; done; for d in /sys/bus/usb/devices/*/; do case $(cat $d/idVendor 2>/dev/null):$(cat $d/idProduct 2>/dev/null) in 17ef:60a9) echo on > $d/power/control 2>/dev/null;; esac; done'", RUN+="/usr/bin/intel_lpmd_control AUTO"
+```
+
+**Supplementary systemd service** (fixes boot race — udev fires before LPMD is ready):
+File: `/etc/systemd/system/lpmd-power-state.service`
+```ini
+[Unit]
+Description=Set LPMD mode for current power source
+After=intel_lpmd.service
+Requires=intel_lpmd.service
+
+[Service]
+Type=oneshot
+ExecStart=/bin/sh -c 'grep -q 0 /sys/class/power_supply/ADP1/online && /usr/bin/intel_lpmd_control AUTO || /usr/bin/intel_lpmd_control OFF'
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
+```
+
+**Effect:**
+| State | USB autosuspend | Denylist (mouse) | LPMD |
+|---|---|---|---|
+| AC (charging) | Off (all `on`) | Off | OFF → all 12 cores |
+| Battery idle | On (`auto`) | Stays `on` | AUTO → LP mode (E-cores 8-11 via cgroups) |
+| Battery load (>25%) | On (`auto`) | Stays `on` | AUTO → normal (all 12 cores, 3s delay) |
+
+**Adding to denylist:** run `usb-list` (in `~/.local/bin/`) to see vendor:product IDs,
+then edit the `case` pattern: `sudoedit /etc/udev/rules.d/99-usb-power.rules`
+and change `17ef:60a9|30c9:0069)` etc. Then `sudo udevadm control --reload-rules`.
+
+TLP has `USB_AUTOSUSPEND=0` so it doesn't interfere.
+LPMD config has `<Mode>0</Mode>` (OFF default), udev + systemd service override it.
+
+### Bluetooth — `rfkill block` persists across reboots
+
+`rfkill block bluetooth` disables the radio completely (~0W). State is saved by
+`systemd-rfkill.service` and restored on next boot. No udev rules or scripts needed.
+
+- Disable: `rfkill block bluetooth` (one time, persists)
+- Enable: `rfkill unblock bluetooth` (until next reboot or manual block)
+- Check: `rfkill list bluetooth`
+
+No auto-management — never force-disconnects an active BT device.
+
+### Kernel cmdline cleanup
+Removed redundant `nmi_watchdog=0` (already covered by `nowatchdog`).
 
 ---
 ## Suspend & Hibernate
@@ -245,15 +445,31 @@ File: `/etc/modprobe.d/nvidia.conf`
 options nvidia NVreg_EnableS0ixPowerManagement=1 NVreg_PreserveVideoMemoryAllocations=0
 ```
 
-### i915 — PSR/DC fix (was causing 20s eDP link training loop on resume)
-Changed in kernel cmdline: `i915.enable_psr=0 i915.enable_dc=0`
-(was `i915.enable_psr=2 i915.enable_dc=4`)
+### i915 — PSR re-enabled with custom VBT
 
-| Metric | Before (PSR on) | After (PSR off) |
+PSR was disabled (`i915.enable_psr=0`) due to AUX channel errors causing a 30s eDP link training loop on resume. A custom VBT (`/lib/firmware/i915/modified_vbt`) was created to fix the panel timing parameters (AUX timeouts, power sequencing, vswing levels).
+
+**Fixed with custom VBT:** PSR re-enabled at `i915.enable_psr=2`, DC states stay disabled (`i915.enable_dc=0`).
+
+| Metric | PSR off | PSR on + custom VBT |
 |---|---|---|
-| PSR aux errors/boot | 2 | 0 |
-| Suspend time | ~30s | ~14s |
-| Idle power | ~11W | ~13W |
+| PSR AUX errors/boot | 0 | **0** |
+| Suspend time | ~11s | **~13s** |
+| Idle power | ~7.1W | **~4.4W** |
+
+The custom VBT eliminated all PSR AUX errors. The 2s extra suspend time (vs PSR off) is the i915 driver waiting for the panel's PSR hardware to quiesce before shutting off the display pipeline — a panel-level limitation, not a driver bug.
+
+**VBT details:**
+- Platform: ALDERLAKE-P
+- BDB version: 251
+- Panel: LFP1 (internal BOE display) via eDP
+- Key PSR timings: TP1 wakeup 200µs, TP2/TP3 200µs, PSR2 2500µs
+- Panel power sequence: T1-T3=2000ms, T8=10ms, T9=2000ms, T10=500ms, T11-T12=5000ms
+
+Decode:
+```bash
+intel_vbt_decode /lib/firmware/i915/modified_vbt
+```
 
 ### Hibernate swap device
 Swap UUID: `89bc64d4-f652-4586-bb5a-35b6ffa13719` (`/dev/nvme0n1p6`)
@@ -309,7 +525,7 @@ TimeoutStopSec=3
 `/etc/default/limine`:
 ```
 ESP_PATH="/boot"
-KERNEL_CMDLINE[default]+="nvidia-drm.modeset=1 quiet nowatchdog nmi_watchdog=0 i915.enable_psr=0 i915.enable_fbc=1 i915.enable_dc=0 iwlwifi.power_save=1 rw rootflags=subvol=/@ root=UUID=f7d828f3-6031-4f9b-a164-fed7f21a082b tpm_tis.interrupts=0 resume=UUID=89bc64d4-f652-4586-bb5a-35b6ffa13719 i915.vbt_firmware=i915/modified_vbt nvme_core.default_ps_max_latency_us=0"
+KERNEL_CMDLINE[default]+="nvidia-drm.modeset=1 quiet nowatchdog i915.enable_psr=2 i915.enable_fbc=1 i915.enable_dc=0 iwlwifi.power_save=1 rw rootflags=subvol=/@ root=UUID=f7d828f3-6031-4f9b-a164-fed7f21a082b tpm_tis.interrupts=0 resume=UUID=89bc64d4-f652-4586-bb5a-35b6ffa13719 i915.vbt_firmware=i915/modified_vbt nvme_core.default_ps_max_latency_us=0"
 BOOT_ORDER="*, *lts, *fallback, Snapshots"
 ```
 Apply: `sudo limine-update`
@@ -356,3 +572,11 @@ Type=simple
 | `pcie_aspm=force` removed | Minimal | BIOS enables ASPM for working devices; TLP tunes policy |
 | `nvme_core.default_ps_max_latency_us=0` | Positive | NVMe enters deepest idle power state |
 | `TimeoutStopSec=3` services | None | Shutdown-only change |
+| Masked `systemd-userdbd` + socket | None | Service removal — no runtime impact |
+| Masked `lvm2-monitor` | None | Service removal — no runtime impact |
+| `DefaultDependencies=no` nvidia-persistenced | None | Service still starts, just not on critical chain |
+| `i915.enable_psr=2` with custom VBT | Positive | iGPU enters RC6 idle, saves ~2.7W at idle |
+| `intel_lpmd` BalancedDef=0 | Positive | Utilization-based P-core parking on battery, E-cores only at low load (~1-2W saving) |
+| `vm.dirty_writeback_centisecs=6000` | Slightly positive | Aggregates disk I/O, NVMe stays in deep power states longer |
+| USB + LPMD udev switching | Positive | USB autosuspends on battery (~0.1-0.3W). LPMD parks P-cores under 20% CPU (~1-2W), wakes them under >25% load. |
+| Bluetooth `rfkill block` | Positive (when off) | Radio fully disabled (~0W). Persists across reboots. Manual toggle — never force-disconnects. |
