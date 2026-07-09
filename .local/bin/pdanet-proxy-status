@@ -73,19 +73,6 @@ check_dns() {
     return 1
 }
 
-check_doh_proxy() {
-    if systemctl is-active --quiet doh-proxy 2>/dev/null; then
-        info "DoH proxy: running (127.0.0.2:53)"
-        return 0
-    fi
-    if pgrep -f doh-proxy.py &>/dev/null; then
-        info "DoH proxy: running (127.0.0.2:53, process)"
-        return 0
-    fi
-    info "DoH proxy: NOT running"
-    return 1
-}
-
 # --- Main ---
 info "=== PDANet Proxy Status ==="
 info ""
@@ -95,7 +82,6 @@ check_proxy || status=1
 check_iptables || status=1
 check_proxy_connect || status=1
 check_dns || status=1
-check_doh_proxy || status=1
 
 info ""
 info "---"

@@ -26,13 +26,7 @@ set -gx TERMINAL foot
 set -gx TERM foot
 set -gx fish_cursor_insert block
 
-set -l pc 0
-test -f /tmp/powertop-once && test -s /tmp/powertop-once && set pc (string trim < /tmp/powertop-once)
-if test "$pc" -lt 1
-    powertop --auto-tune
-    math "$pc + 1" >/tmp/powertop-once
-    echo 'on' > '/sys/bus/usb/devices/3-2/power/control';
-end
+
 
 
 # aliases

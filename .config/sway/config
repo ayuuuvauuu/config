@@ -31,7 +31,7 @@ bindswitch lid:off output $laptop enable
 #############         Bindings           ##################
 
 # Toggle dictation recording on/off with F8
-bindsym F8 exec ~/.config/sway/scripts/sway-dicate.sh
+bindsym F7 exec ~/.config/sway/scripts/sway-dicate.sh
 
 #open latest clipboard link using mpv
 bindsym $Mod+v exec mpv "$(wl-paste)"
