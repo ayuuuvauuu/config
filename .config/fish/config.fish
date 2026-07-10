@@ -13,7 +13,7 @@ set -U hydro_color_prompt fabd2f
 set -U hydro_color_error fb4934
 set -U hydro_color_duration a89984
 set -U hydro_color_start fe8019
-set -gx fish_prompt_pwd_dir_length 5
+set -gx fish_prompt_pwd_dir_length 10
 set hydro_multiline true
 set -gx theme_display_user yes
 set -gx LANG "en_US.UTF-8"

@@ -76,3 +76,5 @@ Notes/bitsat
 
 !.config/qBittorrent/
 !.config/qBittorrent/**
+/.local/bin/__pycache__/pdanet-proxy.cpython-314.pyc
+/.local/bin/__pycache__
