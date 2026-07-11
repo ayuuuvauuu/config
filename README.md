@@ -1,5 +1,6 @@
 # Config & Notes
 
+add tun2socks in local/bin or modify script to use systemwide one
 ## Bluetooth
 ```bash
 # enable
