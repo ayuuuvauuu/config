@@ -1,4 +1,22 @@
 [user]
-	email = ayush
+    email = ayush
+
 [init]
-	defaultBranch = main
+    defaultBranch = main
+
+[core]
+    # Configures 'less' to pre-load a background search for 'commit' onto Ctrl+G
+    pager = delta --less-readonly --less-options='-i -p "^commit "'
+
+[interactive]
+    diffFilter = delta --color-only
+
+[delta]
+    navigate = true    # use n and N to move between files
+    light = false      # set to true if you use a light terminal theme
+    line-numbers = true
+    side-by-side = false
+
+[diff]
+    colorMoved = default
+

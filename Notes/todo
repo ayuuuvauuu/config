@@ -1,24 +1,11 @@
-hyprwhspr toggle keybind on f9
-and waybar intergation and sway intergation
+make pdanet faster dns
+make sure it does not break
 -------------
 clean up umu lutris proton stuff /root 
 using opc
--------
-sudo pwoertop usb powersave disable
-optinal maybe
 ---------
-populat /etc/defualt/limine with /boot/limie.conf
-stuff and put in github, add a note in defualt to edit github
--------
 sync root ayu config
----------
-add telegram(any libs check)
-and src setup.sh to apps track git
 -------------
-run wireshark on phone 
-it can tunnel all protocols like tcp..
-for http proxy, ask opc
------------------
 
 9rotuer undestand combos and make 2-3,
 enable round robin too
