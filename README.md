@@ -98,11 +98,14 @@ File: `/etc/default/limine` (reboot required)
 | `iwlwifi.power_save=1` | wifi naps when idle | ~0.2W |
 | `nvme_core.default_ps_max_latency_us=0` | NVMe deepest idle power state | ~0.3W |
 
-### Intel LPMD
-`/etc/intel_lpmd/intel_lpmd_config.xml`:
-```xml
-<PowersaverDef>1</PowersaverDef>
-```
+### Intel LPMD — quick reference
+Full LPMD config and explanation in the [Intel LPMD section](#intel-lpmd--p-core-parking-on-battery-only) below.
+
+> **⚠️ System updates overwrite LPMD config.** `pacman -Syu` replaces `/etc/intel_lpmd/intel_lpmd_config.xml` with package defaults, resetting thresholds and hysteresis. To prevent:
+> ```bash
+> sudo chattr +i /etc/intel_lpmd/intel_lpmd_config.xml   # immutable
+> sudo pacman -Syu --overwrite /etc/intel_lpmd/intel_lpmd_config.xml   # or preserve on update
+> ```
 
 ### TLP
 File: `/etc/tlp.conf`
@@ -287,31 +290,46 @@ systemctl show -p Before,After,DefaultDependencies nvidia-persistenced.service
 **Source:** [Intel LPMD GitHub](https://github.com/intel/intel-lpmd)
 
 The i5-12450H has 4 P-cores (with HT = 8 threads) + 4 E-cores. `intel_lpmd` parks
-P-cores (offlines via cgroups) when on battery and CPU load is low — work runs
-exclusively on E-cores (up to 1.5 GHz). When load exceeds 25% system-wide, P-cores
-come back online after ~3s hysteresis.
+P-cores (restricts cgroup v2 cpuset) when on battery and CPU load is low — work
+runs exclusively on E-cores. When util exceeds the exit threshold, P-cores come
+back online (added back to cgroup cpuset).
 
 **No impact on AC/gaming:** `PerformanceDef=-1` keeps LPMD fully off while charging.
 All 12 threads available at full turbo. Zero performance penalty.
 
-**How the exit threshold works (25%):** LPMD measures system-wide CPU utilization
-across all 12 cores. 4 E-cores at 100% = 33% average → triggers exit. 1-2 E-cores
-active = ~8-17% → stays in LP mode. This correctly distinguishes light work
-(browsing, terminal) from heavy workloads.
+**How the thresholds work:** LPMD measures system-wide CPU utilization across
+the cgroup. 4 E-cores at 100% = 100% util → exceeds exit threshold (40%) → P-cores
+wake. 1-2 E-cores = ~25-50% → stays within hysteresis zone or below entry threshold.
+This correctly distinguishes light work (browsing, terminal) from heavy workloads.
+
+> **⚠️ System updates overwrite LPMD config.** `pacman -Syu` replaces this file
+> with package defaults (e.g., `PowersaverDef=-1` = never enter LP mode on battery,
+> `EntryHystMS=0` = no hysteresis → constant flapping). Fix:
+> ```bash
+> sudo chattr +i /etc/intel_lpmd/intel_lpmd_config.xml
+> ```
+> Or preserve on update:
+> ```bash
+> sudo pacman -Syu --overwrite /etc/intel_lpmd/intel_lpmd_config.xml
+> ```
 
 **Config:** `/etc/intel_lpmd/intel_lpmd_config.xml`
 ```xml
 <Configuration>
-  <BalancedDef>0</BalancedDef>          <!-- auto LP mode entry/exit -->
-  <PerformanceDef>-1</PerformanceDef>    <!-- AC: force off (no LP mode) -->
-  <PowersaverDef>0</PowersaverDef>       <!-- auto LP mode entry/exit -->
-  <Mode>0</Mode>                         <!-- cgroup v2 mechanism -->
-  <HfiLpmEnable>0</HfiLpmEnable>         <!-- disable HFI, use util-based -->
+  <lp_mode_cpus></lp_mode_cpus>
+  <Mode>0</Mode>
+  <PerformanceDef>-1</PerformanceDef>
+  <BalancedDef>0</BalancedDef>
+  <PowersaverDef>0</PowersaverDef>
+  <HfiLpmEnable>0</HfiLpmEnable>
   <HfiSuvEnable>0</HfiSuvEnable>
-   <util_entry_threshold>30</util_entry_threshold>    <!-- enter LP when <30% system util -->
-   <util_exit_threshold>40</util_exit_threshold>      <!-- exit LP when >40% -->
-   <EntryHystMS>5000</EntryHystMS>                    <!-- 5s before parking P-cores -->
-   <ExitHystMS>1000</ExitHystMS>                      <!-- 1s before waking P-cores -->
+  <util_entry_threshold>30</util_entry_threshold>
+  <util_exit_threshold>40</util_exit_threshold>
+  <EntryDelayMS>0</EntryDelayMS>
+  <ExitDelayMS>0</ExitDelayMS>
+  <EntryHystMS>5000</EntryHystMS>
+  <ExitHystMS>1000</ExitHystMS>
+  <IgnoreITMT>0</IgnoreITMT>
   <lp_mode_epp>150</lp_mode_epp>
 </Configuration>
 ```
@@ -320,14 +338,15 @@ active = ~8-17% → stays in LP mode. This correctly distinguishes light work
 | State | LPMD profile | P-cores | E-cores |
 |---|---|---|---|
 | AC (charging) | Performance (`OFF`) | 8 threads @ full turbo | 4 cores @ full turbo |
-| Battery idle (<30% CPU) | AUTO → LP mode | Parked (C10, ~0W) | 4 cores active |
-| Battery load (>40% CPU) | AUTO → normal | 8 threads online | 4 cores online |
-| Wake-up latency | ~1s (ExitHystMS) | P-cores come back | — |
+| Battery idle (<30% util) | AUTO → LP mode | Parked via cgroup (C7, ~0W) | 4 cores active |
+| Battery moderate (30-40%) | AUTO (hysteresis zone) | Stays in previous state | Stays in previous state |
+| Battery load (>40% sustained) | AUTO → normal | 8 threads online | 4 cores online |
+| Wake-up latency | ~1s (ExitHystMS) | P-cores re-added to cgroup | — |
 
 **`nproc` shows 4 on battery:** When LPMD enters LP mode, it restricts
 `user.slice` (your shell, apps) to CPUs 8-11 — the 4 E-cores. `nproc`
 respects cgroup v2 CPU affinity, so it reports 4 instead of 12. This is
-expected. Plug AC or load CPU >25% to restore all 12.
+expected. Plug AC or load CPU >40% sustained to restore all 12.
 
 ### Idle power measurement
 
@@ -407,7 +426,7 @@ WantedBy=multi-user.target
 |---|---|---|---|
 | AC (charging) | Off (all `on`) | Off | OFF → all 12 cores |
 | Battery idle | On (`auto`) | Stays `on` | AUTO → LP mode (E-cores 8-11 via cgroups) |
-| Battery load (>25%) | On (`auto`) | Stays `on` | AUTO → normal (all 12 cores, 3s delay) |
+| Battery load (>40% sustained) | On (`auto`) | Stays `on` | AUTO → normal (all 12 cores, 1s hysteresis) |
 
 **Adding to denylist:** run `usb-list` (in `~/.local/bin/`) to see vendor:product IDs,
 then edit the `case` pattern: `sudoedit /etc/udev/rules.d/99-usb-power.rules`
@@ -577,7 +596,7 @@ Type=simple
 | Masked `lvm2-monitor` | None | Service removal — no runtime impact |
 | `DefaultDependencies=no` nvidia-persistenced | None | Service still starts, just not on critical chain |
 | `i915.enable_psr=2` with custom VBT | Positive | iGPU enters RC6 idle, saves ~2.7W at idle |
-| `intel_lpmd` BalancedDef=0 | Positive | Utilization-based P-core parking on battery, E-cores only at low load (~1-2W saving) |
+| `intel_lpmd` BalancedDef=0 | Positive | Utilization-based P-core parking on battery, E-cores only below 30% util (~1-2W saving) |
 | `vm.dirty_writeback_centisecs=6000` | Slightly positive | Aggregates disk I/O, NVMe stays in deep power states longer |
-| USB + LPMD udev switching | Positive | USB autosuspends on battery (~0.1-0.3W). LPMD parks P-cores under 20% CPU (~1-2W), wakes them under >25% load. |
+| USB + LPMD udev switching | Positive | USB autosuspends on battery (~0.1-0.3W). LPMD parks P-cores under 30% util (~1-2W), wakes them above 40% sustained. |
 | Bluetooth `rfkill block` | Positive (when off) | Radio fully disabled (~0W). Persists across reboots. Manual toggle — never force-disconnects. |
