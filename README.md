@@ -133,9 +133,59 @@ tlp-stat -s   # status
 tlp-stat -c   # config
 ```
 
-### auto-cpufreq + ananicy-cpp
-- CPU governor managed by auto-cpufreq (not TLP)
-- ananicy-cpp for IO priority
+### auto-cpufreq — CPU governor & EPP
+
+Auto-detects AC/battery and switches governor + EPP automatically.
+
+**Installation:**
+```bash
+# AUR
+paru -S auto-cpufreq
+
+# Enable service
+sudo systemctl enable --now auto-cpufreq
+```
+
+**Config:** `/root/.config/auto-cpufreq/auto-cpufreq.conf`
+```ini
+[charger]
+governor = performance
+energy_performance_preference = performance
+energy_perf_bias = balance_performance
+turbo = auto
+
+[battery]
+governor = powersave
+energy_performance_preference = balance_power
+energy_perf_bias = balance_power
+turbo = auto
+```
+
+**Behavior:**
+| Power source | Governor | EPP | Turbo | CPU clocks |
+|---|---|---|---|---|
+| AC (charging) | `performance` | `performance` | auto | Full turbo (up to 4.4 GHz) |
+| Battery light load | `powersave` | `balance_power` | auto | ~800-1500 MHz (E-cores) |
+| Battery heavy load | `powersave` | `balance_power` | auto | Scales up as needed |
+
+The `balance_power` EPP is a middle ground — not as aggressive as `power` (which capped at 1200 MHz), but still saves battery. Combined with LPMD parking P-cores, light work stays on E-cores at modest clocks.
+
+**Restart after config change:**
+```bash
+sudo systemctl restart auto-cpufreq
+```
+
+**Logs:**
+```bash
+journalctl -u auto-cpufreq -f
+```
+
+### ananicy-cpp — IO priority
+Installed alongside auto-cpufreq to set IO priorities for processes.
+```bash
+paru -S ananicy-cpp
+sudo systemctl enable --now ananicy-cpp
+```
 
 ### Sysctl
 `/etc/sysctl.d/powersave.conf`:
@@ -330,7 +380,7 @@ This correctly distinguishes light work (browsing, terminal) from heavy workload
   <EntryHystMS>5000</EntryHystMS>
   <ExitHystMS>1000</ExitHystMS>
   <IgnoreITMT>0</IgnoreITMT>
-  <lp_mode_epp>150</lp_mode_epp>
+  <lp_mode_epp>192</lp_mode_epp>
 </Configuration>
 ```
 
