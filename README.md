@@ -76,21 +76,9 @@ libEGL warning: egl: failed to create dri2 screen
 
 **Note:** `__EGL_VENDOR_LIBRARY_DIRS` in `wine.yml` alone doesn't work — pressure-vessel strips it. It must be set via `user_settings.py` inside the container.
 
-**Persistence:** Proton updates (`pacman -Syu`) may wipe `user_settings.py`. Two pacman hooks handle this — PreTransaction backs up, PostTransaction restores:
+**Persistence:** Proton updates (`pacman -Syu`) may wipe `user_settings.py`. A pacman hook recreates it automatically post-update:
 
-File: `/etc/pacman.d/hooks/proton-cachyos-egl-fix-pre.hook`
-```
-[Trigger]
-Operation = Upgrade
-Type = Package
-Target = proton-cachyos-slr
-
-[Action]
-When = PreTransaction
-Exec = /bin/sh -c 'cp /usr/share/steam/compatibilitytools.d/proton-cachyos-slr/user_settings.py /tmp/proton-egl-fix-backup.py 2>/dev/null; chmod 644 /tmp/proton-egl-fix-backup.py 2>/dev/null'
-```
-
-File: `/etc/pacman.d/hooks/proton-cachyos-egl-fix-post.hook`
+File: `/etc/pacman.d/hooks/proton-cachyos-egl-fix.hook`
 ```
 [Trigger]
 Operation = Install
@@ -100,7 +88,7 @@ Target = proton-cachyos-slr
 
 [Action]
 When = PostTransaction
-Exec = /bin/sh -c 'if [ -f /tmp/proton-egl-fix-backup.py ]; then cp /tmp/proton-egl-fix-backup.py /usr/share/steam/compatibilitytools.d/proton-cachyos-slr/user_settings.py && rm /tmp/proton-egl-fix-backup.py; else cat > /usr/share/steam/compatibilitytools.d/proton-cachyos-slr/user_settings.py << "PYEOF"
+Exec = /bin/sh -c 'cat > /usr/share/steam/compatibilitytools.d/proton-cachyos-slr/user_settings.py << "PYEOF"
 user_settings = {
     "PROTON_LOG": "1",
     "DXVK_LOG_LEVEL": "info",
@@ -112,7 +100,7 @@ user_settings = {
     "__EGL_VENDOR_LIBRARY_DIRS": "/run/host/usr/share/glvnd/egl_vendor.d",
 }
 PYEOF
-fi'
+'
 ```
 
 ## Sway / Wayland
