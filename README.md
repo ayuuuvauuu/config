@@ -187,6 +187,30 @@ paru -S ananicy-cpp
 sudo systemctl enable --now ananicy-cpp
 ```
 
+### CPU affinity & priority — per process
+
+Use when the kernel scheduler places a process on E-cores instead of P-cores.
+
+**On launch — pin to P-cores (CPUs 0-7):**
+```bash
+taskset -c 0-7 <command>
+```
+
+**On a running process (by PID):**
+```bash
+taskset -cp 0-7 <pid>                     # pin to P-cores
+sudo chrt -f -p 99 <pid>                  # SCHED_FIFO max (dangerous — can hang system)
+sudo chrt -b -p 0 <pid>                   # SCHED_BATCH (safe, throughput oriented)
+renice -n -20 <pid>                       # max nice (best-effort, safe)
+```
+
+**Check current affinity:**
+```bash
+taskset -cp <pid>
+```
+
+Children inherit the parent's affinity mask, so `taskset -c 0-7 lutris` pins the game runner and all its wine/proton children to P-cores.
+
 ### Sysctl
 `/etc/sysctl.d/powersave.conf`:
 ```

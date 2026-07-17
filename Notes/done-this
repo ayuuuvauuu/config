@@ -1,4 +1,4 @@
-
+ echo 0 | sudo tee /sys/kernel/debug/sched_energy_enable:wq
 ❯ mv libwlroots-0.20.so libwlroots-0.20.so.bak
 ❯ mv pkgconfig/wlroots-0.20.pc pkgconfig/wlroots-0.20.pc.bak
  systemctl --user enable sway.service
