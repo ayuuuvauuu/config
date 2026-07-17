@@ -24,6 +24,97 @@ Change TTL to 65 to trick ISP (not a hotspot):
 # TODO: add command
 ```
 
+### Nvidia EGL on Wayland (Proton/Lutris)
+
+**Problem:** Nvidia EGL driver not found in Steam Runtime containers. GLVND shows `libEGL warning: driver (null)` because pressure-vessel overrides `__EGL_VENDOR_LIBRARY_FILENAMES` to non-existent paths inside the container, and strips custom `__EGL_*` env vars set by Lutris.
+
+**Fix:** Set `__EGL_VENDOR_LIBRARY_DIRS` via Proton's `user_settings.py`, which runs **inside** the container after pressure-vessel can't strip it.
+
+**Step-by-step:**
+
+Create `user_settings.py` in the Proton version dir:
+   ```bash
+   PROTON_DIR=/usr/share/steam/compatibilitytools.d/proton-cachyos-slr
+   cat > "$PROTON_DIR/user_settings.py" << 'EOF'
+user_settings = {
+    "PROTON_LOG": "1",
+    "DXVK_LOG_LEVEL": "info",
+    "DXVK_NVAPI_LOG_LEVEL": "info",
+    "VKD3D_DEBUG": "warn",
+    "VKD3D_SHADER_DEBUG": "fixme",
+    "WINE_MONO_TRACE": "E:System.NotImplementedException",
+    "GST_DEBUG_NO_COLOR": "1",
+    "__EGL_VENDOR_LIBRARY_DIRS": "/run/host/usr/share/glvnd/egl_vendor.d",
+}
+EOF
+   ```
+
+3. In Lutris runner config (`~/.local/share/lutris/runners/wine.yml`), set:
+   ```yaml
+   system:
+     env:
+       PROTON_ENABLE_WAYLAND: '1'
+   ```
+
+**Why it works:**
+
+| Layer | `__EGL_VENDOR_LIBRARY_DIRS` | `__EGL_VENDOR_LIBRARY_FILENAMES` |
+|---|---|---|
+| Lutris (wine.yml) | Set ✓ | N/A |
+| UMU debug output | Visible | N/A |
+| pressure-vessel | **Stripped** ✗ | Overwritten to broken paths |
+| Proton user_settings.py | **Set inside container** ✓ | Can't override (already set) |
+| GLVND reads env | Finds `/run/host/usr/share/glvnd/egl_vendor.d/10_nvidia.json` | Skips non-existent files |
+
+GLVND search order: `__EGL_VENDOR_LIBRARY_FILENAMES` → `__EGL_VENDOR_LIBRARY_DIRS` → default paths. Non-existent files in FILENAMES are skipped, DIRS adds the host's GLVND directory which has both `10_nvidia.json` and `50_mesa.json`.
+
+**Verification:** Launch the game and check logs for the absence of:
+```
+libEGL warning: pci id ... driver (null)
+libEGL warning: egl: failed to create dri2 screen
+```
+
+**Note:** `__EGL_VENDOR_LIBRARY_DIRS` in `wine.yml` alone doesn't work — pressure-vessel strips it. It must be set via `user_settings.py` inside the container.
+
+**Persistence:** Proton updates (`pacman -Syu`) may wipe `user_settings.py`. Two pacman hooks handle this — PreTransaction backs up, PostTransaction restores:
+
+File: `/etc/pacman.d/hooks/proton-cachyos-egl-fix-pre.hook`
+```
+[Trigger]
+Operation = Upgrade
+Type = Package
+Target = proton-cachyos-slr
+
+[Action]
+When = PreTransaction
+Exec = /bin/sh -c 'cp /usr/share/steam/compatibilitytools.d/proton-cachyos-slr/user_settings.py /tmp/proton-egl-fix-backup.py 2>/dev/null; chmod 644 /tmp/proton-egl-fix-backup.py 2>/dev/null'
+```
+
+File: `/etc/pacman.d/hooks/proton-cachyos-egl-fix-post.hook`
+```
+[Trigger]
+Operation = Install
+Operation = Upgrade
+Type = Package
+Target = proton-cachyos-slr
+
+[Action]
+When = PostTransaction
+Exec = /bin/sh -c 'if [ -f /tmp/proton-egl-fix-backup.py ]; then cp /tmp/proton-egl-fix-backup.py /usr/share/steam/compatibilitytools.d/proton-cachyos-slr/user_settings.py && rm /tmp/proton-egl-fix-backup.py; else cat > /usr/share/steam/compatibilitytools.d/proton-cachyos-slr/user_settings.py << "PYEOF"
+user_settings = {
+    "PROTON_LOG": "1",
+    "DXVK_LOG_LEVEL": "info",
+    "DXVK_NVAPI_LOG_LEVEL": "info",
+    "VKD3D_DEBUG": "warn",
+    "VKD3D_SHADER_DEBUG": "fixme",
+    "WINE_MONO_TRACE": "E:System.NotImplementedException",
+    "GST_DEBUG_NO_COLOR": "1",
+    "__EGL_VENDOR_LIBRARY_DIRS": "/run/host/usr/share/glvnd/egl_vendor.d",
+}
+PYEOF
+fi'
+```
+
 ## Sway / Wayland
 put in `/etc/sway/config.d/`:
 ```
