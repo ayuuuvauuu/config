@@ -73,6 +73,8 @@ Notes/bitsat
 !.config/btop/**
 !.config/auto-cpufreq/
 !.config/auto-cpufreq/**
+!.config/MangoHud/
+!.config/MangoHud/**
 /.viminfo
 
 #  ─── EXCLUDED (tracked file exceptions) ───────────────────────
