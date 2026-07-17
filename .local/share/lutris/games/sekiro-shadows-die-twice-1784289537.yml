@@ -1,0 +1,5 @@
+game:
+  exe: /data/Games/Sekiro - Shadows Die Twice/sekiro.exe
+  prefix: /home/ayu/Games/sekiro
+system:
+  mangohud: true

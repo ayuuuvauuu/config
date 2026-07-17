@@ -1,0 +1,10 @@
+system:
+  env:
+    PROTON_ENABLE_WAYLAND: '1'
+    __EGL_VENDOR_LIBRARY_DIRS: /run/host/usr/share/glvnd/egl_vendor.d
+  pulse_latency: true
+wine:
+  battleye: false
+  eac: false
+  fsr: false
+  version: proton-cachyos-slr

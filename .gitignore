@@ -27,6 +27,14 @@
 !.local/bin/
 !.local/bin/**
 
+#  ─── Lutris ───────────────────────────────────────────────────
+!.local/share/
+!.local/share/lutris/
+!.local/share/lutris/games/
+!.local/share/lutris/games/**
+!.local/share/lutris/runners/
+!.local/share/lutris/runners/**
+
 #  ─── Notes ────────────────────────────────────────────────────
 !Notes/
 !Notes/**

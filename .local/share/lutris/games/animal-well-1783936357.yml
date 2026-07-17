@@ -1,0 +1,5 @@
+game:
+  exe: /data/Games/Animal Well-SteamGG.NET/Animal Well.exe
+system:
+  env: {}
+  gpu: card2
