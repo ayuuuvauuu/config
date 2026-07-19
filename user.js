@@ -20,6 +20,7 @@
  ****************************************************************************/
 /** TRACKING PROTECTION ***/
 user_pref("browser.contentblocking.category", "strict");
+browser.tabs.unloadOnLowMemory 
 user_pref("browser.download.start_downloads_in_tmp_dir", true);
 user_pref("browser.uitour.enabled", false);
 user_pref("privacy.globalprivacycontrol.enabled", true);
@@ -122,6 +123,7 @@ user_pref("app.normandy.api_url", "");
 /** CRASH REPORTS ***/
 user_pref("breakpad.reportURL", "");
 user_pref("browser.tabs.crashReporting.sendReport", false);
+user_pref("browser.tabs.unloadOnLowMemory", true);
 
 /****************************************************************************
  * SECTION: PESKYFOX                                                        *

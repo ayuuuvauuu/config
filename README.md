@@ -88,19 +88,7 @@ Target = proton-cachyos-slr
 
 [Action]
 When = PostTransaction
-Exec = /bin/sh -c 'cat > /usr/share/steam/compatibilitytools.d/proton-cachyos-slr/user_settings.py << "PYEOF"
-user_settings = {
-    "PROTON_LOG": "1",
-    "DXVK_LOG_LEVEL": "info",
-    "DXVK_NVAPI_LOG_LEVEL": "info",
-    "VKD3D_DEBUG": "warn",
-    "VKD3D_SHADER_DEBUG": "fixme",
-    "WINE_MONO_TRACE": "E:System.NotImplementedException",
-    "GST_DEBUG_NO_COLOR": "1",
-    "__EGL_VENDOR_LIBRARY_DIRS": "/run/host/usr/share/glvnd/egl_vendor.d",
-}
-PYEOF
-'
+Exec = /bin/sh -c 'printf "%s\n" "user_settings = {" "    \"PROTON_LOG\": \"1\"," "    \"DXVK_LOG_LEVEL\": \"info\"," "    \"DXVK_NVAPI_LOG_LEVEL\": \"info\"," "    \"VKD3D_DEBUG\": \"warn\"," "    \"VKD3D_SHADER_DEBUG\": \"fixme\"," "    \"WINE_MONO_TRACE\": \"E:System.NotImplementedException\"," "    \"GST_DEBUG_NO_COLOR\": \"1\"," "    \"__EGL_VENDOR_LIBRARY_DIRS\": \"/run/host/usr/share/glvnd/egl_vendor.d\"," "}" > /usr/share/steam/compatibilitytools.d/proton-cachyos-slr/user_settings.py'
 ```
 
 ## Sway / Wayland
