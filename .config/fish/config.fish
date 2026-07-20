@@ -48,6 +48,9 @@ alias nv "nvim"
 alias c "clear"
 alias g git
 alias lz lazygit
+function nmtui
+    env NEWT_COLORS_FILE=$HOME/.config/nmtui/colors NMT_NEWT_COLORS_FILE=$HOME/.config/nmtui/colors /usr/bin/nmtui $argv
+end
 alias t "tmux -u"
 function n
 	set tmp (mktemp -t "yazi-cwd.XXXXXX")
@@ -72,9 +75,6 @@ set -gx PATH $ANDROID_HOME/platform-tools $PATH
 set -Ux ANTHROPIC_BASE_URL "http://localhost:8080"
 set -Ux ANTHROPIC_AUTH_TOKEN "test"
 zoxide init fish --hook pwd | source
-
-# opencode
-fish_add_path /home/ayu/.opencode/bin
 
 # opencode
 fish_add_path /home/ayu/.opencode/bin
