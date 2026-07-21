@@ -41,23 +41,78 @@ def run_relay():
     import http.server
     from http.client import HTTPConnection
 
+    def _model_info(m):
+        return {
+            "slug": m["id"],
+            "display_name": m["id"],
+            "description": "",
+            "default_reasoning_level": "low",
+            "supported_reasoning_levels": [{"effort": "low", "description": ""}],
+            "shell_type": "shell_command",
+            "visibility": "list",
+            "supported_in_api": True,
+            "priority": 0,
+            "additional_speed_tiers": [],
+            "service_tiers": [],
+            "default_service_tier": None,
+            "upgrade": None,
+            "base_instructions": "",
+            "model_messages": {
+                "instructions_template": "",
+                "instructions_variables": None,
+                "approvals": None,
+                "auto_review": None,
+            },
+            "include_skills_usage_instructions": False,
+            "supports_reasoning_summaries": False,
+            "default_reasoning_summary": "none",
+            "support_verbosity": False,
+            "default_verbosity": "low",
+            "apply_patch_tool_type": "freeform",
+            "web_search_tool_type": "text_and_image",
+            "truncation_policy": {"mode": "tokens", "limit": 10000},
+            "supports_parallel_tool_calls": True,
+            "supports_image_detail_original": False,
+            "supports_search_tool": True,
+            "use_responses_lite": True,
+            "tool_mode": "code_mode_only",
+            "multi_agent_version": "v1",
+            "context_window": 32000,
+            "max_context_window": 64000,
+            "availability_nux": None,
+            "effective_context_window_percent": 95,
+            "input_modalities": ["text"],
+            "auto_compact_token_limit": None,
+            "comp_hash": "",
+            "experimental_supported_tools": [],
+            "auto_review_model_override": None,
+        }
+
     class Handler(http.server.BaseHTTPRequestHandler):
-        def do_GET(self):
+        def _forward_get(self, path):
             conn = HTTPConnection(PROXY_HOST, PROXY_PORT, timeout=30)
             skip = {"host", "connection", "accept-encoding"}
             hdrs = {k: v for k, v in self.headers.items() if k.lower() not in skip}
-            conn.request("GET", self.path, headers=hdrs)
-            resp = conn.getresponse()
+            conn.request("GET", path, headers=hdrs)
+            return conn.getresponse()
+
+        def do_GET(self):
+            resp = self._forward_get(self.path)
+            body = resp.read()
+
+            if self.path.startswith("/v1/models"):
+                raw = json.loads(body)
+                if "data" in raw and "models" not in raw:
+                    models = [_model_info(m) for m in raw["data"]]
+                    body = json.dumps({"models": models}).encode()
+
             self.send_response(resp.status)
             for k, v in resp.getheaders():
-                if k.lower() not in ("transfer-encoding",):
+                if k.lower() not in ("transfer-encoding", "content-length"):
                     self.send_header(k, v)
+            self.send_header("Content-Length", str(len(body)))
             self.end_headers()
-            while True:
-                data = resp.read(65536)
-                if not data:
-                    break
-                self.wfile.write(data)
+            self.wfile.write(body)
             self.wfile.flush()
 
         def do_POST(self):
