@@ -1,0 +1,174 @@
+#!/usr/bin/env python3
+import os, sys, signal, json, socket, subprocess, time
+
+PID_FILE = "/tmp/codex-zen.pid"
+RELAY_HOST = "127.0.0.1"
+RELAY_PORT = 4444
+PROXY_HOST = "127.0.0.1"
+PROXY_PORT = 4445
+PROXY_BIN = os.path.expanduser("~/.local/bin/responses-proxy")
+PROXY_CONFIG = os.path.expanduser("~/.responses-proxy/config.yaml")
+API_KEY = "sk-cTP0bMD0J1adeYe6IApGmc0I31uOHBBwl9x2VsKRxxGWmIyxG41XflAqql8e4Esu"
+
+def port_open(host, port, timeout=2):
+    try:
+        s = socket.create_connection((host, port), timeout=timeout)
+        s.close()
+        return True
+    except (OSError, socket.error):
+        return False
+
+def stop_infra():
+    if os.path.exists(PID_FILE):
+        with open(PID_FILE) as f:
+            pids = [int(p) for p in f.read().strip().split()]
+        for pid in pids:
+            try:
+                os.kill(pid, signal.SIGTERM)
+                print(f"Stopped PID {pid}")
+            except ProcessLookupError:
+                pass
+        os.unlink(PID_FILE)
+    else:
+        print("No infra to stop")
+
+def set_pdeathsig():
+    import ctypes
+    libc = ctypes.CDLL("libc.so.6")
+    libc.prctl(1, signal.SIGTERM)
+
+def run_relay():
+    import http.server
+    from http.client import HTTPConnection
+
+    class Handler(http.server.BaseHTTPRequestHandler):
+        def do_GET(self):
+            conn = HTTPConnection(PROXY_HOST, PROXY_PORT, timeout=30)
+            skip = {"host", "connection", "accept-encoding"}
+            hdrs = {k: v for k, v in self.headers.items() if k.lower() not in skip}
+            conn.request("GET", self.path, headers=hdrs)
+            resp = conn.getresponse()
+            self.send_response(resp.status)
+            for k, v in resp.getheaders():
+                if k.lower() not in ("transfer-encoding",):
+                    self.send_header(k, v)
+            self.end_headers()
+            while True:
+                data = resp.read(65536)
+                if not data:
+                    break
+                self.wfile.write(data)
+            self.wfile.flush()
+
+        def do_POST(self):
+            length = int(self.headers.get("Content-Length", 0))
+            raw = self.rfile.read(length)
+            body = json.loads(raw)
+            for item in body.get("input", []):
+                if item.get("role") == "developer":
+                    item["role"] = "system"
+            data = json.dumps(body).encode()
+
+            conn = HTTPConnection(PROXY_HOST, PROXY_PORT, timeout=120)
+            skip = {"host", "content-length", "transfer-encoding", "connection", "accept-encoding"}
+            out_hdrs = {k: v for k, v in self.headers.items() if k.lower() not in skip}
+            conn.request("POST", self.path, body=data, headers=out_hdrs)
+            resp = conn.getresponse()
+            is_stream = body.get("stream", False) or resp.getheader("content-type", "") == "text/event-stream"
+
+            self.send_response(resp.status)
+            for k, v in resp.getheaders():
+                if k.lower() not in ("transfer-encoding", "content-length"):
+                    self.send_header(k, v)
+            if is_stream:
+                self.send_header("Cache-Control", "no-cache")
+                self.send_header("Connection", "keep-alive")
+            self.end_headers()
+
+            try:
+                while True:
+                    chunk = resp.read(65536)
+                    if not chunk:
+                        break
+                    self.wfile.write(chunk)
+                    if is_stream:
+                        self.wfile.flush()
+            except (BrokenPipeError, ConnectionResetError):
+                pass
+            finally:
+                if is_stream:
+                    self.wfile.flush()
+
+        def log_message(self, fmt, *args):
+            pass
+
+    server = http.server.HTTPServer((RELAY_HOST, RELAY_PORT), Handler)
+    server.allow_reuse_address = True
+    signal.signal(signal.SIGTERM, lambda *a: sys.exit(0))
+    server.serve_forever()
+
+def start_infra():
+    os.environ["OPENCODE_ZEN_API_KEY"] = API_KEY
+
+    proxy = subprocess.Popen(
+        [PROXY_BIN, "-c", PROXY_CONFIG],
+        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+        start_new_session=True,
+    )
+
+    for _ in range(10):
+        if port_open(PROXY_HOST, PROXY_PORT, timeout=1):
+            break
+        time.sleep(1)
+    else:
+        print("Error: responses-proxy failed to start", file=sys.stderr)
+        proxy.kill()
+        sys.exit(1)
+
+    relay = subprocess.Popen(
+        [sys.executable, __file__, "--relay"],
+        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+        start_new_session=True,
+    )
+
+    for _ in range(5):
+        if port_open(RELAY_HOST, RELAY_PORT, timeout=1):
+            break
+        time.sleep(1)
+    else:
+        print("Error: relay failed to start", file=sys.stderr)
+        proxy.kill()
+        relay.kill()
+        sys.exit(1)
+
+    with open(PID_FILE, "w") as f:
+        f.write(f"{relay.pid}\n{proxy.pid}")
+    print(f"Infra ready (relay :{RELAY_PORT}, proxy :{PROXY_PORT})", file=sys.stderr)
+
+def main():
+    if len(sys.argv) > 1 and sys.argv[1] == "--stop":
+        stop_infra()
+        return
+
+    if len(sys.argv) > 1 and sys.argv[1] == "--relay":
+        run_relay()
+        return
+
+    if not port_open(RELAY_HOST, RELAY_PORT, timeout=1):
+        start_infra()
+    else:
+        print("Infra already running", file=sys.stderr)
+
+    args = ["codex"] + sys.argv[1:] if sys.argv[1:] else ["codex"]
+    codex = subprocess.Popen(args)
+
+    try:
+        codex.wait()
+    except KeyboardInterrupt:
+        codex.send_signal(signal.SIGINT)
+        codex.wait()
+
+    sys.exit(codex.returncode)
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,36 @@
+#!/bin/sh
+# Switch Codex CLI model
+CONFIG="${HOME}/.codex/config.toml"
+MODELS="north-mini-code-free deepseek-v4-flash-free big-pickle nemotron-3-ultra-free hy3-free mimo-v2.5-free"
+
+if [ $# -eq 0 ]; then
+    current=$(sed -n 's/^model = "\(.*\)"/\1/p' "$CONFIG")
+    echo "Current: $current"
+    echo
+    echo "Available:"
+    for m in $MODELS; do
+        if [ "$m" = "$current" ]; then
+            echo "  * $m (active)"
+        else
+            echo "    $m"
+        fi
+    done
+    echo
+    echo "Usage: codex-model <name>"
+    exit 0
+fi
+
+model="$1"
+found=0
+for m in $MODELS; do
+    [ "$m" = "$model" ] && found=1
+done
+
+if [ "$found" -eq 0 ]; then
+    echo "Unknown model: $model"
+    echo "Run 'codex-model' to see available models"
+    exit 1
+fi
+
+sed -i 's/^model = ".*"/model = "'"$model"'"/' "$CONFIG"
+echo "Switched to: $model"
