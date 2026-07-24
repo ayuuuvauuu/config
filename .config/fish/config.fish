@@ -37,6 +37,10 @@ alias la "eza -all --icons=always --git"
 alias ff "sway --unsupported-gpu"
 alias bat "bat -p"
 alias opc "opencode"
+function opcs
+    opencode --mini --session $argv
+end
+alias opcl "opencode session list"
 alias cl "clear"
 alias john "/usr/bin/john"
 # alias pdf "MESA_GL_VERSION_OVERRIDE=2.1 MESA_GLSL_VERSION_OVERRIDE=330 sioyek"

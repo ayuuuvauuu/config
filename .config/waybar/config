@@ -31,7 +31,7 @@
  
  "modules-right": [
  	"network#speed",
-    "network",
+  //"network",
  	"tray",
     "custom/separator#blank_3", 
     "backlight#2",
