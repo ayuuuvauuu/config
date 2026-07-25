@@ -1,3 +1,13 @@
 game:
   exe: /data/Games/Noita v30.04.2024/noita.exe
   prefix: /home/ayu/Games/umu/Noita
+system:
+  env:
+    LD_LIBRARY_PATH: ''
+    PROTON_ENABLE_WAYLAND: '0'
+    PROTON_NO_NTSYNC: '0'
+    PROTON_VERB: waitforexitandrun
+    __EGL_VENDOR_LIBRARY_DIRS: /run/host/usr/share/glvnd/egl_vendor.d
+  gpu: card1
+wine:
+  Graphics: x11
