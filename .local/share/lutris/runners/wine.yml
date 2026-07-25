@@ -1,7 +1,12 @@
 system:
+  disable_runtime: true
   env:
+    LD_LIBRARY_PATH: /run/host/usr/lib:/run/host/usr/lib32
     PROTON_ENABLE_WAYLAND: '1'
+    PROTON_NO_NTSYNC: '1'
+    PROTON_VERB: waitforexitandrun
     __EGL_VENDOR_LIBRARY_DIRS: /run/host/usr/share/glvnd/egl_vendor.d
+  mangohud: true
   pulse_latency: true
 wine:
   battleye: false

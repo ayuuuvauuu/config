@@ -1,7 +1,0 @@
-game:
-  exe: /data/Games/Noita v30.04.2024/noita.exe
-  prefix: /home/ayu/Games/umu/noita
-system:
-  disable_runtime: true
-  env: {}
-  mangohud: true

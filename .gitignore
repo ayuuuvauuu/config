@@ -24,6 +24,9 @@
 
 #  ─── .local/bin ───────────────────────────────────────────────
 !.local/
+!.config/environment.d/
+!.config/environment.d/**
+
 !.local/bin/
 !.local/bin/**
 
