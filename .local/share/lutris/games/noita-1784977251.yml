@@ -9,5 +9,6 @@ system:
     PROTON_VERB: waitforexitandrun
     __EGL_VENDOR_LIBRARY_DIRS: ''
   gpu: ''
+  mangohud: false
 wine:
   Graphics: x11

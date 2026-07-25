@@ -164,6 +164,7 @@ File: `/etc/default/limine` (reboot required)
 | `i915.enable_dc=4` | deep display C-states | ~0.1W |
 | `iwlwifi.power_save=1` | wifi naps when idle | ~0.2W |
 | `nvme_core.default_ps_max_latency_us=0` | NVMe deepest idle power state | ~0.3W |
+| `snd_hda_intel.power_save=10` | audio codec sleeps after 10s idle | ~0.1W |
 
 ### Intel LPMD — quick reference
 Full LPMD config and explanation in the [Intel LPMD section](#intel-lpmd--p-core-parking-on-battery-only) below.
@@ -576,18 +577,98 @@ vm.dirty_expire_centisecs = 12000
 Increases writeback interval from 5s to 60s — aggregates disk writes into fewer, larger
 I/O bursts, allowing the NVMe to stay in deeper power states longer.
 
-### USB autosuspend + LPMD switching — udev rules (no scripts)
+### USB autosuspend + LPMD switching — udev rules + script
+
+**Background:** Inline shell with `$` variables in `RUN=` keys stopped working with
+systemd-udevd >= v255 — it treats `$` as its own substitution format, causing
+`invalid substitution type` errors. Moved to a standalone script.
 
 File: `/etc/udev/rules.d/99-usb-power.rules`
 ```
 # AC: USB on, LPMD OFF (all cores, full perf)
-ACTION=="add|change", SUBSYSTEM=="power_supply", ATTR{type}=="Mains", ATTR{online}=="1", RUN+="/bin/sh -c 'for f in /sys/bus/usb/devices/*/power/control; do echo on > $f 2>/dev/null; done'", RUN+="/usr/bin/intel_lpmd_control OFF"
+ACTION=="add|change", SUBSYSTEM=="power_supply", ATTR{type}=="Mains", ATTR{online}=="1", RUN+="/usr/local/bin/usb-power-switch on"
 
 # BAT: USB auto, LPMD AUTO (util-based, exits LP when >25% CPU)
-ACTION=="add|change", SUBSYSTEM=="power_supply", ATTR{type}=="Mains", ATTR{online}=="0", RUN+="/bin/sh -c 'for f in /sys/bus/usb/devices/*/power/control; do echo auto > $f 2>/dev/null; done; for d in /sys/bus/usb/devices/*/; do case $(cat $d/idVendor 2>/dev/null):$(cat $d/idProduct 2>/dev/null) in 17ef:60a9) echo on > $d/power/control 2>/dev/null;; esac; done'", RUN+="/usr/bin/intel_lpmd_control AUTO"
+ACTION=="add|change", SUBSYSTEM=="power_supply", ATTR{type}=="Mains", ATTR{online}=="0", RUN+="/usr/local/bin/usb-power-switch auto"
 ```
 
-**Supplementary systemd service** (fixes boot race — udev fires before LPMD is ready):
+File: `/usr/local/bin/usb-power-switch`
+```sh
+#!/bin/sh
+state=${1:-$(sed 's/1/on/; s/0/auto/' /sys/class/power_supply/ADP1/online)}
+for f in /sys/bus/usb/devices/*/power/control; do
+    echo "$state" > "$f" 2>/dev/null
+done
+for d in /sys/bus/usb/devices/*/; do
+    idVendor=$(cat "$d/idVendor" 2>/dev/null)
+    idProduct=$(cat "$d/idProduct" 2>/dev/null)
+    case "$idVendor:$idProduct" in
+        17ef:60a9) echo on > "$d/power/control" 2>/dev/null ;;
+    esac
+done
+[ "$state" = "on" ] && /usr/bin/intel_lpmd_control OFF || /usr/bin/intel_lpmd_control AUTO
+```
+
+Script auto-detects AC state when called without an argument 
+(`./usr/local/bin/usb-power-switch` with no arg reads ADP1/online).
+
+**Blacklisting devices from USB autosuspend (denylist):**
+
+Devices on the denylist stay `control=on` even on battery — they never suspend.
+
+1. Find the vendor:product ID:
+   ```
+   usb-list
+   ```
+   → Output: `17ef:60a9  Lenovo Essential Wireless Keyboard and Mouse Combo`
+
+2. Add it to the `case` pattern in `/usr/local/bin/usb-power-switch`:
+   ```sh
+   case "$idVendor:$idProduct" in
+       17ef:60a9) echo on > "$d/power/control" 2>/dev/null ;;  # Lenovo keyboard/mouse
+       NEWID:xxxx) echo on > "$d/power/control" 2>/dev/null ;;  # your device name
+   esac
+   ```
+
+3. Apply without rebooting:
+   ```
+   sudo /usr/local/bin/usb-power-switch auto
+   ```
+
+4. Verify it's working:
+   ```
+   usb-power-watch
+   ```
+   → The device should show `on` + `active` even when battery idle.
+
+The script's denylist loop runs after the main `on`/`auto` assignment, so it
+overrides battery state to keep those devices awake. Remove a line from the
+`case` pattern to allow that device to suspend normally.
+
+**Boot-time service** (udev only fires on AC *changes*, so at boot if AC is already 
+plugged no event occurs and USB stays in `auto` — this sets the initial state):
+File: `/etc/systemd/system/usb-power-boot.service`
+```ini
+[Unit]
+Description=Set USB power control based on AC state at boot
+After=sysinit.target intel_lpmd.service
+Wants=intel_lpmd.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/usb-power-switch
+RemainAfterExit=yes
+
+[Install]
+WantedBy=basic.target
+```
+
+Calls the script without args → auto-detects ADP1. Overhead: ~12ms wall, ~97ms CPU, 
+3.5MB peak once at boot, zero runtime footprint. `Wants=intel_lpmd.service` ensures 
+the script's `intel_lpmd_control` call doesn't race against LPMD startup.
+
+**Supplementary systemd service** (same function, separate LPMD ordering fallback — 
+now catches any case where usb-power-boot.service fails before LPMD is ready):
 File: `/etc/systemd/system/lpmd-power-state.service`
 ```ini
 [Unit]
@@ -611,12 +692,32 @@ WantedBy=multi-user.target
 | Battery idle | On (`auto`) | Stays `on` | AUTO → LP mode (E-cores 8-11 via cgroups) |
 | Battery load (>40% sustained) | On (`auto`) | Stays `on` | AUTO → normal (all 12 cores, 1s hysteresis) |
 
-**Adding to denylist:** run `usb-list` (in `~/.local/bin/`) to see vendor:product IDs,
-then edit the `case` pattern: `sudoedit /etc/udev/rules.d/99-usb-power.rules`
-and change `17ef:60a9|30c9:0069)` etc. Then `sudo udevadm control --reload-rules`.
-
 TLP has `USB_AUTOSUSPEND=0` so it doesn't interfere.
 LPMD config has `<Mode>0</Mode>` (OFF default), udev + systemd service override it.
+
+### Audio codec power saving — `snd_hda_intel.power_save`
+
+The HDA audio codec (ALC245) can power down its DAC/ADC, amps, and internal
+clocks when idle. `power_save=N` sets the idle timeout in seconds before the
+codec enters D3 (power-off) state.
+
+Set via kernel cmdline in `/etc/default/limine`:
+```
+snd_hda_intel.power_save=10
+```
+
+After 10s of silence → codec sleeps. First playback wakes it in ~50ms
+(imperceptible). TLP's `SOUND_POWER_SAVE=1` in `/etc/tlp.conf` also writes
+to the same sysfs parameter (`/sys/module/snd_hda_intel/parameters/power_save`)
+with a 1s timeout — either way works.
+
+To check current value:
+```
+cat /sys/module/snd_hda_intel/parameters/power_save
+```
+
+A value of `0` disables power saving (no clicks/pops on resume, used on AC by
+the ALSA udev rule in `/usr/lib/udev/rules.d/20-audio-pm.rules`).
 
 ### Bluetooth — `rfkill block` persists across reboots
 
@@ -728,7 +829,7 @@ TimeoutStopSec=3
 `/etc/default/limine`:
 ```
 ESP_PATH="/boot"
-KERNEL_CMDLINE[default]+="nvidia-drm.modeset=1 quiet nowatchdog i915.enable_psr=2 i915.enable_fbc=1 i915.enable_dc=0 iwlwifi.power_save=1 rw rootflags=subvol=/@ root=UUID=f7d828f3-6031-4f9b-a164-fed7f21a082b tpm_tis.interrupts=0 resume=UUID=89bc64d4-f652-4586-bb5a-35b6ffa13719 i915.vbt_firmware=i915/modified_vbt nvme_core.default_ps_max_latency_us=0"
+KERNEL_CMDLINE[default]+="nvidia-drm.modeset=1 quiet nowatchdog i915.enable_psr=2 i915.enable_fbc=1 i915.enable_dc=0 iwlwifi.power_save=1 rw rootflags=subvol=/@ root=UUID=f7d828f3-6031-4f9b-a164-fed7f21a082b tpm_tis.interrupts=0 resume=UUID=89bc64d4-f652-4586-bb5a-35b6ffa13719 i915.vbt_firmware=i915/modified_vbt nvme_core.default_ps_max_latency_us=0 snd_hda_intel.power_save=10"
 BOOT_ORDER="*, *lts, *fallback, Snapshots"
 ```
 Apply: `sudo limine-update`

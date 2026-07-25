@@ -2,12 +2,15 @@
 *
 **
 
+!.config/paru/
+!.config/paru/**
 !Desktop/
 !Desktop/**
 #  ─── ROOT METADATA ────────────────────────────────────────────
 !.gitignore
 !user.js
 !README.md
+!AGENTS.md
 !battery-report.md
 !suspend-and-hibernate-fix.md
 
