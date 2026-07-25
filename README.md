@@ -310,8 +310,50 @@ GTK_THEME=Adwaita:dark
 Requires `libqgtk3.so` (comes with qt6-base/qt5-base).
 
 ---
-## Boot Optimization
 
+## Thunar Video Thumbnails
+
+**Problem:** Thunar shows no thumbnails for video files even after installing `ffmpegthumbnailer`.
+
+**Fix:**
+```bash
+# 1. Create user config so ffmpegthumbnailer is tried first
+mkdir -p ~/.config/tumbler
+cp /etc/xdg/tumbler/tumbler.rc ~/.config/tumbler/tumbler.rc
+```
+Edit `~/.config/tumbler/tumbler.rc` — set `FfmpegThumbnailer` priority to `1` and **disable** `GstThumbnailer`:
+```
+[FfmpegThumbnailer]
+Disabled=false
+Priority=1
+Locations=
+Excludes=
+MaxFileSize=0
+
+[GstThumbnailer]
+Disabled=true
+Priority=1
+```
+```bash
+# 2. Create ffmpegthumbnailer config
+mkdir -p ~/.config/ffmpegthumbnailer
+cat > ~/.config/ffmpegthumbnailer/config << 'EOF'
+[defaults]
+filmstrip_size=64
+thumbnail_size=256
+quality=9
+EOF
+
+# 3. Restart tumbler and clear cache
+pkill tumblerd
+rm -rf ~/.cache/thumbnails/*
+```
+
+**Why:** GStreamer thumbnailer (`GstThumbnailer`) has default priority 1, which is higher than ffmpegthumbnailer's 2. GStreamer may silently fail on certain video files, and since it's tried first, tumbler never falls through to ffmpegthumbnailer. Raising ffmpegthumbnailer's priority to 1 and disabling GstThumbnailer ensures ffmpegthumbnailer handles all video thumbnails.
+
+---
+
+## Boot Optimization
 ### Baseline
 ```
 Startup finished in 5.642s (firmware) + 748ms (loader) + 537ms (kernel) + 1.650s (initrd) + 4.003s (userspace) = 12.581s

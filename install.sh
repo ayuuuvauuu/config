@@ -30,7 +30,7 @@ core=(
     neovim thunar firefox gvfs
 
     # media
-    mpv sioyek
+    mpv ffmpegthumbnailer sioyek
 
     # audio / backlight
     pipewire wireplumber pamixer playerctl brightnessctl
