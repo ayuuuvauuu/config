@@ -28,6 +28,7 @@ tracked** in git — document any changes in `README.md` and back up manually.
 
 - **Dead webcam** (`30c9:0069` on `usb3-port6`): hardware failure — `Cannot enable.`
   adds ~3s to kernel boot. No software fix. Ribbon cable likely loose at display end.
+  Mitigated via initramfs hook (`disable-webcam`) + udev rule — see README.
 - **Udev RUN key bug**: systemd-udevd >= v255 treats `$` in `RUN+=` as substitution.
   Inline shell scripts with `$f` / `$d` fail silently. Use standalone scripts
   (e.g. `/usr/local/bin/usb-power-switch`) instead. See README § "USB autosuspend".
@@ -50,3 +51,6 @@ tracked** in git — document any changes in `README.md` and back up manually.
 | Verify NVIDIA PM | `cat /sys/bus/pci/devices/0000:01:00.0/power/runtime_status` |
 | USB vendor:product | `lsusb` or `usb-list` (custom script in `~/.local/bin/`) |
 | Apply kernel cmdline | edit `/etc/default/limine` then `sudo limine-update` |
+
+Skills provide specialized instructions and workflows for specific tasks.
+Use the skill tool to load a skill when a task matches its description.

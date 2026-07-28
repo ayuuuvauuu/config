@@ -3,6 +3,7 @@
 **
 
 !.config/paru/
+!.curlrc
 !.config/paru/**
 !Desktop/
 !Desktop/**

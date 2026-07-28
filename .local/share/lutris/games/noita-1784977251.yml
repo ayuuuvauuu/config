@@ -8,7 +8,7 @@ system:
     PROTON_NO_NTSYNC: '0'
     PROTON_VERB: waitforexitandrun
     __EGL_VENDOR_LIBRARY_DIRS: ''
-  gpu: ''
+  gpu: card1
   mangohud: false
 wine:
   Graphics: x11

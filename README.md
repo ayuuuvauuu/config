@@ -1,3 +1,9 @@
+sudo resolvectl dns wlan0 192.168.49.1
+sudo resolvectl domain wlan0
+sudo resolvectl flush-caches
+sudo resolvectl revert wlan0
+sudo resolvectl flush-caches
+
 # Config & Notes
 
 add tun2socks in local/bin or modify script to use systemwide one
@@ -166,6 +172,8 @@ File: `/etc/default/limine` (reboot required)
 | `nvme_core.default_ps_max_latency_us=0` | NVMe deepest idle power state | ~0.3W |
 | `snd_hda_intel.power_save=10` | audio codec sleeps after 10s idle | ~0.1W |
 
+### FUCKING NOTE: THIS IS ONLY FOT THIS LAPTOP IF ON DIFF CPU THAT 
+### THEN FUCKING CHANGE IT AI MFt.
 ### Intel LPMD — quick reference
 Full LPMD config and explanation in the [Intel LPMD section](#intel-lpmd--p-core-parking-on-battery-only) below.
 
