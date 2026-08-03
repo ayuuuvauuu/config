@@ -1,0 +1,135 @@
+#!/bin/sh
+# Switch USB power control + LPMD based on AC/battery state
+# Called by udev rule /etc/udev/rules.d/99-usb-power.rules
+
+# Display current state of LPMD and USB devices
+if [ "$1" = "--show" ]; then
+    echo "=== Current USB Power States ==="
+    printf "%-8s %-10s %-12s %s\n" "CTRL" "STATUS" "ID" "PRODUCT"
+    for d in /sys/bus/usb/devices/*/; do
+        if [ -f "$d/idVendor" ]; then
+            idVendor=$(cat "$d/idVendor" 2>/dev/null)
+            idProduct=$(cat "$d/idProduct" 2>/dev/null)
+            control=$(cat "$d/power/control" 2>/dev/null)
+            status=$(cat "$d/power/runtime_status" 2>/dev/null)
+            product=$(cat "$d/product" 2>/dev/null)
+            status=${status:--}
+            printf "%-8s %-10s %-12s %s\n" "$control" "$status" "$idVendor:$idProduct" "$product"
+        fi
+    done
+    
+    echo ""
+    echo "=== Current LPMD State ==="
+    if [ -x "/usr/bin/intel_lpmd_control" ]; then
+        lpmd_status=$(/usr/bin/intel_lpmd_control STATUS 2>/dev/null)
+        echo "Status: ${lpmd_status:-unknown (try running with sudo)}"
+    else
+        echo "Status: /usr/bin/intel_lpmd_control not found."
+    fi
+    exit 0
+fi
+
+# Toggle power state for a specific device
+if [ "$1" = "toggle" ] || [ "$1" = "--toggle" ]; then
+    if [ -z "$2" ]; then
+        echo "Error: Please provide a device ID to toggle."
+        echo "Usage: $0 toggle [vendor:product]"
+        exit 1
+    fi
+    
+    target_id="$2"
+    found=0
+    
+    for d in /sys/bus/usb/devices/*/; do
+        if [ -f "$d/idVendor" ]; then
+            idVendor=$(cat "$d/idVendor" 2>/dev/null)
+            idProduct=$(cat "$d/idProduct" 2>/dev/null)
+
+            if [ "$idVendor:$idProduct" = "$target_id" ]; then
+                found=1
+                current=$(cat "$d/power/control" 2>/dev/null)
+                product=$(cat "$d/product" 2>/dev/null)
+                
+                # Flip the state
+                if [ "$current" = "auto" ]; then
+                    new_state="on"
+                else
+                    new_state="auto"
+                fi
+                
+                echo "$new_state" > "$d/power/control" 2>/dev/null
+                
+                # Verify the change
+                actual=$(cat "$d/power/control" 2>/dev/null)
+                status=$(cat "$d/power/runtime_status" 2>/dev/null)
+                status=${status:--}
+                
+                echo "Toggled: $product ($target_id)"
+                echo "CTRL changed: $current -> $actual"
+                echo "Current STATUS: $status"
+                echo ""
+            fi
+        fi
+    done
+    
+    if [ $found -eq 0 ]; then
+        echo "Error: Device $target_id not currently found/connected."
+    fi
+    exit 0
+fi
+
+# Display help if no arguments are provided or if explicitly requested
+if [ $# -eq 0 ] || [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
+    echo "Usage: $0 [command/state] [vendor:product]..."
+    echo ""
+    echo "Commands & Options:"
+    echo "  --show                 Display power states of LPMD and all connected USB devices."
+    echo "  toggle vendor:product  Flip a specific device's control state (on <-> auto)."
+    echo "  -h, --help             Display this help message."
+    echo ""
+    echo "Global State Setting:"
+    echo "  state                  'on' (AC) or 'auto' (BAT)."
+    echo "                         If omitted, state is auto-detected from ADP1."
+    echo "  vendor:product         Keep specific devices 'on' (prevent suspension)."
+    echo ""
+    echo "Examples:"
+    echo "  $0 --show                     # View current devices and their power states"
+    echo "  $0 toggle 17ef:60a9           # Flip the power state for a specific device"
+    echo "  $0 auto 17ef:60a9 046d:c52b   # Global 'auto' but force two devices 'on'"
+    echo "  $0 on                         # Global 'on' for everything"
+    echo "  $0 17ef:60a9                  # Auto-detect AC/BAT state, but force one device 'on'"
+    exit 0
+fi
+
+# Determine state. If $1 is 'on' or 'auto', use it and shift arguments.
+if [ "$1" = "on" ] || [ "$1" = "auto" ]; then
+    state="$1"
+    shift
+else
+    # Auto-detect if state wasn't explicitly provided (e.g., if only device IDs were passed)
+    state=$(sed 's/1/on/; s/0/auto/' /sys/class/power_supply/ADP1/online 2>/dev/null)
+    state=${state:-on} # Fallback to 'on' if file doesn't exist
+fi
+
+# Set USB power control for all devices
+for f in /sys/bus/usb/devices/*/power/control; do
+    echo "$state" > "$f" 2>/dev/null
+done
+
+# Denylist: keep specified devices always on (vendor:product) passed via arguments
+for force_id in "$@"; do
+    for d in /sys/bus/usb/devices/*/; do
+        idVendor=$(cat "$d/idVendor" 2>/dev/null)
+        idProduct=$(cat "$d/idProduct" 2>/dev/null)
+        if [ "$idVendor:$idProduct" = "$force_id" ]; then
+            echo on > "$d/power/control" 2>/dev/null
+        fi
+    done
+done
+
+# Set LPMD
+if [ "$state" = "on" ]; then
+    /usr/bin/intel_lpmd_control OFF
+else
+    /usr/bin/intel_lpmd_control AUTO
+fi

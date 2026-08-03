@@ -34,11 +34,18 @@ set t_Co=256
 " Enable mouse in all modes
 set mouse=a
 
-" Use system clipboard for yanks and pastes (unnamedplus makes `+` the default)
+" === System clipboard (Wayland / wl-clipboard) ===
+" NOTE: this vim is built with -clipboard, so `set clipboard=unnamedplus`
+" alone does NOT reach the system clipboard. wl-copy/wl-paste handle it:
+"  - every yank (y, yy, visual y) is also pushed to the system clipboard
+"  - <leader>p inserts the system clipboard below the cursor
 set clipboard=unnamedplus
 
-" Yank visual selection to system clipboard via wl-copy
-vnoremap <leader>y :w !wl-copy<CR><CR>
+" Sync any yank to the system clipboard (like clipboard=unnamedplus would)
+autocmd TextYankPost * if v:event.operator =~# 'y' | call system('wl-copy', @") | endif
 
-" Paste from system clipboard below current line
-nnoremap <leader>p :r !wl-paste --no-newline<CR>
+" <leader>y still works as before (yank = also copied to system clipboard)
+vnoremap <leader>y y
+
+" Insert system clipboard below cursor (timeout guards against dead owners)
+nnoremap <leader>p :put=system('timeout 2 wl-paste --no-newline 2>/dev/null')<CR>

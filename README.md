@@ -4,6 +4,13 @@ sudo resolvectl flush-caches
 sudo resolvectl revert wlan0
 sudo resolvectl flush-caches
 
+
+
+# disbale suspend for device
+grep 60a9  /sys/bus/usb/devices/*/idProduct
+echo on | sudo tee /sys/bus/usb/devices/3-1/power/control
+
+
 # Config & Notes
 
 add tun2socks in local/bin or modify script to use systemwide one
