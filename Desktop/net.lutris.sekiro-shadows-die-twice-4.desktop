@@ -1,0 +1,8 @@
+
+[Desktop Entry]
+Type=Application
+Name=Sekiro - Shadows Die Twice
+Icon=lutris_sekiro-shadows-die-twice
+Exec=env LUTRIS_SKIP_INIT=1 lutris lutris:rungameid/4
+Categories=Game
+TryExec=lutris

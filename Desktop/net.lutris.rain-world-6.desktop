@@ -1,0 +1,8 @@
+
+[Desktop Entry]
+Type=Application
+Name=Rain World
+Icon=lutris_rain-world
+Exec=env LUTRIS_SKIP_INIT=1 lutris lutris:rungameid/6
+Categories=Game
+TryExec=lutris

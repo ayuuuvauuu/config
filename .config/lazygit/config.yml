@@ -1,6 +1,6 @@
 git:
-  pagers:
-    - pager: delta --paging=never -n
+  diffRenderers:
+    - command: delta --paging=never -n
 gui:
   theme:
     activeBorderColor: [green, bold]
