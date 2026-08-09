@@ -1,3 +1,8 @@
+email spoofing
+https://sec-consult.com/blog/detail/smtp-smuggling-spoofing-e-mails-worldwide/
+https://www.reddit.com/r/hacking/comments/1beylrk/is_email_spoofing_still_easy_to_do/
+
+----------
 add 
 browser.tabs.unloadOnLowMemory = true
 in user.js all profiles
