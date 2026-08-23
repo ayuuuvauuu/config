@@ -78,6 +78,8 @@ Notes/bitsat
 !.config/cmus/**
 !.config/btop/
 !.config/btop/**
+!.config/xdg-desktop-portal/
+!.config/xdg-desktop-portal/**
 !.config/auto-cpufreq/
 !.config/auto-cpufreq/**
 !.config/kitty/
