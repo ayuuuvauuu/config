@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Name=Sioyek
+GenericName=PDF Reader
+Comment=A PDF viewer designed for research papers and technical books
+Exec=/home/ayu/apps/sioyek %F
+TryExec=/home/ayu/apps/sioyek
+Icon=application-pdf
+Terminal=false
+Categories=Office;Viewer;Graphics;
+MimeType=application/pdf;
+Keywords=pdf;viewer;reader;papers;

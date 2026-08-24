@@ -42,6 +42,11 @@
 !.local/share/lutris/runners/
 !.local/share/lutris/runners/**
 
+#  ─── mime / desktop associations ──────────────────────────────
+!.config/mimeapps.list
+!.local/share/applications/
+!.local/share/applications/sioyek.desktop
+
 #  ─── Notes ────────────────────────────────────────────────────
 !Notes/
 !Notes/**
@@ -84,6 +89,8 @@ Notes/bitsat
 !.config/auto-cpufreq/**
 !.config/kitty/
 !.config/kitty/**
+!.config/sioyek/
+!.config/sioyek/**
 !.config/MangoHud/
 !.config/MangoHud/**
 /.viminfo
