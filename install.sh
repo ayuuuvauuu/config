@@ -11,6 +11,7 @@ set -euo pipefail
 # ── Core packages (always offered) ──────────────────────────────────
 core=(
     # apps / utils
+    zbar
     localsend tumblerd wtype bat feh gammastep arttime 7zip
     tree-sitter-cli cmus git-delta unp
 

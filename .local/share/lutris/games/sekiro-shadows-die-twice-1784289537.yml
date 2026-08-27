@@ -2,4 +2,7 @@ game:
   exe: /data/Games/Sekiro - Shadows Die Twice/sekiro.exe
   prefix: /home/ayu/Games/sekiro
 system:
+  gpu: card2
   mangohud: true
+wine:
+  Graphics: wayland
