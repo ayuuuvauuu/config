@@ -881,6 +881,19 @@ Type=simple
 ```
 
 ---
+## hyprwhspr-rs (Voice Dictation)
+
+Config: `.config/hyprwhspr-rs/config.jsonc`
+
+GPU vs CPU toggle — change `gpu_layers`:
+```jsonc
+"gpu_layers": 0,   // CPU only (recommended — less battery, fast enough)
+"gpu_layers": 999, // GPU via Vulkan (faster but drains battery)
+```
+
+For tiny.en model, CPU transcribes 1min audio in ~800ms. GPU saves ~550ms but draws 30-60W extra. No real-world difference for dictation.
+
+---
 ## Battery Impact of Changes
 | Change | Impact | Why |
 |---|---|---|

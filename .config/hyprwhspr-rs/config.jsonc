@@ -1,0 +1,69 @@
+{
+  "shortcuts": {
+    "press": "SUPER+ALT+R"
+  },
+  "word_overrides": {},
+  "audio_feedback": false,
+  "start_sound_volume": 0.3,
+  "stop_sound_volume": 0.3,
+  "start_sound_path": null,
+  "stop_sound_path": null,
+  "auto_copy_clipboard": true,
+  "shift_paste": false,
+  "global_paste_shortcut": true,
+  "paste_hints": {},
+  "audio_device": null,
+  "fast_vad": {
+    "enabled": false,
+    "profile": "aggressive",
+    "min_speech_ms": 120,
+    "silence_timeout_ms": 500,
+    "pre_roll_ms": 120,
+    "post_roll_ms": 150,
+    "volatility_window": 24,
+    "volatility_increase_threshold": 0.35,
+    "volatility_decrease_threshold": 0.12
+  },
+  "transcription": {
+    "provider": "whisper_cpp",
+    "request_timeout_secs": 45,
+    "max_retries": 2,
+    "whisper_cpp": {
+      "prompt": "Transcribe with proper capitalization, including sentence beginnings, proper nouns, titles, and standard English capitalization rules.",
+      "model": "tiny",
+      "threads": 8,
+      "gpu_layers": 0,
+      "fallback_cli": false,
+      "no_speech_threshold": 0.6,
+      "models_dirs": [
+        "~/.local/share/hyprwhspr-rs/models"
+      ],
+      "vad": {
+        "enabled": false,
+        "model": "ggml-silero-v5.1.2.bin",
+        "threshold": 0.5,
+        "min_speech_ms": 250,
+        "min_silence_ms": 100,
+        "speech_pad_ms": 30,
+        "samples_overlap": 0.1
+      }
+    },
+    "groq": {
+      "model": "whisper-large-v3-turbo",
+      "endpoint": "https://api.groq.com/openai/v1/audio/transcriptions",
+      "prompt": "Transcribe with proper capitalization, including sentence beginnings, proper nouns, titles, and standard English capitalization rules."
+    },
+    "gemini": {
+      "model": "gemini-2.5-pro-exp-0827",
+      "endpoint": "https://generativelanguage.googleapis.com/v1beta/models",
+      "temperature": 0.0,
+      "max_output_tokens": 1024,
+      "prompt": "Transcribe with proper capitalization, including sentence beginnings, proper nouns, titles, and standard English capitalization rules."
+    },
+    "parakeet": {
+      "model_dir": "models/parakeet/parakeet-tdt-0.6b-v3-onnx",
+      "prompt": "Transcribe with proper capitalization, including sentence beginnings, proper nouns, titles, and standard English capitalization rules."
+    },
+    "custom": {}
+  }
+}

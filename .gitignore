@@ -93,6 +93,8 @@ Notes/bitsat
 !.config/sioyek/**
 !.config/MangoHud/
 !.config/MangoHud/**
+!.config/hyprwhspr-rs/
+!.config/hyprwhspr-rs/**
 /.viminfo
 
 #  ─── EXCLUDED (tracked file exceptions) ───────────────────────
