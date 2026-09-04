@@ -108,3 +108,7 @@ Notes/bitsat
 !.config/qBittorrent/**
 /.local/bin/__pycache__/pdanet-proxy.cpython-314.pyc
 /.local/bin/__pycache__
+
+# --- WirePlumber SOF fix: persistent audio fix for ALC245 EBUSY + 0.5.16 leak ---
+!.config/wireplumber/
+!.config/wireplumber/**
