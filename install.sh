@@ -12,6 +12,7 @@ set -euo pipefail
 core=(
     # apps / utils
     zbar
+    cava
     localsend tumblerd wtype bat feh gammastep arttime 7zip
     tree-sitter-cli cmus git-delta unp
 
