@@ -112,3 +112,8 @@ Notes/bitsat
 # --- WirePlumber SOF fix: persistent audio fix for ALC245 EBUSY + 0.5.16 leak ---
 !.config/wireplumber/
 !.config/wireplumber/**
+
+# --- WirePlumber SOF+Firefox fix: track local systemd overrides ---
+!.config/systemd/
+!.config/systemd/user/
+!.config/systemd/user/fix-*.service

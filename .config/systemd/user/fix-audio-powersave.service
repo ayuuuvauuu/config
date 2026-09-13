@@ -1,0 +1,12 @@
+[Unit]
+Description=Fix SOF audio powersave race (disable codec D3)
+After=pipewire.service wireplumber.service
+Wants=pipewire.service
+
+[Service]
+Type=oneshot
+ExecStart=%h/.local/bin/fix-audio-powersave.sh
+RemainAfterExit=yes
+
+[Install]
+WantedBy=default.target

@@ -1,0 +1,13 @@
+[Unit]
+Description=Fix Firefox audio sink after PipeWire resume/restart
+After=pipewire.service wireplumber.service pipewire-pulse.service
+Wants=pipewire.service wireplumber.service
+
+[Service]
+Type=oneshot
+ExecStart=%h/.local/bin/fix-firefox-audio.sh
+ExecStart=%h/.local/bin/fix-audio-powersave.sh
+RemainAfterExit=no
+
+[Install]
+WantedBy=default.target
