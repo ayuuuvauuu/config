@@ -61,17 +61,65 @@ case "$CHANNEL" in
         ;;
 esac
 
+# DNS fix for ERR_NAME_NOT_RESOLVED — host-untouched (no resolv.conf / resolved changes).
+#
+# Root cause: create_ap runs dnsmasq on 5353 and iptables REDIRECTs clients'
+# queries for 192.168.12.1:53 -> 5353. By default dnsmasq reads /etc/resolv.conf
+# for upstream. On this host /etc/resolv.conf is the systemd-resolved stub
+#   nameserver 127.0.0.53   (resolv.conf mode: foreign, see `resolvectl status`)
+# while the real uplink is in /run/systemd/resolve/resolv.conf:
+#   nameserver 192.168.29.1
+# dnsmasq treats 127.0.0.53 as local and has no valid upstream, so all client
+# DNS forwarded via the gateway fails → phone shows ERR_NAME_NOT_RESOLVED,
+# while host itself works (host uses resolved's per-link DNS, not /etc/resolv.conf).
+#
+# Fix without touching the host: advertise a working DNS directly via DHCP
+# option 6 (--dhcp-dns), so clients query it via NAT instead of relying on
+# dnsmasq's broken upstream. This leaves systemd-resolved, /etc/resolv.conf,
+# iptables/nft and host forwarding completely untouched — only the DHCP
+# answer to clients changes. Respects DHCP_DNS env if set (e.g. DHCP_DNS=gateway
+# to restore default gateway-DNS, or DHCP_DNS=192.168.29.1,1.1.1.1 for custom).
+if [ -z "${DHCP_DNS:-}" ]; then
+    # Prefer host's real uplink from resolved's resolv.conf (bypasses 127.0.0.53 stub),
+    # filtered to IPv4 (hotspot NAT is IPv4-only) and non-loopback.
+    _detected=""
+    if [ -r /run/systemd/resolve/resolv.conf ]; then
+        _detected=$(awk '/^nameserver /{print $2}' /run/systemd/resolve/resolv.conf 2>/dev/null \
+            | grep -vE '^127\.|^::1' | grep -v ':' | paste -sd "," -)
+    fi
+    if [ -z "$_detected" ] && command -v resolvectl >/dev/null 2>&1; then
+        _detected=$(resolvectl status 2>/dev/null \
+            | awk '/DNS Servers:/{for(i=3;i<=NF;i++) print $i}' \
+            | grep -vE '^127\.' | grep -v ':' | head -n 2 | paste -sd "," -)
+    fi
+    # Fallback: public resolvers — always reachable via NAT, independent of router.
+    if [ -z "$_detected" ]; then
+        _detected="1.1.1.1,8.8.8.8"
+    else
+        # Ensure at least two servers: if only router IP was found, add public fallback.
+        case "$_detected" in
+            *,*) ;;
+            *) _detected="${_detected},1.1.1.1" ;;
+        esac
+        # Trim to 2 entries to keep DHCP option small.
+        _detected=$(printf "%s" "$_detected" | tr ',' '\n' | head -n 2 | paste -sd "," -)
+    fi
+    DHCP_DNS="$_detected"
+    unset _detected
+fi
+
 # No manual systemd-resolved / iptables / nft handling here.
 # create_ap runs dnsmasq on 5353 with iptables REDIRECT --to-ports 5353
 # and leaves systemd-resolved (127.0.0.53 stub, resolv.conf mode foreign)
-# intact, so host + client DNS keeps working. It also manages NAT/
-# forwarding internally and cleans up on exit - no trap needed (exec replaces shell).
+# intact, so host DNS keeps working. It also manages NAT/forwarding
+# internally and cleans up on exit - no trap needed (exec replaces shell).
 
 # UPSTREAM_IFACE handling:
 #   unset/empty -> share internet via same wifi iface (virtual ap0, original behavior)
 #   "none"      -> isolated AP with no internet (`create_ap -n`), no NAT
 #   <iface>     -> share internet from that upstream iface
 if [ "${UPSTREAM_IFACE:-}" = "none" ]; then
+    # For isolated AP, --dhcp-dns is not needed but harmless; skip to keep `create_ap -n` minimal.
     exec sudo create_ap -n -c "$CHANNEL" "$IFACE" "$SSID" "$PASSPHRASE"
 fi
 
@@ -85,4 +133,4 @@ if [ ! -d "/sys/class/net/$UPSTREAM_IFACE" ]; then
     exit 1
 fi
 
-exec sudo create_ap -c "$CHANNEL" "$IFACE" "$UPSTREAM_IFACE" "$SSID" "$PASSPHRASE"
+exec sudo create_ap --dhcp-dns "$DHCP_DNS" -c "$CHANNEL" "$IFACE" "$UPSTREAM_IFACE" "$SSID" "$PASSPHRASE"
