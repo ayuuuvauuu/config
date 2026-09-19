@@ -58,6 +58,8 @@ bindsym --to-code Mod1+F4 kill
 
 # core applications
 bindsym --to-code $Mod+Return       exec $term
+bindsym --no-repeat --to-code $Mod+d            exec ~/.config/sway/scripts/discord-toggle.sh toggle
+bindsym --no-repeat --to-code $Mod+Shift+d      exec ~/.config/sway/scripts/discord-toggle.sh kill
 for_window [app_id="foot-float"] floating enable, resize set 600 600, move position center
 bindsym --to-code $Mod+apostrophe   exec foot --app-id=foot-float
 bindsym --to-code $Mod+e            exec $editor
@@ -221,6 +223,7 @@ for_window [floating] opacity 1.0
 
 # focus, floating, & sticky
 for_window [app_id="mpv"] opacity 1.0 focus opacity 1.0
+for_window [app_id="discord"] floating enable, resize set 1200 800, move position center
 for_window [app_id="(?i)(?:blueman-manager|azote|gnome-disks)"] floating enable
 for_window [app_id="(?i)(?:pavucontrol|nm-connection-editor|gsimplecal|galculator)"] floating enable
 for_window [title="(?i)(?:copying|deleting|moving)"] floating enable

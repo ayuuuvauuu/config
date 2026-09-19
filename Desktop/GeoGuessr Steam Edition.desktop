@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=GeoGuessr Steam Edition
+Comment=Play this game on Steam
+Exec=steam steam://rungameid/3478870
+Icon=steam_icon_3478870
+Terminal=false
+Type=Application
+Categories=Game;

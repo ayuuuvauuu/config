@@ -3,7 +3,7 @@ set -eu
 
 IFACE=${IFACE:-wlan0}
 SSID=${SSID:-victus}
-PASSPHRASE=${PASSPHRASE:-password}
+PASSPHRASE=${PASSPHRASE:-nopassword}
 CHANNEL=${CHANNEL:-}
 UPSTREAM_IFACE=${UPSTREAM_IFACE:-}
 # Poll interval (seconds) for uplink-change watcher. Override: HOTSPOT_POLL=5 hotspot.sh
