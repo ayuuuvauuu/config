@@ -70,3 +70,4 @@ image/x-xwindowdump=feh.desktop
 x-scheme-handler/tg=userapp-Telegram Desktop-JPDSR3.desktop;org.telegram.desktop.desktop;
 x-scheme-handler/tonsite=userapp-Telegram Desktop-6WSSR3.desktop;org.telegram.desktop.desktop;
 application/vnd.appimage=firefox.desktop;
+image/png=localsend.desktop;

@@ -1,0 +1,8 @@
+
+[Desktop Entry]
+Type=Application
+Name=inmost
+Icon=lutris_inmost
+Exec=env LUTRIS_SKIP_INIT=1 lutris lutris:rungameid/7
+Categories=Game
+TryExec=lutris

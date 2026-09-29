@@ -1,4 +1,5 @@
 sort=-time
+max-history=30
 layer=overlay
 background-color=#2e3440
 width=380
