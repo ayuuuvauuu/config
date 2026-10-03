@@ -1,0 +1,247 @@
+#!/bin/sh
+# record-audio — record system (output) audio, optionally + mic (call mode).
+# Output: ~/audio/*.wav (WAV, 48kHz stereo). Stops on Ctrl+C, then asks for a name.
+#
+# Usage:
+#   record-audio              record system output only
+#   record-audio -m           record system output + microphone (call mode)
+#   record-audio --mic        same as -m
+#   record-audio --call       same as -m (alias, easy to remember for calls)
+#   record-audio [opts] [name]  skip the naming prompt, save as <name>.wav
+#   record-audio -h | --help  show this help
+
+set -eu
+
+OUT_DIR="$HOME/audio"
+MODE="out"        # "out" = system output only, "both" = output + mic
+PRESET_NAME=""
+
+print_help() {
+    cat <<'EOF'
+Usage: record-audio [OPTIONS] [NAME]
+
+Record system audio (everything you hear). With a mic flag it also
+records your microphone, mixed in — i.e. recording a call.
+
+Options:
+  -m, --mic     also record the microphone (system output + mic mixed)
+      --call    same as --mic (alias, for "recording a call")
+  -h, --help    show this help and exit
+
+Arguments:
+  NAME          optional file name (without or with .wav). If given, the
+                recording is saved as ~/audio/NAME.wav with no prompt.
+                If omitted, you are asked for a name after stopping.
+
+How stopping works:
+  Press Ctrl+C to stop recording. You are then asked:
+      Name file (Enter for date):
+  Type a name and press Enter, or just press Enter to use the
+  output of:  date '+%Y-%m-%d_%H-%M-%S'
+  Files are saved as WAV in ~/audio/ (created if missing).
+  A second Ctrl+C while naming discards the recording.
+
+Examples:
+  record-audio                 # system sound only, name it after Ctrl+C
+  record-audio --mic           # system sound + mic (call), name after Ctrl+C
+  record-audio --call meeting  # call mode, saved straight to ~/audio/meeting.wav
+EOF
+}
+
+# --- arg parsing ---
+while [ "$#" -gt 0 ]; do
+    case "$1" in
+        -h|--help) print_help; exit 0 ;;
+        -m|--mic|--call) MODE="both"; shift ;;
+        --) shift; break ;;
+        -*) echo "record-audio: unknown option '$1' (see --help)" >&2; exit 1 ;;
+        *)  PRESET_NAME="$1"; shift;
+            if [ "$#" -gt 0 ]; then
+                echo "record-audio: too many arguments (see --help)" >&2; exit 1
+            fi ;;
+    esac
+done
+
+# --- dependency check ---
+MISSING=""
+command -v ffmpeg >/dev/null 2>&1 || MISSING="ffmpeg $MISSING"
+command -v pactl  >/dev/null 2>&1 || MISSING="pactl $MISSING"
+if [ -n "$MISSING" ]; then
+    echo "record-audio: missing required tools:$MISSING" >&2
+    echo "Install them via your package manager." >&2
+    exit 1
+fi
+
+# --- output dir (make it if not present) ---
+mkdir -p "$OUT_DIR"
+
+# --- detect devices ---
+DEFAULT_SINK="$(pactl get-default-sink 2>/dev/null || true)"
+if [ -n "$DEFAULT_SINK" ]; then
+    MONITOR="$DEFAULT_SINK.monitor"
+else
+    # fallback: first available monitor source
+    MONITOR="$(pactl list short sources 2>/dev/null | awk '$2 ~ /\.monitor$/ {print $2; exit}')"
+fi
+if [ -z "${MONITOR:-}" ]; then
+    echo "record-audio: could not find a monitor (output) source." >&2
+    exit 1
+fi
+
+MIC=""
+if [ "$MODE" = "both" ]; then
+    MIC="$(pactl get-default-source 2>/dev/null || true)"
+    if [ -z "$MIC" ]; then
+        echo "record-audio: could not find the microphone source." >&2
+        exit 1
+    fi
+    # sanity: default source should not itself be a monitor
+    case "$MIC" in
+        *.monitor) echo "record-audio: default source is a monitor ($MIC); cannot do mic mode." >&2; exit 1 ;;
+    esac
+fi
+
+# --- temp file: record here, rename only after naming prompt ---
+TMP="$(mktemp "$OUT_DIR/.record-audio-tmp-XXXXXX.wav")"
+# Control pipe for ffmpeg: on stop we send 'q' so ffmpeg finalizes the
+# WAV header cleanly (a bare SIGINT would leave "file may be invalid").
+CMDPIPE="$(mktemp -u "$OUT_DIR/.record-audio-cmd-XXXXXX")"
+mkfifo "$CMDPIPE"
+cleanup_pipe() {
+    exec 9>&- 2>/dev/null || true
+    rm -f "$CMDPIPE"
+}
+
+# --- minimal in-place elapsed timer (1 wakeup/sec: easy on CPU/battery) ---
+# Single updating line (uses carriage return, never scrolls). Call timer_start
+# after recording begins (every mode) and timer_stop before the naming prompt.
+TIMERPID=""
+timer_start() {
+    _t0="$(date +%s)"
+    (
+        while :; do
+            _e=$(($(date +%s) - _t0))
+            printf '\rREC %02d:%02d:%02d (Ctrl+C to stop)' \
+                $((_e / 3600)) $(((_e / 60) % 60)) $(($_e % 60))
+            sleep 1
+        done
+    ) &
+    TIMERPID=$!
+}
+timer_stop() {
+    if [ -n "${TIMERPID:-}" ]; then
+        kill "$TIMERPID" 2>/dev/null || true
+        wait "$TIMERPID" 2>/dev/null || true
+        TIMERPID=""
+        printf '\r\033[K'   # clear the timer line, prompt starts fresh
+    fi
+}
+
+# --- naming + final save (shared by trap and normal flow) ---
+SAVED=0
+finalize() {
+    # $1 = tmp file (must exist and be non-empty to keep)
+    _tmp="$1"
+    trap 'echo ""; echo "Discarded (recording deleted)."; rm -f "$_tmp"; cleanup_pipe; exit 130' INT TERM
+    if [ ! -s "$_tmp" ]; then
+        echo "record-audio: nothing was recorded (empty file)." >&2
+        rm -f "$_tmp"
+        cleanup_pipe
+        exit 1
+    fi
+    if [ -n "$PRESET_NAME" ]; then
+        NAME="$PRESET_NAME"
+        echo "Saving as: $NAME (preset)"
+    else
+        printf 'Name file (Enter for date): '
+        # EOF (Ctrl+D) or empty input also means "use date"
+        if ! read -r NAME; then NAME=""; fi
+        if [ -z "$NAME" ]; then
+            NAME="$(date '+%Y-%m-%d_%H-%M-%S')"
+        fi
+    fi
+    # sanitize: no slashes, trim surrounding whitespace
+    NAME="$(printf '%s' "$NAME" | tr '/' '_' | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
+    if [ -z "$NAME" ]; then
+        NAME="$(date '+%Y-%m-%d_%H-%M-%S')"
+    fi
+    case "$NAME" in
+        *.wav|*.WAV) DEST="$OUT_DIR/$NAME" ;;
+        *) DEST="$OUT_DIR/$NAME.wav" ;;
+    esac
+    # avoid overwriting: meeting.wav -> meeting_1.wav, ...
+    if [ -e "$DEST" ]; then
+        BASE="${DEST%.wav}"; N=1
+        while [ -e "${BASE}_${N}.wav" ]; do N=$((N + 1)); done
+        DEST="${BASE}_${N}.wav"
+        echo "Note: name taken, using $(basename "$DEST") instead."
+    fi
+    mv -f "$_tmp" "$DEST"
+    SAVED=1
+    cleanup_pipe
+    echo "Saved: $DEST"
+}
+
+# Ctrl+C / SIGTERM while recording: stop ffmpeg, then name the file.
+on_stop_signal() {
+    echo ""
+    echo "Stopping recording..."
+    trap '' INT TERM   # avoid re-entry while stopping; finalize() sets its own trap
+    if [ -n "${FFPID:-}" ]; then
+        printf 'q' >&9 2>/dev/null || true   # ask ffmpeg to quit cleanly
+        exec 9>&- 2>/dev/null || true
+        exec 9>&- 2>/dev/null || true
+        i=0
+        while kill -0 "$FFPID" 2>/dev/null && [ "$i" -lt 50 ]; do
+            sleep 0.1; i=$((i + 1))
+        done
+        kill -INT "$FFPID" 2>/dev/null || true   # fallback if 'q' failed
+        wait "$FFPID" 2>/dev/null || true
+        FFPID=""
+    fi
+    timer_stop
+    finalize "$TMP"
+    exit 0
+}
+trap on_stop_signal INT TERM
+
+# --- start recording ---
+if [ "$MODE" = "both" ]; then
+    echo "Recording: system output + mic (call mode)"
+    echo "  output : $MONITOR"
+    echo "  mic    : $MIC"
+else
+    echo "Recording: system output only"
+    echo "  output : $MONITOR"
+    echo "  (tip: add --mic / --call to also record your mic)"
+fi
+echo "Saving to: $OUT_DIR/"
+echo "Press Ctrl+C to stop, then name the file (Enter = date)."
+
+if [ "$MODE" = "both" ]; then
+    ffmpeg -hide_banner -loglevel warning -y \
+        -f pulse -i "$MONITOR" \
+        -f pulse -i "$MIC" \
+        -filter_complex "[0:a][1:a]amix=inputs=2:duration=longest:dropout_transition=0[a]" \
+        -map "[a]" -c:a pcm_s16le -ar 48000 -ac 2 \
+        "$TMP" <"$CMDPIPE" &
+else
+    ffmpeg -hide_banner -loglevel warning -y \
+        -f pulse -i "$MONITOR" \
+        -c:a pcm_s16le -ar 48000 -ac 2 \
+        "$TMP" <"$CMDPIPE" &
+fi
+FFPID=$!
+# Hold the write end open (O_RDWR never blocks, even if ffmpeg dies early),
+# so ffmpeg's stdin stays on the pipe and the script's own stdin is untouched.
+exec 9<>"$CMDPIPE"
+timer_start   # in-place elapsed timer, runs in every mode
+wait "$FFPID" || true
+FFPID=""
+timer_stop
+
+# Reached here = ffmpeg exited on its own (error or EOF). Still offer to keep it.
+trap - INT TERM
+if [ "$SAVED" = 0 ]; then
+    finalize "$TMP"
+fi
