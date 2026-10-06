@@ -4,7 +4,7 @@ sudo resolvectl flush-caches
 sudo resolvectl revert wlan0
 sudo resolvectl flush-caches
 
-
+# install wifi hotspot app! #
 
 # disbale suspend for device
 grep 60a9  /sys/bus/usb/devices/*/idProduct

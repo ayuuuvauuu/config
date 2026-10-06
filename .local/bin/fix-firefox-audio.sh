@@ -27,8 +27,11 @@ wpctl set-mute @DEFAULT_AUDIO_SINK@ 0 2>/dev/null || true
 if [ -w /sys/module/snd_hda_intel/parameters/power_save ]; then echo 0 > /sys/module/snd_hda_intel/parameters/power_save 2>/dev/null || true; fi
 
 # 2. move all Firefox streams to Headphones + unmute (fixes HDMI wrong sink after restart)
+# NOTE: application.name is ~18 lines below "Sink Input #", so -A15 never matched (bug).
+# Cache dump once (IDs shift live) and use -A40.
+DUMP=$(pactl list sink-inputs 2>/dev/null || true)
 for id in $(pactl list sink-inputs short 2>/dev/null | awk '{print $1}'); do
-  if pactl list sink-inputs 2>/dev/null | grep -A15 "Sink Input #$id" | grep -q "Firefox"; then
+  if echo "$DUMP" | grep -A40 "Sink Input #$id" | grep -q "Firefox"; then
     LOG "fix firefox $id -> $SINK"
     pactl move-sink-input "$id" "$SINK" 2>/dev/null || true
     pactl set-sink-input-mute "$id" 0 2>/dev/null || true
