@@ -67,6 +67,7 @@ bindsym --to-code $Mod+a            exec emacsclient -c
 bindsym --to-code $Mod+t            exec GTK_THEME=Adwaita:dark $filemanager
 bindsym --to-code $Mod+b exec "/home/ayu/.config/sway/scripts/sway-auto-redirect.sh & firefox & (sleep 30; pkill -f 'sway-auto-redirect\.sh') &"
 bindsym --to-code $Mod+Shift+p      exec ~/.config/rofi/scripts/powermenu_t3
+bindsym --to-code $Mod+Shift+n exec ~/.config/sway/scripts/notif-panel.sh --panel
 
 # Exit sway (default way to log you out of your Wayland session)
 bindsym --to-code $Mod+Shift+e exec swaynag -t warning -m 'You pressed the exit shortcut. Do you really want to exit sway? This will end your Wayland session.' -b 'Yes, exit sway' 'swaymsg exit'

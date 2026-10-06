@@ -21,10 +21,12 @@
  	"custom/separator#blank", 
  	"memory",
  	"custom/separator#blank_3", 
+
     "custom/playerctl"
  	],
  
  "modules-center": [
+ 	"custom/notifications",
  	"clock#3",
  	"custom/lock"
  	], 

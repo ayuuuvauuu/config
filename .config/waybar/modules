@@ -732,6 +732,16 @@
 	"on-click-right": "swaync-client -d -sw",
 	"escape": true,
 },
+"custom/notifications": {
+	"return-type": "json",
+	"format": "{}",
+	"exec": "~/.config/sway/scripts/notif-panel.sh",
+	"on-click": "~/.config/sway/scripts/notif-panel.sh --panel",
+	"on-click-right": "makoctl dismiss -a; pkill -RTMIN+8 waybar",
+	"signal": 8,
+	"interval": 30,
+	"tooltip": true,
+},
 // NOTE:! This is only for Arch and Arch Based Distros  depend: pacman-contrib
 "custom/updater": {
 	"format": " {}",

@@ -130,6 +130,7 @@ tooltip {
 #custom-light_dark,
 #custom-lock,
 #custom-menu,
+#custom-notifications,
 #custom-power_vertical,
 #custom-power,
 #custom-swaync,
@@ -267,6 +268,16 @@ label:focus {
 
 #custom-lock {
     color: #ffa000;
+}
+
+#custom-notifications {
+    color: #ffffff;
+}
+#custom-notifications.notification {
+    color: @accent3;
+}
+#custom-notifications.none {
+    opacity: 0.6;
 }
 
 #keyboard-state,
