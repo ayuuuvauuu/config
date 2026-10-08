@@ -21,16 +21,6 @@ Session\QueueingSystemEnabled=false
 Session\SSL\Port=45618
 Session\StartPaused=false
 
-Session\DHTEnabled=false
-Session\PeXEnabled=false
-Session\LSDEnabled=false
-Session\BTProtocol=1
-Session\ProxyPeerConnections=true
-Session\Encryption=0
-Session\AnnounceToAllTrackers=true
-Session\AnnounceToAllTiers=true
-Session\MaxConnections=150
-Session\MaxConnectionsPerTorrent=50
 [Core]
 AutoDeleteAddedTorrentFile=Never
 
@@ -59,15 +49,6 @@ MigrationVersion=8
 [Network]
 Cookies=@Invalid()
 
-PortForwardingEnabled=false
-Proxy\Type=1
-Proxy\IP=192.168.49.1
-Proxy\Port=8000
-Proxy\AuthEnabled=false
-Proxy\HostnameLookupEnabled=true
-Proxy\Profiles\BitTorrent=true
-Proxy\Profiles\RSS=false
-Proxy\Profiles\Misc=false
 [OptionsDialog]
 HorizontalSplitterSizes=127, 626
 LastViewedPage=3
@@ -77,7 +58,6 @@ Size=@Size(779 591)
 General\CloseToTrayNotified=true
 General\Locale=en
 
-WebUI\UseUPnP=false
 [RSS]
 AutoDownloader\DownloadRepacks=true
 AutoDownloader\SmartEpisodeFilter=s(\\d+)e(\\d+), (\\d+)x(\\d+), "(\\d{4}[.\\-]\\d{1,2}[.\\-]\\d{1,2})", "(\\d{1,2}[.\\-]\\d{1,2}[.\\-]\\d{4})"
