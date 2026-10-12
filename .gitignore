@@ -3,6 +3,8 @@
 **
 
 !.config/paru/
+!.config/pacman/
+!.config/pacman/**
 !.curlrc
 !.config/paru/**
 !Desktop/

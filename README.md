@@ -894,6 +894,35 @@ GPU vs CPU toggle — change `gpu_layers`:
 For tiny.en model, CPU transcribes 1min audio in ~800ms. GPU saves ~550ms but draws 30-60W extra. No real-world difference for dictation.
 
 ---
+## Pacman / Paru downloads via wget (bad-network fix)
+
+Why: default repo downloads use pacman's built-in downloader (`ParallelDownloads = 10`, no `XferCommand` in `/etc/pacman.conf`), and AUR sources use `curl --retry 3` (`DLAGENTS` in `/etc/makepkg.conf`). Both restart from zero when mobile-data/hotspot drops. `wget -c` resumes partial files and retries forever.
+
+How (2 paths, paru uses both):
+1. Repo packages (`pacman` + `paru -S`): `/etc/pacman.conf` — not git-tracked, applied via script.
+2. AUR sources (`makepkg` / `paru` builds): `~/.config/pacman/makepkg.conf` — git-tracked, works after `git clone`.
+
+Tracked files:
+- `.config/pacman/makepkg.conf` — `DLAGENTS` switched from `curl` to `wget -c --retry-connrefused --waitretry=1 --read-timeout=20 --timeout=15 -t 0`
+- `.local/bin/apply-pacman-wget` — idempotent script that sets the `/etc/pacman.conf` part
+- `paru.conf` needs no change (paru inherits pacman's downloader)
+
+Reproduce on fresh system:
+```bash
+git clone <repo> ~   # restores .config/pacman/makepkg.conf automatically
+sudo ~/.local/bin/apply-pacman-wget
+grep -n '^ParallelDownloads\|^XferCommand' /etc/pacman.conf
+grep -n 'DLAGENTS' -A6 ~/.config/pacman/makepkg.conf
+```
+
+What the script sets in `/etc/pacman.conf [options]`:
+```
+ParallelDownloads = 1
+XferCommand = /usr/bin/wget --passive-ftp -c --retry-connrefused --waitretry=1 --read-timeout=20 --timeout=15 -t 0 -O %o %u
+```
+Note: `ParallelDownloads` is ignored when `XferCommand` is set (downloads are serial). Keep it at `1`. Revert: comment out `XferCommand` and set `ParallelDownloads = 10`.
+
+---
 ## Battery Impact of Changes
 | Change | Impact | Why |
 |---|---|---|

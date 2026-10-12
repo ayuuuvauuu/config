@@ -1,0 +1,22 @@
+#!/bin/bash
+# Apply wget downloader for pacman/paru (bad-network fix).
+# /etc/pacman.conf is NOT git-tracked, so run this after a fresh install:
+#   sudo ~/.local/bin/apply-pacman-wget
+# AUR source downloads need no script: ~/.config/pacman/makepkg.conf is tracked in git.
+set -euo pipefail
+CONF=/etc/pacman.conf
+WGET_LINE='XferCommand = /usr/bin/wget --passive-ftp -c --retry-connrefused --waitretry=1 --read-timeout=20 --timeout=15 -t 0 -O %o %u'
+
+# 1. Serial downloads (XferCommand runs one file at a time, parallel setting is ignored)
+grep -q '^ParallelDownloads' "$CONF" \
+  && sed -i 's/^ParallelDownloads.*/ParallelDownloads = 1/' "$CONF" \
+  || sed -i '/^\[options\]/a ParallelDownloads = 1' "$CONF"
+
+# 2. Use wget with resume (-c) + infinite retry (-t 0). Idempotent: replace if present, add if missing.
+if grep -q '^XferCommand' "$CONF"; then
+  sed -i "s|^XferCommand.*|$WGET_LINE|" "$CONF"
+else
+  sed -i "/^#XferCommand = \/usr\/bin\/wget.*/a $WGET_LINE" "$CONF"
+fi
+
+grep -n '^ParallelDownloads\|^XferCommand' "$CONF"
