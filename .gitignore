@@ -13,6 +13,7 @@
 !.gitignore
 !user.js
 !README.md
+!fix.md
 !AGENTS.md
 !battery-report.md
 !suspend-and-hibernate-fix.md
