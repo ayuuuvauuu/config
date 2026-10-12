@@ -68,6 +68,6 @@ Issue + proposed fix only. Nothing applied yet.
 
 ## Udev error in journal
 
-### Missing `usb-power-switch`
-- Issue: journal shows udev failing on `ADP1`: `/usr/local/bin/usb-power-switch` missing, so USB/LPMD switching never runs.
-- Fix: reinstall the script per README §USB autosuspend, then `udevadm control --reload-rules`.
+### `usb-power-switch` dangles at early boot
+- Issue: journal shows udev failing on `ADP1`. The path exists but is a symlink into `/home/ayu/.local/bin`, and the ADP1 event can fire before `data.mount` (`/home`, slowest boot unit ~1.4s) — dangling symlink at that point, so USB/LPMD switching never runs.
+- Fix: install a real copy at `/usr/local/bin/usb-power-switch` (not a symlink), then `udevadm control --reload-rules`. Verify with `udevadm test /sys/class/power_supply/ADP1`.
