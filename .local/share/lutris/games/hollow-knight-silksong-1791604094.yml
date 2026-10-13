@@ -1,0 +1,8 @@
+game:
+  exe: /data/Games/Hollow Knight - Silksong/Hollow Knight Silksong.exe
+  prefix: /home/ayu/Games/umu/hollow-knight-silksong
+system:
+  gpu: ''
+wine:
+  esync: false
+  fsync: false
