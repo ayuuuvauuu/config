@@ -50,6 +50,8 @@ bindsym --no-repeat --to-code $Mod+Shift+r exec ~/.config/sway/scripts/change-re
 
 # Wofi
 bindsym --to-code $Mod+Space exec rofi -show drun
+# Show all open windows (rofi window switcher)
+bindsym --to-code $Mod+Shift+Tab exec rofi -show window
 
 # kill focused window
 bindsym --to-code $Mod+q kill
