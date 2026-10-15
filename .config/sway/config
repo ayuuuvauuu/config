@@ -41,7 +41,7 @@ bindsym --no-repeat --to-code Ctrl+Alt+p exec ~/.config/rofi/scripts/powermenu_t
 
 bindsym --no-repeat --to-code $Mod+c exec sioyek
 # WallpaperSelect
-bindsym --no-repeat --to-code $Mod+w exec ~/.config/sway/scripts/WallpaperSelect.sh
+bindsym --no-repeat --to-code $Mod+Shift+w exec ~/.config/sway/scripts/WallpaperSelect.sh
 # clipboard
 bindsym --no-repeat --to-code $Mod+Alt+v exec ~/.config/sway/scripts/ClipManager.sh
 
@@ -51,7 +51,7 @@ bindsym --no-repeat --to-code $Mod+Shift+r exec ~/.config/sway/scripts/change-re
 # Wofi
 bindsym --to-code $Mod+Space exec rofi -show drun
 # Show all open windows (rofi window switcher)
-bindsym --to-code $Mod+Shift+Tab exec rofi -show window
+bindsym --to-code $Mod+w exec rofi -show window
 
 # kill focused window
 bindsym --to-code $Mod+q kill
