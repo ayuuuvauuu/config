@@ -4,6 +4,10 @@ Issue + proposed fix only. Nothing applied yet.
 
 ## Critical
 
+### README stale spots
+- Issue: limine template lacks live `usbcore.quirks=30c9:0069:b`; `tlp.conf` doc says `SOUND_POWER_SAVE_ON_BAT=1` vs live `10`; `logind.conf` doc omits `HandlePowerKey=hibernate`; package table lists uninstalled/absent pkgs (`vlc`, `nitrogen`, `auto-cpufreq` service runs but pkg missing).
+- Fix: sync the four snippets; correct package names (`tumbler`, node 26); note `auto-cpufreq` install source.
+
 ### Committed API key in `codex-zen`
 - Issue: `.local/bin/codex-zen:11` hardcodes a real `sk-...` key, exported at `:185`. Committed to git, world-readable.
 - Fix: rotate the key at the provider, then `git rm` the secret / purge history (`git filter-repo`), add secret to `.gitignore`.
@@ -55,10 +59,6 @@ Issue + proposed fix only. Nothing applied yet.
 - Fix: `chmod 700 ~/.ssh ~/.gnupg/public-keys.d; chmod 600 ~/.gnupg/common.conf`.
 
 ## Docs drift
-
-### README stale spots
-- Issue: limine template lacks live `usbcore.quirks=30c9:0069:b`; `tlp.conf` doc says `SOUND_POWER_SAVE_ON_BAT=1` vs live `10`; `logind.conf` doc omits `HandlePowerKey=hibernate`; package table lists uninstalled/absent pkgs (`vlc`, `nitrogen`, `auto-cpufreq` service runs but pkg missing).
-- Fix: sync the four snippets; correct package names (`tumbler`, node 26); note `auto-cpufreq` install source.
 
 ## Disk
 

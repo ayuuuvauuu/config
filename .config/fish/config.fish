@@ -1,5 +1,4 @@
 set -U fish_greeting ""
-set -gx TERM xterm-256color
 set -g fish_key_bindings fish_vi_key_bindings
 # set fzf_fd_opts --no-ignore
 set -gx fzf_fd_opts --hidden --no-ignore

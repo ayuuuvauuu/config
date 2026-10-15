@@ -2,7 +2,12 @@ game:
   exe: /data/Games/Sekiro - Shadows Die Twice/sekiro.exe
   prefix: /home/ayu/Games/sekiro
 system:
-  gpu: ''
+  env:
+    LD_LIBRARY_PATH: /run/host/usr/lib:/run/host/usr/lib32
+    PROTON_ENABLE_WAYLAND: '1'
+    PROTON_VERB: waitforexitandrun
+    __EGL_VENDOR_LIBRARY_DIRS: /run/host/usr/share/glvnd/egl_vendor.d
+  gpu: card0
   mangohud: true
 wine:
   Graphics: wayland

@@ -1,8 +1,0 @@
-
-[Desktop Entry]
-Type=Application
-Name=Hollow Knight: Silksong
-Icon=lutris_hollow-knight-silksong
-Exec=env LUTRIS_SKIP_INIT=1 lutris lutris:rungameid/8
-Categories=Game
-TryExec=lutris
