@@ -54,7 +54,7 @@ core=(
     nodejs npm python python-pip base-devel
 
     # gaming / overlays
-    gamescope mangohud lutris
+    gamescope mangohud lutris gamemode
 
     # sched-ext (scxctl, scx_lavd)
     scx-scheds

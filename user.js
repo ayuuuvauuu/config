@@ -158,6 +158,8 @@ user_pref("browser.ml.linkPreview.enabled", false);
 user_pref("full-screen-api.transition-duration.enter", "0 0");
 user_pref("full-screen-api.transition-duration.leave", "0 0");
 user_pref("full-screen-api.warning.timeout", 0);
+user_pref("full-screen-api.exit-on.windowOpen", false);  // stay in fullscreen when a new window opens
+user_pref("full-screen-api.exit-on.windowRaise", false); // stay in fullscreen when a window is raised
 
 /** URL BAR ***/
 user_pref("browser.urlbar.trending.featureGate", false);

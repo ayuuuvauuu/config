@@ -1,6 +1,5 @@
 # brahwalla steam commands
-
-PROTON_ENABLE_WAYLAND=1 %command% -setfps 144 -triplebuffer
+PROTON_ENABLE_WAYLAND=1 gamemoderun %command% -setfps 144
 sudo resolvectl dns wlan0 192.168.49.1
 sudo resolvectl domain wlan0
 sudo resolvectl flush-caches
