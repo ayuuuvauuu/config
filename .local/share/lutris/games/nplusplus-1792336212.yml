@@ -1,0 +1,6 @@
+game:
+  exe: /data/Games/NPLUSPLUS/NPLUSPLUS/N++.exe
+system:
+  gpu: ''
+wine:
+  Graphics: x11

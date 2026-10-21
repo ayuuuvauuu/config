@@ -1,8 +1,0 @@
-[Desktop Entry]
-Name=SNAPTIC Demo
-Comment=Play this game on Steam
-Exec=steam steam://rungameid/5273300
-Icon=steam_icon_5273300
-Terminal=false
-Type=Application
-Categories=Game;
