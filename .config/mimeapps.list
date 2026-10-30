@@ -65,6 +65,7 @@ image/x-tga=feh.desktop
 image/x-xbitmap=feh.desktop
 image/x-xpixmap=feh.desktop
 image/x-xwindowdump=feh.desktop
+x-scheme-handler/discord=vesktop.desktop
 
 [Added Associations]
 x-scheme-handler/tg=userapp-Telegram Desktop-JPDSR3.desktop;org.telegram.desktop.desktop;

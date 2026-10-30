@@ -1,14 +1,14 @@
 #!/bin/sh
-# discord-toggle.sh — floating Discord on the sway scratchpad
+# vesktop-toggle.sh — floating Vesktop on the sway scratchpad
 #
-#   discord-toggle.sh toggle   show if hidden, hide if shown (mod+d)
-#   discord-toggle.sh kill     close Discord window + process (mod+shift+d)
+#   vesktop-toggle.sh toggle   show if hidden, hide if shown (mod+d)
+#   vesktop-toggle.sh kill     close Vesktop window + process (mod+shift+d)
 #
 # How it works:
-#   - for_window (in sway config) forces every Discord window floating,
+#   - for_window (in sway config) forces every Vesktop window floating,
 #     sized and centered.
 #   - SHOW = `move workspace current` (+ focus). This is deliberately NOT
-#     `scratchpad show`: on this Discord/Electron build, scratchpad-show
+#     `scratchpad show`: on this Vesktop/Electron build, scratchpad-show
 #     succeeds yet leaves the window hidden, while a workspace move forces
 #     a remap the client honors. Works from anywhere: scratchpad-hidden,
 #     other workspace, or fresh window.
@@ -16,22 +16,22 @@
 #     `scratchpad show` (which hides a shown scratchpad window) after that.
 #   - Workspace switches never move the window; mod+d on another workspace
 #     pulls it there.
-#   - If no Discord window exists, we launch it (single-instance: safe even
+#   - If no Vesktop window exists, we launch it (single-instance: safe even
 #     if a tray process is still alive, so mod+d can never spawn dupes).
 
-APP_ID="discord"
-CMD="discord"
+APP_ID="vesktop"
+CMD="vesktop"
 
 notify() {
-    command -v notify-send >/dev/null 2>&1 && notify-send "Discord" "$1"
+    command -v notify-send >/dev/null 2>&1 && notify-send "Vesktop" "$1"
 }
 
-# Pick the "main" Discord window: prefer focused, then visible, then any
+# Pick the "main" Vesktop window: prefer focused, then visible, then any
 # (e.g. a hidden scratchpad window). Ignores the transient updater popup.
 # Prints "<con_id> <scratchpad_state> <visible>" or nothing.
 find_win() {
     swaymsg -t get_tree | jq -r --arg id "$APP_ID" '
-        [.. | objects | select(.app_id == $id and .name != "Discord Updater")]
+        [.. | objects | select(.app_id == $id and .name != "Vesktop Updater")]
         | (map(select(.focused)) + map(select(.visible)) + .)
         | first // empty
         | "\(.id) \(.scratchpad_state) \(.visible)"
@@ -48,12 +48,18 @@ win_ws() {
     '
 }
 
-toggle_discord() {
+toggle_vesktop() {
     info=$(find_win)
     if [ -z "$info" ]; then
-        # Not running (or tray-only, no window) -> launch.
+        if any_vesktop_proc; then
+            # Already running (likely tray-only, no window): do not launch a
+            # second instance or notify; just ask it to show its window.
+            swaymsg "exec $CMD" >/dev/null
+            exit 0
+        fi
+        # Not running -> launch.
         # for_window floats + centers it; next toggle adopts it to scratchpad.
-        notify "launching Discord..."
+        notify "launching Vesktop..."
         swaymsg "exec $CMD" >/dev/null
         exit 0
     fi
@@ -82,29 +88,24 @@ toggle_discord() {
     fi
 }
 
-any_discord_proc() {
-    # exact process name (comm is "Discord", capital D) or Electron children
-    pgrep -x Discord >/dev/null 2>&1 || pgrep -x discord >/dev/null 2>&1 \
-        || pgrep -f '[D]iscord --type=' >/dev/null 2>&1
+any_vesktop_proc() {
+    # Vesktop runs as Electron; match its app bundle on the command line.
+    pgrep -f '[v]esktop/app.asar' >/dev/null 2>&1
 }
 
-kill_discord() {
-    # 1. close the window(s); Discord retreats to the tray, so follow through:
+kill_vesktop() {
+    # 1. close the window(s); Vesktop retreats to the tray, so follow through:
     swaymsg "[app_id=\"$APP_ID\"] kill" >/dev/null 2>&1
-    # 2. SIGTERM the app (main by exact process name, children by cmdline)...
-    pkill -TERM -x Discord >/dev/null 2>&1
-    pkill -TERM -x discord >/dev/null 2>&1
-    pkill -TERM -f '[D]iscord --type=' >/dev/null 2>&1
+    # 2. SIGTERM the app (main + children by cmdline)...
+    pkill -TERM -f '[v]esktop/app.asar' >/dev/null 2>&1
     sleep 2
     # 3. ...then SIGKILL stragglers (tray apps often shrug off TERM).
-    if any_discord_proc; then
-        pkill -KILL -x Discord >/dev/null 2>&1
-        pkill -KILL -x discord >/dev/null 2>&1
-        pkill -KILL -f '[D]iscord --type=' >/dev/null 2>&1
+    if any_vesktop_proc; then
+        pkill -KILL -f '[v]esktop/app.asar' >/dev/null 2>&1
         sleep 1
     fi
-    pkill -f '[D]iscord.*[C]rashpad' >/dev/null 2>&1
-    if any_discord_proc; then
+    pkill -f '[v]esktop.*[C]rashpad' >/dev/null 2>&1
+    if any_vesktop_proc; then
         notify "kill failed - still running"
     else
         notify "killed"
@@ -112,6 +113,6 @@ kill_discord() {
 }
 
 case "${1:-toggle}" in
-    kill|k|close|quit) kill_discord ;;
-    *) toggle_discord ;;
+    kill|k|close|quit) kill_vesktop ;;
+    *) toggle_vesktop ;;
 esac
