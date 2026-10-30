@@ -8,6 +8,7 @@ set -euo pipefail
 # ║  - `optional` : asked about at runtime                            ║
 # ╚════════════════════════════════════════════════════════════════╝
 
+# install vesktop-bin
 # ── Core packages (always offered) ──────────────────────────────────
 core=(
     # apps / utils
@@ -20,7 +21,7 @@ core=(
     noto-fonts noto-fonts-cjk noto-fonts-emoji
 
     # WM / compositor
-    sway swaylock swayidle swaybg
+    sway swayfx swaylock swayidle swaybg
 
     # bar / launcher / notifications
     waybar rofi-wayland nwg-bar mako
