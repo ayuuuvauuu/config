@@ -4,6 +4,9 @@ set -g fish_key_bindings fish_vi_key_bindings
 set -gx fzf_fd_opts --hidden --no-ignore
 # theme
 set -gx theme_color_scheme terminal-dark
+bind -M insert ctrl-backspace  backward-kill-path-component
+bind ctrl-backspace backward-kill-path-component
+bind -M visual ctrl-backspace  backward-kill-path-component
 
 # hydro gruvbox colors
 set -U hydro_color_pwd 83a598

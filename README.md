@@ -12,10 +12,8 @@ sudo resolvectl flush-caches
 
 # nvidia.conf 
 options nvidia-drm modeset=1 fbdev=1
-#usep
-#preser
 options nvidia NVreg_UsePageAttributeTable=0 NVreg_InitializeSystemMemoryAllocations=0
-options nvidia NVreg_DynamicPowerManagement=0x02
+options nvidia NVreg_DynamicPowerManagement=0x03
 options nvidia NVreg_EnableS0ixPowerManagement=1
 options nvidia NVreg_UseKernelSuspendNotifiers=1
 
@@ -893,14 +891,6 @@ BOOT_ORDER="*, *lts, *fallback, Snapshots"
 ```
 Apply: `sudo limine-update`
 
-### NVIDIA driver options
-`/etc/modprobe.d/nvidia.conf`:
-```
-options nvidia-drm modeset=1 fbdev=1
-options nvidia NVreg_UsePageAttributeTable=1 NVreg_InitializeSystemMemoryAllocations=0
-options nvidia NVreg_DynamicPowerManagement=0x02
-options nvidia NVreg_EnableS0ixPowerManagement=1 NVreg_PreserveVideoMemoryAllocations=0
-```
 
 ### NVIDIA GPU runtime PM
 `/etc/udev/rules.d/80-nvidia-pm.rules`:

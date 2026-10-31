@@ -51,13 +51,13 @@ rw rootflags=subvol=/@ root=UUID=f7d828f3-6031-4f9b-a164-fed7f21a082b
 ```
 options nvidia-drm modeset=1 fbdev=1
 options nvidia NVreg_UsePageAttributeTable=1 NVreg_InitializeSystemMemoryAllocations=0
-options nvidia NVreg_DynamicPowerManagement=0x02
+options nvidia NVreg_DynamicPowerManagement=0x03
 options nvidia NVreg_EnableS0ixPowerManagement=1 NVreg_PreserveVideoMemoryAllocations=0
 ```
 
 | Option | Effect |
 |---|---|
-| `NVreg_DynamicPowerManagement=0x02` | Enables NVIDIA dynamic power management for supported GPUs |
+| `NVreg_DynamicPowerManagement=0x03` | Enables NVIDIA dynamic power management for supported GPUs |
 | `NVreg_EnableS0ixPowerManagement=1` | Enables S0ix (modern standby) power state |
 | `NVreg_PreserveVideoMemoryAllocations=0` | Does not preserve video memory across suspend (reduces power) |
 | `NVreg_UsePageAttributeTable=1` | Better GPU memory performance |
@@ -204,7 +204,7 @@ Based on the detected hardware — **Intel Alder Lake i5-12450H** + **NVIDIA RTX
 
 ### 5.2 GPU-Specific
 
-- **NVIDIA Dynamic PM** is already enabled (`NVreg_DynamicPowerManagement=0x02`) — best practice.
+- **NVIDIA Dynamic PM** is already enabled (`NVreg_DynamicPowerManagement=0x03`) — best practice.
 - **`nvidia-powerd`** is active — this is the recommended solution for RTX 20-series and newer.
 - For even more aggressive GPU power savings when unplugged, consider the [nvidia-laptop-battery-optimizer](https://github.com/ibodeth/nvidia-laptop-battery-optimizer) utility, which uses udev events to lock GPU clocks low on battery and restore on AC.
 
@@ -277,7 +277,7 @@ File: `/etc/modprobe.d/nvidia.conf`
 ```
 options nvidia-drm modeset=1 fbdev=1
 options nvidia NVreg_UsePageAttributeTable=1 NVreg_InitializeSystemMemoryAllocations=0
-options nvidia NVreg_DynamicPowerManagement=0x02
+options nvidia NVreg_DynamicPowerManagement=0x03
 options nvidia NVreg_EnableS0ixPowerManagement=1 NVreg_PreserveVideoMemoryAllocations=0
 ```
 
