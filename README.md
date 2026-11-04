@@ -669,6 +669,18 @@ done
 Script auto-detects AC state when called without an argument 
 (`./usr/local/bin/usb-power-switch` with no arg reads ADP1/online).
 
+**Install note:** `/usr/local/bin/usb-power-switch` must be a real file (not a
+symlink into `/home`): systemd-udevd runs with `PrivateMounts=yes` and cannot
+pin/exec a callout binary reached through a symlink into a protected home dir
+(`Failed to find and pin callout binary`). Copy it instead of symlinking:
+```
+sudo rm -f /usr/local/bin/usb-power-switch
+sudo install -m 0755 ~/.local/bin/usb-power-switch /usr/local/bin/usb-power-switch
+sudo udevadm control --reload-rules
+```
+Keep `~/.local/bin/usb-power-switch` (tracked in this repo) as the source and
+re-run the install after editing it.
+
 **Blacklisting devices from USB autosuspend (denylist):**
 
 Devices on the denylist stay `control=on` even on battery — they never suspend.

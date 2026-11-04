@@ -78,8 +78,9 @@ if [ "$1" = "toggle" ] || [ "$1" = "--toggle" ]; then
     exit 0
 fi
 
-# Display help if no arguments are provided or if explicitly requested
-if [ $# -eq 0 ] || [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
+# Display help only when explicitly requested.
+# (With no args we auto-detect AC/battery state from ADP1, see below.)
+if [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
     echo "Usage: $0 [command/state] [vendor:product]..."
     echo ""
     echo "Commands & Options:"
