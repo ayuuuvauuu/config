@@ -714,6 +714,47 @@ The script's denylist loop runs after the main `on`/`auto` assignment, so it
 overrides battery state to keep those devices awake. Remove a line from the
 `case` pattern to allow that device to suspend normally.
 
+### HP platform profile switching on AC/battery — udev rule
+
+**Why:** The `hp-wmi` platform profile (`performance`/`balanced`/`low-power`) controls
+CPU/GPU power limits, fan behavior and heat. Leaving it on `performance` all the
+time drains battery and runs hotter/louder even when idle. Switching to
+`low-power` on battery saves power and heat; `performance` is only wanted for
+gaming/heavy work on AC.
+
+**What it does:** A udev rule watches the AC adapter (`power_supply` mains). When
+unplugged (`online==0`) it writes `low-power` to the HP platform profile sysfs
+node. (Optionally add a plugged-in line to restore `balanced`/`performance`.)
+
+**Files:**
+
+Project file: `HPOmen-linux/data/99-victus-profile.rules`
+```
+# Victus Control: switch HP platform profile based on AC power state
+ACTION=="add|change", SUBSYSTEM=="power_supply", ATTR{type}=="Mains", ATTR{online}=="0", RUN+="/bin/sh -c 'echo low-power > /sys/devices/platform/hp-wmi/platform-profile/platform-profile-0/profile'"
+```
+
+Install (system):
+```
+sudo install -m 0644 data/99-victus-profile.rules /etc/udev/rules.d/99-victus-profile.rules
+sudo udevadm control --reload-rules
+```
+
+Verify current active profile:
+```
+cat /sys/devices/platform/hp-wmi/platform-profile/platform-profile-0/profile
+```
+
+Switch manually:
+```
+echo balanced    | sudo tee /sys/devices/platform/hp-wmi/platform-profile/platform-profile-0/profile
+echo low-power   | sudo tee /sys/devices/platform/hp-wmi/platform-profile/platform-profile-0/profile
+echo performance | sudo tee /sys/devices/platform/hp-wmi/platform-profile/platform-profile-0/profile
+```
+
+Note: `victus-probe snapshot` / `inventory` also reports `active_hardware_profile`
+and `active_fan_mode` by reading these same sysfs files (no daemon state).
+
 **Boot-time service** (udev only fires on AC *changes*, so at boot if AC is already 
 plugged no event occurs and USB stays in `auto` — this sets the initial state):
 File: `/etc/systemd/system/usb-power-boot.service`
