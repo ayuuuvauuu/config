@@ -12,7 +12,7 @@ sudo resolvectl flush-caches
 
 # nvidia.conf 
 options nvidia-drm modeset=1 fbdev=1
-options nvidia NVreg_UsePageAttributeTable=0 NVreg_InitializeSystemMemoryAllocations=0
+options nvidia NVreg_InitializeSystemMemoryAllocations=0
 options nvidia NVreg_DynamicPowerManagement=0x03
 options nvidia NVreg_EnableS0ixPowerManagement=1
 options nvidia NVreg_UseKernelSuspendNotifiers=1
@@ -213,13 +213,39 @@ File: `/etc/default/limine` (reboot required)
 
 | Param | What | Save |
 |---|---|---|
-| `nmi_watchdog=0` | stop watchdog that bites CPU every sec | ~0.5W |
+| `kernel.nmi_watchdog = 0` (sysctl) | stop watchdog that bites CPU every sec | ~0.5W |
 | `i915.enable_psr=2` | panel self-refresh, redraw only changes | ~0.3W |
 | `i915.enable_fbc=1` | compress framebuffer data | ~0.1W |
-| `i915.enable_dc=4` | deep display C-states | ~0.1W |
+| `i915.enable_dc=0` | keep display C-states disabled for panel stability | reliability |
 | `iwlwifi.power_save=1` | wifi naps when idle | ~0.2W |
 | `nvme_core.default_ps_max_latency_us=0` | NVMe deepest idle power state | ~0.3W |
+| `usbcore.quirks=30c9:0069:b` | disable the dead webcam USB device | boot reliability |
 | `snd_hda_intel.power_save=10` | audio codec sleeps after 10s idle | ~0.1W |
+
+### Maximum battery profile
+
+The following is the aggressive battery-saving profile while keeping the
+known-stable `i915.enable_dc=0` display setting. It uses battery EPP `balance_power`, PCIe
+`powersupersave`, PCI runtime PM `auto`, Wi-Fi power saving, USB autosuspend,
+audio codec power saving, the `cool` HP platform profile, and LPMD automatic
+P-core parking.
+
+Apply the runtime settings immediately:
+```bash
+sudo systemctl restart auto-cpufreq
+for f in /sys/devices/system/cpu/cpufreq/policy*/energy_performance_preference; do
+    echo balance_power | sudo tee "$f" >/dev/null
+done
+echo cool | sudo tee /sys/devices/platform/hp-wmi/platform-profile/platform-profile-0/profile >/dev/null
+```
+
+Reboot after `limine-update`. Verify afterward:
+```bash
+cat /proc/cmdline
+cat /sys/devices/system/cpu/cpufreq/policy*/energy_performance_preference
+cat /sys/devices/platform/hp-wmi/platform-profile/platform-profile-0/profile
+```
+
 
 ### FUCKING NOTE: THIS IS ONLY FOT THIS LAPTOP IF ON DIFF CPU THAT 
 ### THEN FUCKING CHANGE IT AI MFt.
@@ -243,8 +269,13 @@ TLP_PROFILE_BAT=SAV
 PCIE_ASPM_ON_AC=performance
 PCIE_ASPM_ON_BAT=powersupersave
 SOUND_POWER_SAVE_ON_AC=1
-SOUND_POWER_SAVE_ON_BAT=1
+SOUND_POWER_SAVE_ON_BAT=10
 SOUND_POWER_SAVE_CONTROLLER=Y
+RUNTIME_PM_ON_AC=on
+RUNTIME_PM_ON_BAT=auto
+WIFI_PWR_ON_AC=off
+WIFI_PWR_ON_BAT=on
+WOL_DISABLE=Y
 
 USB_AUTOSUSPEND=0               # udev rules handle USB
 ```
@@ -294,6 +325,14 @@ turbo = auto
 | Battery heavy load | `powersave` | `balance_power` | auto | Scales up as needed |
 
 The `balance_power` EPP is a middle ground — not as aggressive as `power` (which capped at 1200 MHz), but still saves battery. Combined with LPMD parking P-cores, light work stays on E-cores at modest clocks.
+
+Battery EPP should read `balance_power` in
+`/sys/devices/system/cpu/cpufreq/policy*/energy_performance_preference`.
+If it reads `balance_performance`, restart auto-cpufreq after confirming the
+config above:
+```
+sudo systemctl restart auto-cpufreq
+```
 
 **Restart after config change:**
 ```bash
@@ -589,6 +628,224 @@ This correctly distinguishes light work (browsing, terminal) from heavy workload
 respects cgroup v2 CPU affinity, so it reports 4 instead of 12. This is
 expected. Plug AC or load CPU >40% sustained to restore all 12.
 
+### Powertop auto-tune service
+
+The `powertop.service` auto-tune service is disabled. Its useful power-management
+effects are already covered by TLP, the USB power rules/boot service, kernel
+power-saving parameters, and device runtime-PM policies. Running Powertop's
+one-shot auto-tune in parallel with those managers can also overwrite their
+power-state choices and adds several seconds to userspace boot time.
+
+Powertop remains available for read-only measurement through `idle-power`:
+```
+idle-power
+```
+
+To verify the replacement settings without changing anything:
+```
+~/.local/bin/check-powertop-state
+```
+
+Diagnostic script: `~/.local/bin/check-powertop-state`
+
+Run it after boot, especially after changing or disabling power-management
+services. It verifies that TLP is available, USB autosuspend and the USB
+denylist are correct, PCI runtime PM matches the current AC/battery state, and
+CPU EPP, Wi-Fi, audio, and PCIe power settings are present. It is read-only and
+does not run `powertop --auto-tune`.
+
+Diagnostic script source:
+```bash
+#!/usr/bin/env bash
+# check-powertop-state - verify that TLP and power rules cover powertop.service
+# without running powertop --auto-tune or changing any system state.
+
+set -u
+
+warnings=0
+
+pass() {
+    printf '[ OK ] %s\n' "$*"
+}
+
+warn() {
+    printf '[WARN] %s\n' "$*"
+    warnings=$((warnings + 1))
+}
+
+info() {
+    printf '[INFO] %s\n' "$*"
+}
+
+read_value() {
+    local file=$1
+    if [[ -r "$file" ]]; then
+        cat "$file"
+    fi
+}
+
+echo '=== Powertop replacement check (read-only) ==='
+echo
+
+systemctl_enabled=''
+systemctl_active=''
+systemctl_enabled_output=$(systemctl is-enabled powertop.service 2>&1) || true
+systemctl_active_output=$(systemctl is-active powertop.service 2>&1) || true
+
+if [[ "$systemctl_enabled_output" == *'Failed to connect to system scope bus'* ||
+      "$systemctl_active_output" == *'Failed to connect to system scope bus'* ]]; then
+    info 'could not query systemd state from this session; run with system bus access for service checks'
+else
+    systemctl_enabled=$systemctl_enabled_output
+    systemctl_active=$systemctl_active_output
+    if [[ "$systemctl_enabled" == enabled ]]; then
+        warn 'powertop.service is still enabled'
+    else
+        pass "powertop.service is $systemctl_enabled"
+    fi
+
+    if [[ "$systemctl_active" == active ]]; then
+        warn 'powertop.service is currently active'
+    else
+        pass "powertop.service is $systemctl_active"
+    fi
+fi
+
+ac_online=''
+for supply in /sys/class/power_supply/*; do
+    [[ -f "$supply/type" ]] || continue
+    [[ $(read_value "$supply/type") == Mains ]] || continue
+    ac_online=$(read_value "$supply/online")
+    break
+done
+
+case "$ac_online" in
+    1)
+        power_state=AC
+        expected_usb=on
+        expected_runtime=on
+        ;;
+    0)
+        power_state=BATTERY
+        expected_usb=auto
+        expected_runtime=auto
+        ;;
+    *)
+        power_state=UNKNOWN
+        expected_usb=''
+        expected_runtime=''
+        warn 'could not determine AC/battery state'
+        ;;
+esac
+info "power source: $power_state"
+
+tlp_state=$(systemctl is-active tlp.service 2>&1) || true
+if [[ "$tlp_state" == *'Failed to connect to system scope bus'* ]]; then
+    info 'could not query TLP state from this session'
+elif [[ "$tlp_state" == active ]]; then
+    pass 'TLP is active'
+else
+    warn "TLP is $tlp_state; it cannot replace powertop runtime power tuning"
+fi
+
+echo
+echo '--- USB controls ---'
+usb_count=0
+usb_bad=0
+usb_denylist_found=0
+for device in /sys/bus/usb/devices/*; do
+    [[ -f "$device/idVendor" && -f "$device/idProduct" ]] || continue
+    [[ -r "$device/power/control" ]] || continue
+
+    usb_count=$((usb_count + 1))
+    vendor_product="$(read_value "$device/idVendor"):$(read_value "$device/idProduct")"
+    actual=$(read_value "$device/power/control")
+    expected="$expected_usb"
+
+    if [[ "$vendor_product" == 17ef:60a9 ]]; then
+        expected=on
+        usb_denylist_found=$((usb_denylist_found + 1))
+    fi
+
+    if [[ -n "$expected" && "$actual" != "$expected" ]]; then
+        warn "$vendor_product at ${device##*/}: power/control=$actual (expected $expected)"
+        usb_bad=$((usb_bad + 1))
+    fi
+done
+
+if (( usb_count == 0 )); then
+    info 'no USB devices with readable power/control found'
+elif (( usb_bad == 0 )); then
+    pass "$usb_count USB devices match the current power policy"
+fi
+
+if (( usb_denylist_found > 0 )); then
+    pass "USB denylist device 17ef:60a9 is present and checked"
+else
+    info 'USB denylist device 17ef:60a9 is not currently connected'
+fi
+
+echo
+echo '--- PCI runtime power management ---'
+pci_count=0
+pci_bad=0
+for control in /sys/bus/pci/devices/*/power/control; do
+    [[ -r "$control" ]] || continue
+    pci_count=$((pci_count + 1))
+    actual=$(read_value "$control")
+    if [[ -n "$expected_runtime" && "$actual" != "$expected_runtime" ]]; then
+        if (( pci_bad < 12 )); then
+            warn "${control%/power/control}: power/control=$actual (expected $expected_runtime)"
+        fi
+        pci_bad=$((pci_bad + 1))
+    fi
+done
+
+if (( pci_count == 0 )); then
+    info 'no PCI runtime power controls found'
+elif (( pci_bad == 0 )); then
+    pass "$pci_count PCI devices match the TLP runtime-PM policy"
+else
+    warn "$pci_bad of $pci_count PCI devices differ from the TLP runtime-PM policy"
+fi
+
+echo
+echo '--- common powertop/TLP tunables ---'
+if [[ -r /sys/module/snd_hda_intel/parameters/power_save ]]; then
+    info "snd_hda_intel.power_save=$(read_value /sys/module/snd_hda_intel/parameters/power_save)"
+fi
+
+if [[ -r /sys/module/iwlwifi/parameters/power_save ]]; then
+    info "iwlwifi.power_save=$(read_value /sys/module/iwlwifi/parameters/power_save)"
+fi
+
+if [[ -r /sys/module/pcie_aspm/parameters/policy ]]; then
+    info "pcie_aspm.policy=$(read_value /sys/module/pcie_aspm/parameters/policy)"
+fi
+
+epp_values=''
+for epp in /sys/devices/system/cpu/cpufreq/policy*/energy_performance_preference; do
+    [[ -r "$epp" ]] || continue
+    value=$(read_value "$epp")
+    case " $epp_values " in
+        *" $value "*) ;;
+        *) epp_values+=" $value" ;;
+    esac
+done
+if [[ -n "$epp_values" ]]; then
+    info "CPU energy_performance_preference:$epp_values"
+fi
+
+echo
+if (( warnings == 0 )); then
+    pass 'No replacement gaps detected'
+    exit 0
+else
+    warn "$warnings issue(s) need attention"
+    exit 1
+fi
+```
+
 ### Idle power measurement
 
 Script: `/home/ayu/.local/bin/idle-power`
@@ -674,12 +931,14 @@ symlink into `/home`): systemd-udevd runs with `PrivateMounts=yes` and cannot
 pin/exec a callout binary reached through a symlink into a protected home dir
 (`Failed to find and pin callout binary`). Copy it instead of symlinking:
 ```
-sudo rm -f /usr/local/bin/usb-power-switch
-sudo install -m 0755 ~/.local/bin/usb-power-switch /usr/local/bin/usb-power-switch
+sudo install -o root -g root -m 0755 \
+  ~/.local/bin/usb-power-switch \
+  /usr/local/bin/usb-power-switch
 sudo udevadm control --reload-rules
 ```
 Keep `~/.local/bin/usb-power-switch` (tracked in this repo) as the source and
-re-run the install after editing it.
+run the `sudo install` command again every time you edit it so the system copy
+stays updated.
 
 **Blacklisting devices from USB autosuspend (denylist):**
 
@@ -716,14 +975,14 @@ overrides battery state to keep those devices awake. Remove a line from the
 
 ### HP platform profile switching on AC/battery — udev rule
 
-**Why:** The `hp-wmi` platform profile (`performance`/`balanced`/`low-power`) controls
-CPU/GPU power limits, fan behavior and heat. Leaving it on `performance` all the
-time drains battery and runs hotter/louder even when idle. Switching to
-`low-power` on battery saves power and heat; `performance` is only wanted for
-gaming/heavy work on AC.
+**Why:** The `hp-wmi` platform profile (`performance`/`balanced`/`quiet`/`cool`)
+controls CPU/GPU power limits, fan behavior and heat. Leaving it on
+`performance` all the time drains battery and runs hotter/louder even when idle.
+This laptop has no `low-power` profile; `cool` is the available battery-saving
+profile, while `performance` is intended for gaming/heavy work on AC.
 
 **What it does:** A udev rule watches the AC adapter (`power_supply` mains). When
-unplugged (`online==0`) it writes `low-power` to the HP platform profile sysfs
+unplugged (`online==0`) it writes `cool` to the HP platform profile sysfs
 node. (Optionally add a plugged-in line to restore `balanced`/`performance`.)
 
 **Files:**
@@ -731,7 +990,7 @@ node. (Optionally add a plugged-in line to restore `balanced`/`performance`.)
 Project file: `HPOmen-linux/data/99-victus-profile.rules`
 ```
 # Victus Control: switch HP platform profile based on AC power state
-ACTION=="add|change", SUBSYSTEM=="power_supply", ATTR{type}=="Mains", ATTR{online}=="0", RUN+="/bin/sh -c 'echo low-power > /sys/devices/platform/hp-wmi/platform-profile/platform-profile-0/profile'"
+ACTION=="add|change", SUBSYSTEM=="power_supply", ATTR{type}=="Mains", ATTR{online}=="0", RUN+="/bin/sh -c 'echo cool > /sys/devices/platform/hp-wmi/platform-profile/platform-profile-0/profile'"
 ```
 
 Install (system):
@@ -748,7 +1007,7 @@ cat /sys/devices/platform/hp-wmi/platform-profile/platform-profile-0/profile
 Switch manually:
 ```
 echo balanced    | sudo tee /sys/devices/platform/hp-wmi/platform-profile/platform-profile-0/profile
-echo low-power   | sudo tee /sys/devices/platform/hp-wmi/platform-profile/platform-profile-0/profile
+echo cool        | sudo tee /sys/devices/platform/hp-wmi/platform-profile/platform-profile-0/profile
 echo performance | sudo tee /sys/devices/platform/hp-wmi/platform-profile/platform-profile-0/profile
 ```
 
@@ -777,23 +1036,10 @@ Calls the script without args → auto-detects ADP1. Overhead: ~12ms wall, ~97ms
 3.5MB peak once at boot, zero runtime footprint. `Wants=intel_lpmd.service` ensures 
 the script's `intel_lpmd_control` call doesn't race against LPMD startup.
 
-**Supplementary systemd service** (same function, separate LPMD ordering fallback — 
-now catches any case where usb-power-boot.service fails before LPMD is ready):
-File: `/etc/systemd/system/lpmd-power-state.service`
-```ini
-[Unit]
-Description=Set LPMD mode for current power source
-After=intel_lpmd.service
-Requires=intel_lpmd.service
-
-[Service]
-Type=oneshot
-ExecStart=/bin/sh -c 'grep -q 0 /sys/class/power_supply/ADP1/online && /usr/bin/intel_lpmd_control AUTO || /usr/bin/intel_lpmd_control OFF'
-RemainAfterExit=yes
-
-[Install]
-WantedBy=multi-user.target
-```
+`lpmd-power-state.service` was removed because it duplicated the LPMD call already
+made by `usb-power-switch`. Running both at boot caused concurrent D-Bus requests;
+the loser was rate-limited and `usb-power-boot.service` failed. The boot service is
+now the single initializer for both USB power and LPMD state.
 
 **Effect:**
 | State | USB autosuspend | Denylist (mouse) | LPMD |
@@ -803,7 +1049,8 @@ WantedBy=multi-user.target
 | Battery load (>40% sustained) | On (`auto`) | Stays `on` | AUTO → normal (all 12 cores, 1s hysteresis) |
 
 TLP has `USB_AUTOSUSPEND=0` so it doesn't interfere.
-LPMD config has `<Mode>0</Mode>` (OFF default), udev + systemd service override it.
+LPMD config has `<Mode>0</Mode>` (OFF default), and the udev rules plus boot service
+override it according to the current AC/battery state.
 
 ### Audio codec power saving — `snd_hda_intel.power_save`
 
@@ -939,7 +1186,7 @@ TimeoutStopSec=3
 `/etc/default/limine`:
 ```
 ESP_PATH="/boot"
-KERNEL_CMDLINE[default]+="nvidia-drm.modeset=1 quiet nowatchdog i915.enable_psr=2 i915.enable_fbc=1 i915.enable_dc=0 iwlwifi.power_save=1 rw rootflags=subvol=/@ root=UUID=f7d828f3-6031-4f9b-a164-fed7f21a082b tpm_tis.interrupts=0 resume=UUID=89bc64d4-f652-4586-bb5a-35b6ffa13719 i915.vbt_firmware=i915/modified_vbt nvme_core.default_ps_max_latency_us=0 snd_hda_intel.power_save=10"
+KERNEL_CMDLINE[default]+="nvidia-drm.modeset=1 quiet nowatchdog i915.enable_psr=2 i915.enable_fbc=1 i915.enable_dc=4 iwlwifi.power_save=1 rw rootflags=subvol=/@ root=UUID=f7d828f3-6031-4f9b-a164-fed7f21a082b tpm_tis.interrupts=0 resume=UUID=89bc64d4-f652-4586-bb5a-35b6ffa13719 i915.vbt_firmware=i915/modified_vbt nvme_core.default_ps_max_latency_us=0 snd_hda_intel.power_save=10"
 BOOT_ORDER="*, *lts, *fallback, Snapshots"
 ```
 Apply: `sudo limine-update`

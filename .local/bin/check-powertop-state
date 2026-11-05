@@ -1,0 +1,188 @@
+#!/usr/bin/env bash
+# check-powertop-state - verify that TLP and power rules cover powertop.service
+# without running powertop --auto-tune or changing any system state.
+
+set -u
+
+warnings=0
+
+pass() {
+    printf '[ OK ] %s\n' "$*"
+}
+
+warn() {
+    printf '[WARN] %s\n' "$*"
+    warnings=$((warnings + 1))
+}
+
+info() {
+    printf '[INFO] %s\n' "$*"
+}
+
+read_value() {
+    local file=$1
+    if [[ -r "$file" ]]; then
+        cat "$file"
+    fi
+}
+
+echo '=== Powertop replacement check (read-only) ==='
+echo
+
+systemctl_enabled=''
+systemctl_active=''
+systemctl_enabled_output=$(systemctl is-enabled powertop.service 2>&1) || true
+systemctl_active_output=$(systemctl is-active powertop.service 2>&1) || true
+
+if [[ "$systemctl_enabled_output" == *'Failed to connect to system scope bus'* ||
+      "$systemctl_active_output" == *'Failed to connect to system scope bus'* ]]; then
+    info 'could not query systemd state from this session; run with system bus access for service checks'
+else
+    systemctl_enabled=$systemctl_enabled_output
+    systemctl_active=$systemctl_active_output
+    if [[ "$systemctl_enabled" == enabled ]]; then
+        warn 'powertop.service is still enabled'
+    else
+        pass "powertop.service is $systemctl_enabled"
+    fi
+
+    if [[ "$systemctl_active" == active ]]; then
+        warn 'powertop.service is currently active'
+    else
+        pass "powertop.service is $systemctl_active"
+    fi
+fi
+
+ac_online=''
+for supply in /sys/class/power_supply/*; do
+    [[ -f "$supply/type" ]] || continue
+    [[ $(read_value "$supply/type") == Mains ]] || continue
+    ac_online=$(read_value "$supply/online")
+    break
+done
+
+case "$ac_online" in
+    1)
+        power_state=AC
+        expected_usb=on
+        expected_runtime=on
+        ;;
+    0)
+        power_state=BATTERY
+        expected_usb=auto
+        expected_runtime=auto
+        ;;
+    *)
+        power_state=UNKNOWN
+        expected_usb=''
+        expected_runtime=''
+        warn 'could not determine AC/battery state'
+        ;;
+esac
+info "power source: $power_state"
+
+tlp_state=$(systemctl is-active tlp.service 2>&1) || true
+if [[ "$tlp_state" == *'Failed to connect to system scope bus'* ]]; then
+    info 'could not query TLP state from this session'
+elif [[ "$tlp_state" == active ]]; then
+    pass 'TLP is active'
+else
+    warn "TLP is $tlp_state; it cannot replace powertop runtime power tuning"
+fi
+
+echo
+echo '--- USB controls ---'
+usb_count=0
+usb_bad=0
+usb_denylist_found=0
+for device in /sys/bus/usb/devices/*; do
+    [[ -f "$device/idVendor" && -f "$device/idProduct" ]] || continue
+    [[ -r "$device/power/control" ]] || continue
+
+    usb_count=$((usb_count + 1))
+    vendor_product="$(read_value "$device/idVendor"):$(read_value "$device/idProduct")"
+    actual=$(read_value "$device/power/control")
+    expected="$expected_usb"
+
+    if [[ "$vendor_product" == 17ef:60a9 ]]; then
+        expected=on
+        usb_denylist_found=$((usb_denylist_found + 1))
+    fi
+
+    if [[ -n "$expected" && "$actual" != "$expected" ]]; then
+        warn "$vendor_product at ${device##*/}: power/control=$actual (expected $expected)"
+        usb_bad=$((usb_bad + 1))
+    fi
+done
+
+if (( usb_count == 0 )); then
+    info 'no USB devices with readable power/control found'
+elif (( usb_bad == 0 )); then
+    pass "$usb_count USB devices match the current power policy"
+fi
+
+if (( usb_denylist_found > 0 )); then
+    pass "USB denylist device 17ef:60a9 is present and checked"
+else
+    info 'USB denylist device 17ef:60a9 is not currently connected'
+fi
+
+echo
+echo '--- PCI runtime power management ---'
+pci_count=0
+pci_bad=0
+for control in /sys/bus/pci/devices/*/power/control; do
+    [[ -r "$control" ]] || continue
+    pci_count=$((pci_count + 1))
+    actual=$(read_value "$control")
+    if [[ -n "$expected_runtime" && "$actual" != "$expected_runtime" ]]; then
+        if (( pci_bad < 12 )); then
+            warn "${control%/power/control}: power/control=$actual (expected $expected_runtime)"
+        fi
+        pci_bad=$((pci_bad + 1))
+    fi
+done
+
+if (( pci_count == 0 )); then
+    info 'no PCI runtime power controls found'
+elif (( pci_bad == 0 )); then
+    pass "$pci_count PCI devices match the TLP runtime-PM policy"
+else
+    warn "$pci_bad of $pci_count PCI devices differ from the TLP runtime-PM policy"
+fi
+
+echo
+echo '--- common powertop/TLP tunables ---'
+if [[ -r /sys/module/snd_hda_intel/parameters/power_save ]]; then
+    info "snd_hda_intel.power_save=$(read_value /sys/module/snd_hda_intel/parameters/power_save)"
+fi
+
+if [[ -r /sys/module/iwlwifi/parameters/power_save ]]; then
+    info "iwlwifi.power_save=$(read_value /sys/module/iwlwifi/parameters/power_save)"
+fi
+
+if [[ -r /sys/module/pcie_aspm/parameters/policy ]]; then
+    info "pcie_aspm.policy=$(read_value /sys/module/pcie_aspm/parameters/policy)"
+fi
+
+epp_values=''
+for epp in /sys/devices/system/cpu/cpufreq/policy*/energy_performance_preference; do
+    [[ -r "$epp" ]] || continue
+    value=$(read_value "$epp")
+    case " $epp_values " in
+        *" $value "*) ;;
+        *) epp_values+=" $value" ;;
+    esac
+done
+if [[ -n "$epp_values" ]]; then
+    info "CPU energy_performance_preference:$epp_values"
+fi
+
+echo
+if (( warnings == 0 )); then
+    pass 'No replacement gaps detected'
+    exit 0
+else
+    warn "$warnings issue(s) need attention"
+    exit 1
+fi
