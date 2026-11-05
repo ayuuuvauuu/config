@@ -169,6 +169,11 @@ bindsym --to-code $Mod+Tab layout toggle splitv splith
 
 # switch to workspace with urgent window
 for_window [urgent="latest"] focus
+# Firefox launched by sway-firefox-redirect is moved in the background.
+# The script temporarily sets focus_on_window_activation to none while it
+# launches Firefox, then restores this normal focus behavior.
+no_focus [app_id="firefox"]
+no_focus [class="Firefox"]
 focus_on_window_activation   focus
 
 
@@ -195,7 +200,7 @@ client.placeholder      $border_bg    $border_bg  #bbbbbb  $border_bg    $border
 
 smart_gaps off
 smart_borders on
-gaps inner 4
+gaps inner 0
 gaps outer 0
 # hide_edge_borders smart
 
