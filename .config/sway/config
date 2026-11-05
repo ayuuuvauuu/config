@@ -200,8 +200,14 @@ client.placeholder      $border_bg    $border_bg  #bbbbbb  $border_bg    $border
 
 smart_gaps off
 smart_borders on
-gaps inner 0
+gaps inner 3
 gaps outer 0
+# Cancel the inner gap at workspace edges; keep 5px only between windows.
+gaps outer -5
+gaps top -5
+gaps right -5
+gaps bottom -5
+gaps left -5
 # hide_edge_borders smart
 
 # changing border style
