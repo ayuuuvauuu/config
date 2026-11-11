@@ -120,3 +120,4 @@ Notes/bitsat
 !.config/systemd/
 !.config/systemd/user/
 !.config/systemd/user/fix-*.service
+/Notes/exams-pass
