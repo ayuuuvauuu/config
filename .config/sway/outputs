@@ -3,7 +3,7 @@ output "*" {
 }
 
 output "eDP-1" {
-    mode 1920x1080@60Hz
+    mode 1920x1080@144hz
     pos 0 0
     transform normal
     scale 1
