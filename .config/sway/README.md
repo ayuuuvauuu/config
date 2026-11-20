@@ -50,7 +50,7 @@ cd conf-enabled
 ln -s ../conf-available/scratchpads-select.conf
 ```
 
-Keybinding: **$mod+Alt+w**
+Keybinding: **$mod+Shift+w**
 
 ### Autolayouting
 
@@ -109,6 +109,8 @@ ln -s ../waybar-available/style-light.css style.css
 * Make a screenshot(you need the [grim](https://github.com/emersion/grim) and [slurp](https://github.com/emersion/slurp)): **$mod+c**
 * Move window to the scratchpad: **$mod+Shift+minus**
 * Show scratchpad: **$mod+minus**
+* Search scratchpad windows: **$mod+Shift+w**
+* Select wallpaper: **$mod+Shift+g**
 * Show modeline for monitors configuration: **$mod+x**
 
 For a theme switching you need a [wal](https://github.com/dylanaraps/pywal)
