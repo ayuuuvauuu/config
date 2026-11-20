@@ -205,6 +205,11 @@ user_pref("gfx.content.skia-font-cache-size", 32);         // 32MB font cache; d
 user_pref("gfx.webrender.all", true);                      // enable WebRender + features
 user_pref("gfx.webrender.precache-shaders", true);         // smoother rendering (longer initial startup)
 user_pref("gfx.webrender.layer-compositor", true);         // improves YouTube performance
+user_pref("layers.acceleration.force-enabled", true);      // keep hardware compositing enabled
+user_pref("layers.offmainthreadcomposition.frame-rate", 144); // compositor target rate
+user_pref("gfx.display.max-frame-rate", 144);              // display frame-rate cap
+user_pref("gfx.display.frame-rate-divisor", 1);            // do not divide refresh rate
+user_pref("widget.wayland.vsync.enabled", true);           // use Wayland frame-callback VSync
 user_pref("gfx.canvas.accelerated.cache-items", 4096);     // default=8192; Chrome=4096
 user_pref("gfx.canvas.accelerated.cache-size", 512);       // default=256; Chrome=512
 
@@ -338,6 +343,10 @@ user_pref("browser.sessionstore.interval", 900000); // save session every 15 min
 /** LINUX ***/
 user_pref("geo.provider.use_geoclue", false); // [LINUX]
 user_pref("pdfjs.defaultZoomValue", "page-width"); // PDF zoom level
+
+/** DISPLAY / POWER ***/
+// Force Firefox's compositor/web rendering to 144 Hz.
+user_pref("layout.frame_rate", 144);
 
 /****************************************************************************
  * END: BETTERFOX                                                           *
