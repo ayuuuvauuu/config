@@ -11,7 +11,7 @@ layer_effects "notifications" {
 
 # SwayFX animations: window opening/closing, movement, resizing, and
 # workspace fade transitions. Set to 0 to disable.
-animation_duration_ms 250
+animation_duration_ms 160
 
 blur enable
 blur_passes 3

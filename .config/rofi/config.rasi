@@ -241,7 +241,7 @@ window {
     location:                    center;
     anchor:                      center;
     fullscreen:                  false;
-    width:                       700px;
+    width:                       1000px;
     x-offset:                    0px;
     y-offset:                    0px;
 

@@ -49,9 +49,9 @@ bindsym --no-repeat --to-code $Mod+Alt+v exec ~/.config/sway/scripts/ClipManager
 bindsym --no-repeat --to-code $Mod+Shift+r exec ~/.config/sway/scripts/change-refresh-rate.sh
 
 # Wofi
-bindsym --to-code $Mod+Space exec rofi -show drun
+bindsym --to-code $Mod+Space exec rofi -show drun -theme-str 'window { width: 800px; }'
 # Show all open windows (rofi window switcher)
-bindsym --to-code $Mod+w exec rofi -i -show window -theme-str 'window { width: 840px; }'
+bindsym --to-code $Mod+w exec rofi -i -show window
 # Search and focus a window in the scratchpad/floating-window list
 bindsym --to-code $Mod+Shift+w exec ~/.config/sway/scripts/floating_windows
 

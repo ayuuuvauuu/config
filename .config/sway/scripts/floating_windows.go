@@ -51,7 +51,7 @@ func main() {
 func execRofi(windows string) string {
 	var stdout bytes.Buffer
 
-	cmd := exec.Command(rofi, "-dmenu", "-i", "-p", "select floating window", "-theme-str", "window { width: 840px; }")
+	cmd := exec.Command(rofi, "-dmenu", "-i", "-p", "select floating window")
 
 	reader := strings.NewReader(windows)
 
