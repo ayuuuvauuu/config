@@ -9,6 +9,10 @@ sudo resolvectl flush-caches
 # install wifi hotspot app! #
 
 
+# max open files
+cat /proc/sys/fs/epoll/max_user_watches
+cat /proc/sys/user/max_inotify_instances
+change these to the as max as possible
 
 # nvidia.conf 
 options nvidia-drm modeset=1 fbdev=1
@@ -1100,11 +1104,30 @@ HandleLidSwitch=ignore
 ```
 Apply: `sudo systemctl restart systemd-logind`
 
-### NVIDIA — skip VRAM dump (fast suspend)
+### NVIDIA — hibernate compatibility / skip VRAM preservation
+
+The NVIDIA driver was aborting hibernate with `FBSR: could not reserve space for
+video memory preservation`. Disable NVIDIA's VRAM-preservation path so the
+kernel can complete hibernation:
+
 File: `/etc/modprobe.d/nvidia.conf`
 ```
-options nvidia NVreg_EnableS0ixPowerManagement=1 NVreg_PreserveVideoMemoryAllocations=0
+options nvidia NVreg_EnableS0ixPowerManagement=1
+options nvidia NVreg_PreserveVideoMemoryAllocations=0
 ```
+
+Apply the module option and rebuild the initramfs:
+```bash
+grep -q '^options nvidia .*NVreg_PreserveVideoMemoryAllocations=0' /etc/modprobe.d/nvidia.conf || sudo sed -i '/^options nvidia NVreg_EnableS0ixPowerManagement=/a options nvidia NVreg_PreserveVideoMemoryAllocations=0' /etc/modprobe.d/nvidia.conf
+sudo mkinitcpio -P
+sudo reboot
+```
+
+After reboot, verify it is loaded:
+```bash
+cat /sys/module/nvidia/parameters/NVreg_PreserveVideoMemoryAllocations
+```
+Expected output: `N`.
 
 ### i915 — PSR re-enabled with custom VBT
 
