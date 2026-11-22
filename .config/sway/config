@@ -136,8 +136,8 @@ bindsym --to-code $Mod+Down   focus down
 bindsym --to-code $Mod+Up     focus up
 bindsym --to-code $Mod+Right  focus right
 
-# move focus to the parent container
-bindsym --to-code $Mod+p      focus parent
+# switch to the previously focused window, including another workspace
+bindsym --no-repeat --to-code $Mod+p exec ~/.config/sway/scripts/previous-focus.sh --previous
 
 # move focused window
 bindsym --to-code $Mod+Shift+$left  move left
