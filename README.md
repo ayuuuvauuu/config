@@ -1210,7 +1210,7 @@ TimeoutStopSec=3
 `/etc/default/limine`:
 ```
 ESP_PATH="/boot"
-KERNEL_CMDLINE[default]+="nvidia-drm.modeset=1 quiet nowatchdog i915.enable_psr=2 i915.enable_fbc=1 i915.enable_dc=4 iwlwifi.power_save=1 rw rootflags=subvol=/@ root=UUID=f7d828f3-6031-4f9b-a164-fed7f21a082b tpm_tis.interrupts=0 resume=UUID=89bc64d4-f652-4586-bb5a-35b6ffa13719 i915.vbt_firmware=i915/modified_vbt nvme_core.default_ps_max_latency_us=0 snd_hda_intel.power_save=10"
+KERNEL_CMDLINE[default]+="nvidia-drm.modeset=1 quiet nowatchdog i915.enable_psr=2 i915.enable_fbc=1 i915.enable_dc=0 iwlwifi.power_save=1 rw rootflags=subvol=/@ root=UUID=f7d828f3-6031-4f9b-a164-fed7f21a082b tpm_tis.interrupts=0 resume=UUID=89bc64d4-f652-4586-bb5a-35b6ffa13719 i915.vbt_firmware=i915/modified_vbt nvme_core.default_ps_max_latency_us=0 snd_hda_intel.power_save=10"
 BOOT_ORDER="*, *lts, *fallback, Snapshots"
 ```
 Apply: `sudo limine-update`
