@@ -183,6 +183,18 @@ https://github.com/ayuuuvauuu/nvchad
 fzf_configure_bindings --help
 ```
 
+## Fiefox media controls
+
+Disable Firefox/Zen's built-in hardware media-key handling in `user.js` so
+media controls can be provided by MPRIS per tab. Install `zen-mpris-tabs`:
+
+```bash
+git clone https://github.com/Afesant/zen-mpris-tabs
+```
+
+Follow the repository's instructions to install or enable MPRIS per tab after
+cloning it. Restart Zen after changing `user.js`.
+
 ---
 # System Optimizations
 
