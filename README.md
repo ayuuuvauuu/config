@@ -152,10 +152,10 @@ grep -n 'DLAGENTS' -A6 ~/.config/pacman/makepkg.conf
 
 What the script sets in `/etc/pacman.conf [options]`:
 ```
-ParallelDownloads = 1
-XferCommand = /usr/bin/wget --passive-ftp -c --retry-connrefused --waitretry=1 --read-timeout=20 --timeout=15 -t 0 -O %o %u
+ParallelDownloads = 3
+XferCommand = /usr/local/bin/pacman-aria2 '%u' '%o'
 ```
-Note: `ParallelDownloads` is ignored when `XferCommand` is set (downloads are serial). Keep it at `1`. Revert: comment out `XferCommand` and set `ParallelDownloads = 10`.
+`--split=5` is aria2c's default split count, while `--max-connection-per-server=5` is explicit because aria2c otherwise defaults to one connection per server. `paru` uses this for repository packages; its AUR builds use the matching `DLAGENTS` above.
 
 
 ### Screen sharing
