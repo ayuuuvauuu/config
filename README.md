@@ -128,17 +128,18 @@ exec --no-startup-id systemctl --user start pipewire wireplumber xdg-desktop-por
 ```
 
 
-## Pacman / Paru downloads via wget (bad-network fix)
+## Pacman / Paru downloads via aria2c
 
-Why: default repo downloads use pacman's built-in downloader (`ParallelDownloads = 10`, no `XferCommand` in `/etc/pacman.conf`), and AUR sources use `curl --retry 3` (`DLAGENTS` in `/etc/makepkg.conf`). Both restart from zero when mobile-data/hotspot drops. `wget -c` resumes partial files and retries forever.
+Repository packages and AUR sources use aria2c with resume support, five connections per file, and three package downloads concurrently. The minimal aria2c display keeps the live readout while suppressing notice-level start/completion spam and the final result summary.
 
 How (2 paths, paru uses both):
 1. Repo packages (`pacman` + `paru -S`): `/etc/pacman.conf` — not git-tracked, applied via script.
 2. AUR sources (`makepkg` / `paru` builds): `~/.config/pacman/makepkg.conf` — git-tracked, works after `git clone`.
 
 Tracked files:
-- `.config/pacman/makepkg.conf` — `DLAGENTS` switched from `curl` to `wget -c --retry-connrefused --waitretry=1 --read-timeout=20 --timeout=15 -t 0`
-- `.local/bin/apply-pacman-wget` — idempotent script that sets the `/etc/pacman.conf` part
+- `.config/pacman/makepkg.conf` — HTTP/HTTPS/FTP `DLAGENTS` use aria2c with five connections and resume
+- `.local/bin/apply-pacman-wget` — idempotent script that sets the `/etc/pacman.conf` aria2c downloader
+- `.local/bin/pacman-aria2` — tracked source for the wrapper; the apply script installs it at `/usr/local/bin/pacman-aria2` so pacman's download sandbox can execute it. If a mirror rejects range requests, it automatically retries that file with one connection.
 - `paru.conf` needs no change (paru inherits pacman's downloader)
 
 Reproduce on fresh system:

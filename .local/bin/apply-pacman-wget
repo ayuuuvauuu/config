@@ -1,22 +1,23 @@
 #!/bin/bash
-# Apply wget downloader for pacman/paru (bad-network fix).
+# Apply aria2c downloader for pacman/paru.
 # /etc/pacman.conf is NOT git-tracked, so run this after a fresh install:
 #   sudo ~/.local/bin/apply-pacman-wget
-# AUR source downloads need no script: ~/.config/pacman/makepkg.conf is tracked in git.
+# AUR source downloads use ~/.config/pacman/makepkg.conf, which is tracked in git.
 set -euo pipefail
 CONF=/etc/pacman.conf
-WGET_LINE='XferCommand = /usr/bin/wget --passive-ftp -c --retry-connrefused --waitretry=1 --read-timeout=20 --timeout=15 -t 0 -O %o %u'
+WRAPPER=/usr/local/bin/pacman-aria2
+ARIA2_LINE="XferCommand = $WRAPPER '%u' '%o'"
 
-# 1. Serial downloads (XferCommand runs one file at a time, parallel setting is ignored)
+# Pacman's download sandbox may not be able to execute helpers from /home.
+install -Dm755 /home/ayu/.local/bin/pacman-aria2 "$WRAPPER"
+
+# Three package downloads concurrently; aria2c uses five connections per file.
 grep -q '^ParallelDownloads' "$CONF" \
-  && sed -i 's/^ParallelDownloads.*/ParallelDownloads = 1/' "$CONF" \
-  || sed -i '/^\[options\]/a ParallelDownloads = 1' "$CONF"
+  && sed -i 's/^ParallelDownloads.*/ParallelDownloads = 3/' "$CONF" \
+  || sed -i '/^\[options\]/a ParallelDownloads = 3' "$CONF"
 
-# 2. Use wget with resume (-c) + infinite retry (-t 0). Idempotent: replace if present, add if missing.
-if grep -q '^XferCommand' "$CONF"; then
-  sed -i "s|^XferCommand.*|$WGET_LINE|" "$CONF"
-else
-  sed -i "/^#XferCommand = \/usr\/bin\/wget.*/a $WGET_LINE" "$CONF"
-fi
+# Replace stale external downloader entries with one corrected aria2c command.
+sed -i '/^XferCommand[[:space:]]*=/d' "$CONF"
+sed -i "/^\[options\]/a $ARIA2_LINE" "$CONF"
 
 grep -n '^ParallelDownloads\|^XferCommand' "$CONF"
