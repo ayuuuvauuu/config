@@ -8,12 +8,12 @@ exec waybar
 exec awww-daemon
 exec nm-applet
 ##song notification
-exec ~/.config/sway/scripts/sway-notify-daemon.sh
-#exec systemctl --user start sway-notify-daemon.service
+#exec ~/.config/sway/scripts/sway-notify-daemon.sh
+##exec systemctl --user start sway-notify-daemon.service
 
 exec autotiling-rs
-# Track focus history for Mod+p (the script prevents duplicate listeners on reload).
-exec --no-startup-id ~/.config/sway/scripts/previous-focus.sh --daemon
+# Track the recent-focus stack for Mod+p/Mod+n (the script prevents duplicate listeners on reload).
+exec_always --no-startup-id ~/.config/sway/scripts/previous-focus.sh --daemon
 exec_always mako
 ## screen sharing
 exec --no-startup-id dbus-update-activation-environment --systemd \

@@ -70,7 +70,6 @@ bindsym --to-code $Mod+e            exec $editor
 bindsym --to-code $Mod+a            exec emacsclient -c
 bindsym --to-code $Mod+t            exec GTK_THEME=Adwaita:dark $filemanager
 bindsym --to-code $Mod+b            exec ~/.config/sway/scripts/sway-firefox-redirect.sh
-bindsym --to-code $Mod+Shift+p      exec ~/.config/rofi/scripts/powermenu_t3
 bindsym --to-code $Mod+Shift+n exec ~/.config/sway/scripts/notif-panel.sh --panel
 
 # Exit sway (default way to log you out of your Wayland session)
@@ -136,8 +135,9 @@ bindsym --to-code $Mod+Down   focus down
 bindsym --to-code $Mod+Up     focus up
 bindsym --to-code $Mod+Right  focus right
 
-# switch to the previously focused window, including another workspace
-bindsym --no-repeat --to-code $Mod+p exec ~/.config/sway/scripts/previous-focus.sh --previous
+# move down/up the recent-focus stack (up to 8 windows)
+bindsym --no-repeat --to-code $Mod+p exec ~/.config/sway/scripts/previous-focus.sh --prev
+bindsym --no-repeat --to-code $Mod+n exec ~/.config/sway/scripts/previous-focus.sh --next
 
 # move focused window
 bindsym --to-code $Mod+Shift+$left  move left
