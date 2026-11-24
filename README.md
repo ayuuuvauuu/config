@@ -128,34 +128,9 @@ exec --no-startup-id systemctl --user start pipewire wireplumber xdg-desktop-por
 ```
 
 
-## Pacman / Paru downloads via aria2c
+## Pacman / Paru downloads
 
-Repository packages and AUR sources use aria2c with resume support, five connections per file, and three package downloads concurrently. The minimal aria2c display keeps the live readout while suppressing notice-level start/completion spam and the final result summary.
-
-How (2 paths, paru uses both):
-1. Repo packages (`pacman` + `paru -S`): `/etc/pacman.conf` — not git-tracked, applied via script.
-2. AUR sources (`makepkg` / `paru` builds): `~/.config/pacman/makepkg.conf` — git-tracked, works after `git clone`.
-
-Tracked files:
-- `.config/pacman/makepkg.conf` — HTTP/HTTPS/FTP `DLAGENTS` use aria2c with five connections and resume
-- `.local/bin/apply-pacman-wget` — idempotent script that sets the `/etc/pacman.conf` aria2c downloader
-- `.local/bin/pacman-aria2` — tracked source for the wrapper; the apply script installs it at `/usr/local/bin/pacman-aria2` so pacman's download sandbox can execute it. If a mirror rejects range requests, it automatically retries that file with one connection.
-- `paru.conf` needs no change (paru inherits pacman's downloader)
-
-Reproduce on fresh system:
-```bash
-git clone <repo> ~   # restores .config/pacman/makepkg.conf automatically
-sudo ~/.local/bin/apply-pacman-wget
-grep -n '^ParallelDownloads\|^XferCommand' /etc/pacman.conf
-grep -n 'DLAGENTS' -A6 ~/.config/pacman/makepkg.conf
-```
-
-What the script sets in `/etc/pacman.conf [options]`:
-```
-ParallelDownloads = 3
-XferCommand = /usr/local/bin/pacman-aria2 '%u' '%o'
-```
-`--split=5` is aria2c's default split count, while `--max-connection-per-server=5` is explicit because aria2c otherwise defaults to one connection per server. `paru` uses this for repository packages; its AUR builds use the matching `DLAGENTS` above.
+Pacman uses its built-in downloader with `ParallelDownloads = 3`. AUR source downloads use the standard curl `DLAGENTS` in `~/.config/pacman/makepkg.conf`. `paru` inherits both settings from pacman and makepkg.
 
 
 ### Screen sharing
