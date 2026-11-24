@@ -8,9 +8,11 @@
 
 set -u
 
-STATE_FILE="${XDG_RUNTIME_DIR:-/tmp}/sway-focus-history-${UID}.txt"
-STATE_LOCK="${XDG_RUNTIME_DIR:-/tmp}/sway-focus-history-${UID}.lock"
-DAEMON_LOCK="${XDG_RUNTIME_DIR:-/tmp}/sway-focus-history-${UID}.daemon.lock"
+# Keep this explicitly in /tmp: it is disposable session state, and this also
+# works when XDG_RUNTIME_DIR is mounted read-only or is unavailable.
+STATE_FILE="/tmp/sway-focus-history-${UID}.txt"
+STATE_LOCK="/tmp/sway-focus-history-${UID}.lock"
+DAEMON_LOCK="/tmp/sway-focus-history-${UID}.daemon.lock"
 MAX_HISTORY=32
 
 current_container() {
