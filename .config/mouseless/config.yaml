@@ -6,7 +6,7 @@ devices:
 # startCommand: "setxkbmap de"
 
 # the default speed for mouse movement and scrolling
-baseMouseSpeed: 500.0
+baseMouseSpeed: 2000.0
 baseScrollSpeed: 20.0
 
 # the time it takes to accelerate to baseMouseSpeed (in ms), 0 to reach top speed immediately
@@ -26,11 +26,6 @@ layers:
   bindings:
     # when a is held activate mouse layer
     leftalt : tap-hold leftalt; toggle-layer mouse; 500
-    # right alt key toggles arrows layer
-    compose: toggle-layer arrows
-    # switch escape with capslock
-    esc: capslock
-    capslock: esc
 # a layer for mouse movement
 - name: mouse
   # when true, keys that are not mapped keep their original meaning
@@ -47,25 +42,8 @@ layers:
     k: move  0 -1
     p: scroll up
     n: scroll down
-    a: speed 6.0
-    e: speed 0.3
-    capslock: speed 0.1
+    a: speed 3
+    capslock: speed 0.2
     f: button left
     d: button middle
     s: button right
-    # move to the top left corner
-    k0: "exec xdotool mousemove 0 0"
-# another layer for arrows and some other keys
-- name: arrows
-  passThrough: false
-  bindings:
-    e: up
-    s: left
-    d: down
-    f: right
-    q: esc
-    w: backspace
-    r: delete
-    v: enter
-    # _ is the wildcard key, which matches any key that is not mapped
-    _: rightalt+_
