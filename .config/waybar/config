@@ -14,20 +14,18 @@
  
  "modules-left": [
  	"sway/workspaces",
- 	"custom/separator#dot-line",
  	"temperature",
  	"custom/separator#blank", 
  	"cpu",
  	"custom/separator#blank", 
  	"memory",
  	"custom/separator#blank_3", 
-
     "custom/playerctl"
  	],
  
  "modules-center": [
  	"custom/notifications",
- 	"clock#3",
+ 	"clock",
  	"custom/lock"
  	], 
  
@@ -40,7 +38,6 @@
     "battery",
     "custom/separator#blank_2", 
     "pulseaudio",
- 	"custom/separator#dot-line",
  	"pulseaudio#microphone",
  	"custom/power#1" // using rofi power use only power if u want normal
  	]
